@@ -24,7 +24,12 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   // Hybrid+adapter is required to support embedded Sanity Studio
   output: "hybrid",
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    runtime: {
+      mode: "local",
+      type: "pages",
+    },
+  }),
   integrations: [
     sanity({
       projectId,
