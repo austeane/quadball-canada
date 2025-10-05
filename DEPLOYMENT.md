@@ -133,21 +133,38 @@ The project now uses static output instead of SSR with Cloudflare adapter:
 - React 19 works fine in static mode (no Workers runtime)
 - Build tested successfully: generates 2 static pages
 
-## Next Steps for Deployment
+**✅ Deployed:**
+- **Frontend**: https://quadball-canada.pages.dev (or https://60bc0fa0.quadball-canada.pages.dev)
+- **Sanity Studio**: https://quadball-canada.sanity.studio
 
-1. Push these changes to your repository
-2. In Cloudflare Pages, verify build settings:
-   - **Build command**: `npm run build --workspace=astro-app` (if root is project directory)
-   - **Build output directory**: `astro-app/dist`
-   - OR set **Root directory** to `astro-app` and use:
-     - **Build command**: `npm run build`
-     - **Build output directory**: `dist`
-3. Ensure environment variables are set in Pages (Settings → Environment variables):
-   - `PUBLIC_SANITY_STUDIO_PROJECT_ID="kbufa3g3"`
-   - `PUBLIC_SANITY_STUDIO_DATASET="production"`
-4. Trigger a new deployment
-5. Verify deployed site shows the "Welcome to Quadball Canada" post
-6. Deploy Studio separately (optional): `cd studio && npx sanity deploy`
+## Content Management
+
+To edit content:
+1. Visit https://quadball-canada.sanity.studio
+2. Log in with your Sanity account
+3. Create/edit posts in the CMS
+4. Changes are saved immediately to Sanity
+
+**Important**: The static site won't update automatically after content changes. You need to manually rebuild:
+
+```bash
+# Build the site
+npm run build
+
+# Deploy to Cloudflare Pages
+npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
+```
+
+For automatic rebuilds when content changes, set up a Sanity webhook (see "Automatic Deployments" section below).
+
+## Automatic Deployments (Optional)
+
+To automatically rebuild the site when content changes in Sanity:
+
+1. Set up a GitHub Action or Cloudflare Pages webhook
+2. In Sanity Studio dashboard, go to **API → Webhooks**
+3. Create webhook pointing to your build trigger URL
+4. Now content updates will automatically trigger rebuilds
 
 ## Local Development
 
