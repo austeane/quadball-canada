@@ -1,0 +1,18 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import NewsCard from "../../components/content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "../../utils/sanity";
+
+const locale: Locale = "en";
+const articles = await getNewsArticles(locale);
+---
+
+<Layout title="News" alternate={{ en: "/news/", fr: "/fr/nouvelles/" }}>
+  <section>
+    {articles.length ? (
+      articles.map((article) => <NewsCard article={article} />)
+    ) : (
+      <p>No news yet.</p>
+    )}
+  </section>
+</Layout>

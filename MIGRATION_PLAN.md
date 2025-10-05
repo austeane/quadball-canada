@@ -67,8 +67,8 @@
 ## 2. Migration Strategy - 6 Week Timeline
 
 ### Phase 1: Foundation & i18n (Week 1)
-- [ ] Sanity project with `staging` and `production` datasets
-- [ ] Document-level i18n with `@sanity/document-internationalization`
+- [ ] Sanity project with production dataset configured (introduce `staging` once needed)
+- [ ] Field-level i18n using custom `locale*` object helpers for EN/FR content
 - [ ] Astro base layout + navigation with language routing (`/` EN, `/fr/` FR)
 - [ ] Editor RBAC: Contributors, Editors, Publishers with Google SSO
 - [ ] Preview mode: Astro preview route with Sanity draft token
@@ -122,7 +122,7 @@
 ## 3. Sanity Schema Design
 
 ### i18n Strategy
-Use **document-level localization** with localized slugs and SEO per language. Each document has language variants with the same `baseId`.
+Use **field-level localization** via shared `localeString`, `localeText`, `localeSlug`, and `localePortableText` objects. Each document stores EN/FR variants together so localized slugs, SEO, and content stay in sync while keeping a single document ID. The `supportedLanguages` helper controls defaults and validation.
 
 ### Shared Types
 
@@ -172,24 +172,28 @@ export default {
 ### Content Models
 
 ```javascript
-// 1. Post/Article - Enhanced
+// 1. News Article - Enhanced
 {
-  title: string (required),
-  slug: slug (unique per locale),
+  title: localeString (required),
+  slug: localeSlug (unique per locale),
   publishedAt: datetime (required),
-  author: reference(person),
+  author: reference(author),
   categories: array(reference(category)),
   tags: array(string),
-  excerpt: localeString,
-  body: portableText (with image, file, youtube blocks),
-  featuredImage: imageWithMeta,
+  excerpt: localeText,
+  content: localePortableText (supports image, file, and embed blocks),
+  featuredImage: {
+    asset: image,
+    alt: localeString
+  },
   readingTime: number (auto-calculated),
   featured: boolean,
-  related: array(reference(post)),
-  seo: seo,
-  // Document-level i18n handled by plugin
-  language: string,
-  baseId: string
+  related: array(reference(newsArticle)),
+  seo: {
+    metaTitle: localeString,
+    metaDescription: localeText,
+    ogImage: image
+  }
 }
 
 // 2. Event - Production Ready
@@ -396,7 +400,7 @@ components/
 │   ├── Breadcrumbs.astro
 │   └── Pagination.astro
 ├── content/
-│   ├── PostCard.astro
+│   ├── NewsCard.astro
 │   ├── EventCard.astro
 │   ├── TeamCard.astro
 │   ├── PersonCard.astro
@@ -466,7 +470,7 @@ pages/
 scripts/
 ├── wp-to-sanity/
 │   ├── config.js
-│   ├── migrate-posts.js
+│   ├── migrate-news-articles.ts
 │   ├── migrate-pages.js
 │   ├── migrate-media.js
 │   ├── migrate-users.js
@@ -481,20 +485,23 @@ scripts/
 ### Migration Scripts
 
 ```javascript
-// scripts/wp-to-sanity/migrate-posts.js
+// scripts/wp-to-sanity/migrate-news-articles.ts
 import { parseStringPromise } from 'xml2js';
 import { createClient } from '@sanity/client';
 import { htmlToBlocks } from '@sanity/block-tools';
 import { JSDOM } from 'jsdom';
+// Helpers (normalizeSlug, decodeEntities, stripHtml, resolveAuthorReference, resolveCategoryReferences, mapFeaturedImage)
+// live in scripts/wp-to-sanity/utils
 
 const client = createClient({
   projectId: process.env.SANITY_PROJECT_ID,
-  dataset: 'staging',
+  dataset: 'production',
   token: process.env.SANITY_TOKEN,
-  useCdn: false
+  apiVersion: '2024-12-01',
+  useCdn: false,
 });
 
-const migratePost = async (wpPost) => {
+const migrateNewsArticle = async (wpPost) => {
   const { window } = new JSDOM(wpPost.content);
 
   // Handle Divi shortcodes
@@ -506,42 +513,54 @@ const migratePost = async (wpPost) => {
 
   // Convert to Portable Text
   const blocks = htmlToBlocks(content, {
-    parseHtml: (html) => window.document.createElement('div').innerHTML = html
+    parseHtml: (html) => (window.document.createElement('div').innerHTML = html),
   });
 
-  // Create Sanity document for each language
-  const baseId = generateBaseId(wpPost.slug);
+  const baseSlug = normalizeSlug(wpPost.slug);
 
-  // English version
-  const enDoc = {
-    _type: 'post',
-    _id: `post.${baseId}.en`,
-    title: wpPost.title,
-    slug: { current: wpPost.slug },
+  const authorRef = await resolveAuthorReference(wpPost.creator, client);
+  const categoryRefs = await resolveCategoryReferences(wpPost.categories, client);
+  const featuredImage = await mapFeaturedImage(wpPost.featured_media, client);
+
+  const document = {
+    _type: 'newsArticle',
+    _id: `newsArticle.${baseSlug}`,
+    title: {
+      en: decodeEntities(wpPost.title),
+      fr: '', // Placeholder until translation ready
+    },
+    slug: {
+      en: { current: baseSlug },
+      fr: { current: `${baseSlug}-fr` },
+    },
     publishedAt: wpPost.date,
-    body: blocks,
-    language: 'en',
-    baseId,
-    excerpt: { en: wpPost.excerpt, fr: '' },
+    author: authorRef,
+    categories: categoryRefs,
+    excerpt: {
+      en: stripHtml(wpPost.excerpt),
+      fr: '',
+    },
+    content: {
+      en: blocks,
+      fr: [],
+    },
+    featuredImage,
+    featured: wpPost.meta?._quadball_featured === '1',
     seo: {
-      title: wpPost.yoast?.title || wpPost.title,
-      description: wpPost.yoast?.description || wpPost.excerpt
-    }
+      metaTitle: {
+        en: wpPost.yoast?.title || decodeEntities(wpPost.title),
+        fr: '',
+      },
+      metaDescription: {
+        en: wpPost.yoast?.description || stripHtml(wpPost.excerpt),
+        fr: '',
+      },
+    },
   };
 
-  // French placeholder
-  const frDoc = {
-    ...enDoc,
-    _id: `post.${baseId}.fr`,
-    language: 'fr',
-    slug: { current: `${wpPost.slug}-fr` },
-    excerpt: { en: '', fr: '[À traduire]' }
-  };
+  await client.createOrReplace(document);
 
-  await client.createOrReplace(enDoc);
-  await client.createOrReplace(frDoc);
-
-  return { oldUrl: wpPost.link, newUrl: `/news/${wpPost.slug}` };
+  return { oldUrl: wpPost.link, newUrl: `/news/${baseSlug}` };
 };
 
 // Build redirect map
@@ -549,13 +568,13 @@ const buildRedirects = async (mappings) => {
   const redirects = mappings.map(({ oldUrl, newUrl }) => ({
     from: new URL(oldUrl).pathname,
     to: newUrl,
-    status: 301
+    status: 301,
   }));
 
   // Add legacy brand redirects
   redirects.push(
     { from: '/quidditch/*', to: '/quadball/$1', status: 301 },
-    { from: '/category/*', to: '/news/category/$1', status: 301 }
+    { from: '/category/*', to: '/news/category/$1', status: 301 },
   );
 
   return redirects;
@@ -570,7 +589,7 @@ const buildRedirects = async (mappings) => {
 ```javascript
 // scripts/algolia-setup.js
 const indices = {
-  'quadball_posts_en': {
+  'quadball_news_en': {
     searchableAttributes: ['title', 'excerpt', 'content', 'categories', 'tags'],
     customRanking: ['desc(publishedAt)'],
     attributesToSnippet: ['content:50'],
@@ -580,7 +599,7 @@ const indices = {
       { objectID: '3', type: 'synonym', synonyms: ['QC', 'Quebec', 'Québec'] }
     ]
   },
-  'quadball_posts_fr': {
+  'quadball_news_fr': {
     searchableAttributes: ['title', 'excerpt', 'content', 'categories', 'tags'],
     customRanking: ['desc(publishedAt)'],
     attributesToSnippet: ['content:50'],
@@ -613,8 +632,17 @@ const client = algoliasearch(
 export const post: APIRoute = async ({ request }) => {
   const { _type, action, document, language } = await request.json();
 
-  const indexName = `quadball_${_type}s_${language}`;
-  const index = client.initIndex(indexName);
+  const indexPrefix = {
+    newsArticle: 'quadball_news',
+    team: 'quadball_teams',
+    event: 'quadball_events',
+  }[_type];
+
+  if (!indexPrefix) {
+    return new Response('Ignored', { status: 204 });
+  }
+
+  const index = client.initIndex(`${indexPrefix}_${language}`);
 
   if (action === 'delete') {
     await index.deleteObject(document._id);
@@ -897,7 +925,7 @@ npm run monitor:launch
 - ✅ **Search**: CTR improved by 15% with Algolia
 
 ### Content Metrics
-- ✅ **Migration**: 100% of posts/pages transferred
+- ✅ **Migration**: 100% of news articles/pages transferred
 - ✅ **Media**: All images have alt text in at least one language
 - ✅ **Links**: < 1% broken internal links
 - ✅ **Translations**: 80% French coverage at launch

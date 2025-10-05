@@ -1,0 +1,40 @@
+---
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+
+interface Props {
+  currentPath: string;
+  alternate?: { en: string; fr: string };
+}
+
+const { currentPath, alternate } = Astro.props as Props;
+---
+<header class="site-header">
+  <a class="site-header__title" href="/">Quadball Canada</a>
+  <nav class="site-header__nav">
+    <a href="/news/">News</a>
+    <a href="/events/">Events</a>
+    <a href="/teams/">Teams</a>
+    <a href="/about/">About</a>
+    <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .site-header__title {
+    font-weight: 800;
+    color: var(--black);
+    text-decoration: none;
+  }
+  .site-header__nav a {
+    margin-left: 12px;
+    color: var(--black);
+    text-decoration: none;
+  }
+</style>

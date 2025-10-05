@@ -1,0 +1,25 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getEvents, type Locale } from "../../utils/sanity";
+
+const locale: Locale = "en";
+const events = await getEvents(locale);
+---
+
+<Layout title="Events" alternate={{ en: "/events/", fr: "/fr/evenements/" }}>
+  <section>
+    <h1>Events</h1>
+    {events.length ? (
+      <ul>
+        {events.map((e) => (
+          <li>
+            <a href={`/events/${e.slug}`}>{e.title}</a> — {new Date(e.startDateTime).toLocaleString()}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No events yet.</p>
+    )}
+  </section>
+</Layout>
+

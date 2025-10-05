@@ -13,12 +13,14 @@
 - [ ] **React 19 Compatibility**: Switched from SSR to Static SSG due to Cloudflare Workers MessageChannel error
   - Impact: No dynamic SSR features, but improved performance
   - Decision: Accepted trade-off for better Core Web Vitals
-- [ ] **Sanity Studio Port Conflict**: Studio running on port 3334 instead of default 3333
-- [ ] **Missing concurrently package**: Root npm dev script needs fixing
+- [x] ~~**Sanity Studio Port Conflict**: Studio running on port 3334 instead of default 3333~~ *(2025-10-05: dev server back on 3333, keep monitoring)*
+- [ ] **Astro fetch utilities outdated**: `astro-app/src/utils/sanity.ts` still targets the legacy `post` type instead of `newsArticle`
+- [x] ~~**Astro fetch utilities outdated**~~: Updated to `getNewsArticles`/`getNewsArticle` with locale support
+- [x] ~~**Card component route mismatch**~~: Replaced with `NewsCard.astro` using `/news/` routes and localized fields
 - [ ] **GitHub Token in webhook-proxy.js**: Token exposed in code (needs secrets management)
 
 ### Technical Debt
-- [ ] Localization approach using document-level instead of field-level i18n
+- [ ] Translation workflow + editorial guidance for field-level locale objects (localeString/localeText)
 - [ ] No automated translation pipeline setup
 - [ ] Missing TypeScript interfaces for Sanity schemas in Astro app
 - [ ] Need to implement proper error boundaries for form components
@@ -27,7 +29,7 @@
 ### Deviations from Plan
 - ✅ Used Static SSG instead of Hybrid SSR (better performance, simpler deployment)
 - ✅ Implemented automated deployment via GitHub Actions + Cloudflare Worker proxy
-- ✅ Document-level i18n with localized slugs (more SEO-friendly than field-level)
+- ✅ Field-level i18n with localized slugs via locale objects (SEO-friendly URLs)
 
 ---
 
@@ -35,13 +37,13 @@
 
 ### Completed
 - [x] ~~Sanity project with `staging` and `production` datasets~~ *(Using single production dataset)*
-- [x] Document-level i18n with custom helpers *(Not using plugin, custom implementation)*
+- [x] Field-level i18n with custom helpers *(locale objects instead of Sanity plugin)*
 - [x] Created localization helpers (localeString, localeText, localeSlug, localePortableText)
 - [x] Git repository structure with CI/CD pipeline *(GitHub Actions + Cloudflare deployment)*
 - [x] Automated webhook deployment (Sanity → Worker → GitHub → Cloudflare)
 
 ### Pending
-- [ ] Astro base layout + navigation with language routing (`/` EN, `/fr/` FR)
+- [ ] Astro base layout + navigation with language routing (`/` EN, `/fr/` FR) *(Header/Footer added; EN/FR news routes live; language switcher pending)*
 - [ ] Editor RBAC: Contributors, Editors, Publishers with Google SSO
 - [ ] Preview mode: Astro preview route with Sanity draft token
 
@@ -68,21 +70,22 @@
 - User has WordPress admin access, database dump, and XML export available
 - Need to handle 100+ articles since 2016
 - Must preserve `/YYYY/MM/slug/` URL pattern for SEO
+- Populate locale fields with EN content + FR placeholders until translations supplied
 
 ---
 
 ## Phase 3: Core Experiences (Week 3)
 
 ### Todo
-- [ ] Homepage sections:
-  - [ ] Hero slider (5 slides with CTAs)
-  - [ ] News grid (6 latest posts)
-  - [ ] Sponsor section (VC Ultimate)
-  - [ ] 3 CTA blocks (Join Team, Standings, Volunteer)
-- [ ] News listing/detail pages with pagination
-- [ ] About/Play static pages
-- [ ] Team directory with filters (province, level, status)
-- [ ] Bilingual navigation + breadcrumbs + 404 page
+- [x] Homepage sections:
+  - [x] Hero slider (static placeholder)
+  - [x] News grid (shows latest articles)
+  - [x] Sponsor section (VC Ultimate link)
+  - [x] 3 CTA blocks (Join Team, Standings, Volunteer)
+- [x] News listing/detail pages (EN/FR) with localized slugs
+- [x] About/Play static pages (placeholder content)
+- [x] Team directory (basic list; filters pending)
+- [x] Bilingual navigation + language switcher + hreflang
 - [ ] Basic search functionality
 
 ### Notes
@@ -95,7 +98,7 @@
 
 ### Todo
 - [ ] Events calendar with timezone support & recurrence (RRULE)
-- [ ] ICS feed generation + "Add to Calendar" functionality
+- [x] ICS feed generation + "Add to Calendar" functionality (endpoint at /events.ics)
 - [ ] Algolia search with bilingual indices & synonyms
 - [ ] Newsletter integration (MailChimp) with Turnstile protection
 - [ ] Contact form → Sanity + email notifications (Postmark)
@@ -114,11 +117,11 @@
   - [ ] LCP < 2.5s
   - [ ] CLS < 0.10
   - [ ] INP < 200ms (replaces TTI)
-- [ ] hreflang tags + per-locale sitemaps with alternates
+- [x] hreflang tags on pages + base sitemap.xml and robots.txt endpoints
 - [ ] Open Graph image generation for posts/events
 - [ ] WCAG 2.2 AA compliance audit
 - [ ] Security headers (CSP, Referrer-Policy)
-- [ ] Cookie consent banner (PIPEDA/Law 25 compliance)
+- [x] Cookie consent banner (basic)
 
 ### Notes
 - Target 10x performance improvement over WordPress
@@ -193,7 +196,7 @@
 
 ### UI Components
 - [ ] Button.astro
-- [ ] Card.astro
+- [ ] Card.astro *(legacy version exists; update to use `newsArticle`, localized strings, and `/news/` routes)*
 - [ ] Badge.astro
 - [ ] Modal.astro
 - [ ] Tabs.astro
@@ -201,7 +204,7 @@
 - [ ] Pagination.astro
 
 ### Content Components
-- [ ] PostCard.astro
+- [ ] NewsCard.astro *(rename from PostCard to align with schema)*
 - [ ] EventCard.astro
 - [ ] TeamCard.astro
 - [ ] PersonCard.astro
@@ -256,7 +259,7 @@
 - [ ] Search: CTR improved by 15% with Algolia
 
 ### Content
-- [ ] Migration: 100% of posts/pages transferred
+- [ ] Migration: 100% of news articles/pages transferred
 - [ ] Media: All images have alt text in at least one language
 - [ ] Links: < 1% broken internal links
 - [ ] Translations: 80% French coverage at launch
@@ -270,9 +273,9 @@
   - Rationale: Better performance, simpler deployment, no server runtime needed
   - Impact: Lost dynamic SSR features but gained 10x performance improvement
 
-- **Decision**: Implemented document-level i18n instead of field-level
-  - Rationale: Better SEO with localized slugs, cleaner content management
-  - Impact: More complex queries but better URL structure
+- **Decision**: Implemented field-level i18n via locale object helpers
+  - Rationale: Keep EN/FR content in sync while preserving localized slugs for SEO
+  - Impact: Requires helper utilities in queries but simplifies editorial workflow
 
 - **Completed**: All Sanity schemas with full bilingual support
   - Teams, Players, Events, News, Pages, Settings
@@ -280,10 +283,10 @@
   - Timezone-aware event scheduling
 
 ### Next Steps
-1. Set up WordPress data export pipeline
-2. Create migration scripts for content
-3. Build core Astro components (Header, Navigation, Footer)
-4. Implement homepage with hero slider and news grid
+1. Update Astro utilities/components to use `newsArticle` schema + locale helpers
+2. Set up WordPress data export pipeline
+3. Create `migrate-news-articles.ts` script and redirect builder
+4. Build core Astro shell (Header, Navigation, Footer) and homepage sections
 
 ---
 
@@ -297,4 +300,4 @@
 
 ---
 
-*Last Updated: 2025-01-05 00:35 EST*
+*Last Updated: 2025-10-05 00:39 PDT*

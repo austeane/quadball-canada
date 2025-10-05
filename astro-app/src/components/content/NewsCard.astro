@@ -1,22 +1,23 @@
 ---
-import { formatDate } from "../utils";
-import { urlFor } from "../utils/image";
-import type { Post } from "../utils/sanity";
+import { formatDate } from "../../utils";
+import { urlFor } from "../../utils/image";
+import type { NewsArticleSummary } from "../../utils/sanity";
 
 interface Props {
-  post: Post;
+  article: NewsArticleSummary;
 }
 
-const { post } = Astro.props;
+const { article } = Astro.props;
+const featuredImage = article.featuredImage;
 ---
 
-<div class="card">
+<article class="card">
   {
-    post.mainImage ? (
+    featuredImage ? (
       <img
         class="card__cover"
-        src={urlFor(post.mainImage).width(500).height(300).url()}
-        alt={post.mainImage.alt || ""}
+        src={urlFor(featuredImage).width(600).height(360).url()}
+        alt={featuredImage.alt || ""}
       />
     ) : (
       <div class="card__cover--none" />
@@ -26,24 +27,23 @@ const { post } = Astro.props;
     <h3 class="card__title">
       <a
         class="card__link"
-        href={`/post/${post.slug.current}`}
+        href={`/news/${article.slug}`}
       >
-        {post.title}
+        {article.title}
       </a>
     </h3>
-    <p class="card__excerpt">{post.excerpt}</p>
+    {article.excerpt && <p class="card__excerpt">{article.excerpt}</p>}
     <p class="card__date">
-      {formatDate(post._createdAt)}
+      {formatDate(article.publishedAt)}
     </p>
   </div>
-</div>
+</article>
 
 <style>
   .card {
     display: flex;
     flex-direction: column;
     padding: var(--space-2);
-    padding: 9px;
     position: relative;
     border-bottom: 1px solid #ced2d9;
 
@@ -60,7 +60,7 @@ const { post } = Astro.props;
     & .card__cover--none {
       width: 100%;
       height: 231px;
-      background: var(--black);
+      background: #1b1b1b;
     }
 
     & .card__title {
@@ -68,7 +68,6 @@ const { post } = Astro.props;
       font-weight: 800;
       font-size: var(--font-size-7);
       line-height: var(--line-height-6);
-      letter-spacing: -0.025em;
       margin: var(--space-3) 0;
     }
 
@@ -84,7 +83,7 @@ const { post } = Astro.props;
       font-weight: 600;
       font-family: var(--font-family-sans);
       font-size: var(--font-size-1);
-      margin-top: calc(var(----space-4) + 7);
+      margin-top: var(--space-4);
     }
 
     & .card__link {
@@ -92,7 +91,7 @@ const { post } = Astro.props;
       text-decoration: none;
 
       &:hover {
-        opacity: 0.8;
+        opacity: 0.85;
         transition: 0.2s;
       }
 

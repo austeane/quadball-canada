@@ -1,29 +1,180 @@
 import { sanityClient } from "sanity:client";
 import type { PortableTextBlock } from "@portabletext/types";
-import type { ImageAsset, Slug } from "@sanity/types";
+import type { ImageAsset } from "@sanity/types";
 import groq from "groq";
 
-export async function getPosts(): Promise<Post[]> {
-  return await sanityClient.fetch(
-    groq`*[_type == "post" && defined(slug.current)] | order(_createdAt desc)`
-  );
+export type Locale = "en" | "fr";
+
+export interface SanityImageWithAlt {
+  _type: "image";
+  asset: ImageAsset;
+  alt?: string;
+  crop?: Record<string, unknown>;
+  hotspot?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
-export async function getPost(slug: string): Promise<Post> {
-  return await sanityClient.fetch(
-    groq`*[_type == "post" && slug.current == $slug][0]`,
-    {
-      slug,
-    }
-  );
-}
-
-export interface Post {
-  _type: "post";
-  _createdAt: string;
-  title?: string;
-  slug: Slug;
+export interface NewsArticleSummary {
+  _id: string;
+  slug: string;
+  title: string;
   excerpt?: string;
-  mainImage?: ImageAsset & { alt?: string };
-  body: PortableTextBlock[];
+  publishedAt: string;
+  featuredImage?: SanityImageWithAlt | null;
+}
+
+export interface NewsArticleDetail extends NewsArticleSummary {
+  content: PortableTextBlock[];
+  author?: {
+    _id: string;
+    name: string;
+    slug?: string;
+  } | null;
+  categories?: Array<{
+    _id: string;
+    title: string;
+    slug?: string;
+  }>;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface EventSummary {
+  _id: string;
+  slug: string;
+  title: string;
+  startDateTime: string;
+  endDateTime?: string;
+  timezone?: string;
+}
+
+export interface EventDetail extends EventSummary {
+  description?: string;
+  content?: PortableTextBlock[];
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface TeamSummary {
+  _id: string;
+  slug: string;
+  name: string;
+  city?: string;
+  province?: string;
+}
+
+export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "newsArticle" && defined(slug[$locale].current)] | order(publishedAt desc) {
+      _id,
+      publishedAt,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "featuredImage": featuredImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      }
+    }`,
+    { locale }
+  );
+}
+
+export async function getNewsArticle(
+  slug: string,
+  locale: Locale = "en"
+): Promise<NewsArticleDetail | null> {
+  const article = await sanityClient.fetch(
+    groq`*[_type == "newsArticle" && slug[$locale].current == $slug][0] {
+      _id,
+      publishedAt,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "content": coalesce(content[$locale], content.en),
+      "featuredImage": featuredImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      "author": author->{
+        _id,
+        name,
+        "slug": slug.current
+      },
+      "categories": categories[]->{
+        _id,
+        "title": coalesce(title[$locale], title.en),
+        "slug": select(defined(slug[$locale].current) => slug[$locale].current, slug.en.current)
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { slug, locale }
+  );
+
+  if (!article) {
+    return null;
+  }
+
+  return {
+    ...article,
+    content: article.content ?? [],
+  };
+}
+
+export async function getEvents(locale: Locale = "en"): Promise<EventSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "event" && defined(slug[$locale].current)] | order(startDateTime desc) {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      startDateTime,
+      endDateTime,
+      timezone
+    }`,
+    { locale }
+  );
+}
+
+export async function getEvent(slug: string, locale: Locale = "en"): Promise<EventDetail | null> {
+  return await sanityClient.fetch(
+    groq`*[_type == "event" && slug[$locale].current == $slug][0] {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      startDateTime,
+      endDateTime,
+      timezone,
+      "description": coalesce(description[$locale], description.en),
+      "content": coalesce(content[$locale], content.en)
+    }`,
+    { slug, locale }
+  );
+}
+
+export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "team" && defined(slug.current)] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      city,
+      province
+    }`
+  );
 }

@@ -1,0 +1,23 @@
+---
+import NewsCard from "../content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "../../utils/sanity";
+
+const locale: Locale = "en";
+const articles = await getNewsArticles(locale);
+---
+
+<section class="news-grid">
+  <h2>Latest News</h2>
+  {articles.length ? (
+    articles.slice(0, 6).map((a) => <NewsCard article={a} />)
+  ) : (
+    <p>No news yet.</p>
+  )}
+  <p><a class="btn-secondary" href="/news/">Browse all news</a></p>
+</section>
+
+<style>
+  .news-grid { padding: 24px 0; }
+  .btn-secondary { text-decoration: none; color: #1e61cd; font-weight: 700; }
+</style>
+

@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getTeams } from "../../utils/sanity";
+
+const teams = await getTeams('en');
+---
+
+<Layout title="Teams">
+  <section>
+    <h1>Teams</h1>
+    {teams.length ? (
+      <ul>
+        {teams.map((t) => (
+          <li>{t.name} — {t.city}{t.province ? `, ${t.province}` : ''}</li>
+        ))}
+      </ul>
+    ) : (
+      <p>No teams available.</p>
+    )}
+  </section>
+</Layout>
+

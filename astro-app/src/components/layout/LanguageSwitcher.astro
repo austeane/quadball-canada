@@ -1,0 +1,39 @@
+---
+interface Props {
+  currentPath: string;
+  alternate?: { en: string; fr: string };
+}
+
+const { currentPath, alternate } = Astro.props as Props;
+
+function mapTo(locale: 'en' | 'fr') {
+  if (alternate) return alternate[locale];
+
+  const path = currentPath || '/';
+  const isFr = path.startsWith('/fr/');
+  if (locale === 'fr') {
+    if (isFr) return path; // already fr
+    if (path.startsWith('/news')) return path.replace(/^\/news/, '/fr/nouvelles');
+    return '/fr/nouvelles/';
+  } else {
+    // en
+    if (!isFr) return path; // already en
+    if (path.startsWith('/fr/nouvelles')) return path.replace(/^\/fr\/nouvelles/, '/news');
+    return '/';
+  }
+}
+---
+
+<nav class="lang-switcher" aria-label="Language">
+  <a class="lang" data-language-switch="en" href={mapTo('en')}>EN</a>
+  <span class="sep">/</span>
+  <a class="lang" data-language-switch="fr" href={mapTo('fr')}>FR</a>
+  
+</nav>
+
+<style>
+  .lang-switcher { display: inline-flex; align-items: center; gap: 6px; }
+  .lang { color: var(--black); text-decoration: none; font-weight: 600; }
+  .sep { color: var(--gray-600); }
+</style>
+

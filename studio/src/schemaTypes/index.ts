@@ -1,5 +1,6 @@
 // Object types
 import blockContent from './objects/blockContent'
+import color from './objects/color'
 import ctaBlock from './objects/ctaBlock'
 import formEmbed from './objects/formEmbed'
 import {
@@ -38,6 +39,7 @@ export const schemaTypes = [
 
   // Objects
   blockContent,
+  color,
   localeString,
   localeText,
   localeSlug,

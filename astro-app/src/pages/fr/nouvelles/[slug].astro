@@ -1,45 +1,61 @@
 ---
 import type { InferGetStaticParamsType } from "astro";
 import { PortableText } from "astro-portabletext";
-import Layout from "../../layouts/Layout.astro";
-import { formatDate } from "../../utils";
-import { urlFor } from "../../utils/image";
-import { getPost, getPosts } from "../../utils/sanity";
+import Layout from "../../../layouts/Layout.astro";
+import { formatDate } from "../../../utils";
+import { urlFor } from "../../../utils/image";
+import { getNewsArticle, getNewsArticles, type Locale } from "../../../utils/sanity";
 
 export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((post) => ({
-    params: { slug: post.slug.current },
-  }));
+  const locale: Locale = "fr";
+  const articles = await getNewsArticles(locale);
+  return articles.map((article) => ({ params: { slug: article.slug } }));
 }
 
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 const { slug } = Astro.params as Params;
+const locale: Locale = "fr";
+const article = await getNewsArticle(slug, locale);
 
-const post = await getPost(slug);
+if (!article) {
+  throw new Error(`Article not found: ${slug}`);
+}
 ---
 
-<Layout title={post.title!}>
+<Layout
+  title={article.title}
+  alternate={{
+    en: `/news/${article.slugEn}`,
+    fr: `/fr/nouvelles/${article.slugFr}`,
+  }}
+>
+  <Fragment slot="head">
+    <meta name="description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={article.seo?.metaTitle ?? article.title} />
+    <meta property="og:description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    {article.featuredImage && (
+      <meta property="og:image" content={urlFor(article.featuredImage).width(1200).height(630).url()} />
+    )}
+  </Fragment>
   <section class="post">
     {
-      post.mainImage ? (
+      article.featuredImage ? (
         <img
           class="post__cover"
-          src={urlFor(post.mainImage).url()}
-          alt="Cover image"
+          src={urlFor(article.featuredImage).url()}
+          alt={article.featuredImage.alt || ""}
         />
       ) : (
         <div class="post__cover--none" />
       )
     }
     <div class="post__container">
-      <h1 class="post__title">{post.title}</h1>
-      <p class="post__excerpt">{post.excerpt}</p>
-      <p class="post__date">
-        {formatDate(post._createdAt)}
-      </p>
+      <h1 class="post__title">{article.title}</h1>
+      {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
+      <p class="post__date">{formatDate(article.publishedAt)}</p>
       <div class="post__content">
-        <PortableText value={post.body} />
+        <PortableText value={article.content} />
       </div>
     </div>
   </section>
@@ -73,7 +89,6 @@ const post = await getPost(slug);
       letter-spacing: -0.02em;
       margin-top: var(--space-6);
 
-      /* Targeting tags in PortableText */
       & blockquote {
         border-left: 5px solid var(--black);
         padding-left: var(--space-3);
