@@ -37,14 +37,19 @@ function isActive(href: string) {
     <a class="btn btn--primary" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
     <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
   </nav>
-  <script is:inline>
+  <script>
     function bindNavToggle(){
       const btn = document.querySelector('.nav-toggle');
       const nav = document.getElementById('site-nav');
       if (!btn || !nav) return;
-      btn.addEventListener('click', () => {
-        const open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', String(!open));
+
+      // Remove any existing listener by cloning and replacing
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode?.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener('click', () => {
+        const open = newBtn.getAttribute('aria-expanded') === 'true';
+        newBtn.setAttribute('aria-expanded', String(!open));
         nav.classList.toggle('open', !open);
       });
     }
@@ -63,7 +68,7 @@ function isActive(href: string) {
   .logo { height: 36px; width: auto; display: block; }
   .site-header__nav a { margin-left:16px; color: var(--brand-primary); text-decoration:none; font-weight:600; }
   .btn { display:inline-block; padding:.5rem .9rem; border-radius:6px; text-decoration:none; }
-  .btn--primary { background: var(--brand-primary); color: #fff; }
+  .btn--primary { background: var(--brand-primary); color: #fff !important; }
   .btn--secondary { background: #fff; border:1px solid var(--border); color: var(--text-strong); }
   .nav-toggle { display:none; border:1px solid var(--border); border-radius:6px; padding:.45rem .7rem; background:#fff; }
   @media (max-width: 768px){
