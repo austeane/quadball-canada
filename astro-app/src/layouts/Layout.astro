@@ -3,7 +3,6 @@
 import { ClientRouter } from 'astro:transitions';
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
-import CookieBanner from "../components/layout/CookieBanner.astro";
 
 interface Props {
   title: string;
@@ -76,7 +75,6 @@ const { title, alternate } = Astro.props as Props;
         <slot />
       </main>
       <Footer />
-      <CookieBanner />
     </div>
   </body>
 </html>
