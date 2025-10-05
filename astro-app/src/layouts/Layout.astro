@@ -1,6 +1,6 @@
 ---
-// https://docs.astro.build/en/guides/view-transitions/
-import { ViewTransitions } from 'astro:transitions';
+// Client-side routing + view transitions (Astro 5)
+import { ClientRouter } from 'astro:transitions';
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import CookieBanner from "../components/layout/CookieBanner.astro";
@@ -67,12 +67,12 @@ const { title, alternate } = Astro.props as Props;
         <link rel="alternate" hreflang="x-default" href={alternate.en} />
       </>
     )}
-    <ViewTransitions />
+    <ClientRouter />
   </head>
   <body>
     <div class="container">
       <Header currentPath={Astro.url.pathname} alternate={alternate} />
-      <main>
+      <main transition:animate="slide" transition:name="content">
         <slot />
       </main>
       <Footer />

@@ -193,3 +193,4 @@ CLI used:
 - `cd astro-app && npx npm-check-updates -u && npm install`
 - `cd studio && npx npm-check-updates -u && npm install`
 - `npm run build -w astro-app && npx wrangler pages deploy dist --project-name=quadball-canada`
+- Switched to Astro 5 ClientRouter and added `transition:animate="slide"` on `<main>`. Updated header script to rebind on `astro:page-load`.
