@@ -1,5 +1,5 @@
 ---
-// Client-side routing + view transitions (Astro 5)
+// Client-side routing (Astro 5)
 import { ClientRouter } from 'astro:transitions';
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
@@ -72,7 +72,7 @@ const { title, alternate } = Astro.props as Props;
   <body>
     <div class="container">
       <Header currentPath={Astro.url.pathname} alternate={alternate} />
-      <main transition:animate="slide" transition:name="content">
+      <main>
         <slot />
       </main>
       <Footer />
