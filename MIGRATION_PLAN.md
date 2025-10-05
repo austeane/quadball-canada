@@ -17,7 +17,9 @@
 > - Homepage title updated to “Quadball Canada — Official Site”.
 > - Added `preconnect` to `cdn.sanity.io` for image performance.
 > - Sitemap now generated via `@astrojs/sitemap`; robots points to `/sitemap-index.xml`.
-> - See `CHECKLIST.md` → “Visual polish updates (completed)” for granular items.
+> - Navigation expanded to include Get Involved, Media, Support, Contact, and Store (modeled after the legacy IA on quidditchcanada.com).
+> - Default SEO meta and fallback OG/Twitter image configured in `Layout.astro`.
+> - See `CHECKLIST.md` → “IA and SEO updates (completed)” for granular items.
 
 ### Technology Stack
 - **Platform**: WordPress (Elegant Themes/Divi)

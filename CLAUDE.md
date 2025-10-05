@@ -187,3 +187,4 @@ CLI used:
 - `cd astro-app && npm run build`
 - `cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "…" --commit-dirty=true`
 - `npm i -w astro-app @astrojs/sitemap`
+- `npm i -w astro-app zod` (dev server hot reload needed to clear overlay after install)

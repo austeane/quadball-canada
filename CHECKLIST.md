@@ -100,6 +100,11 @@
 - [x] Global type rhythm + corrected `IBM Plex Mono`
 - [x] Global container padding across breakpoints
 
+### IA and SEO updates (completed)
+- [x] Navigation expanded: Get Involved, Media, Support, Contact, Store
+- [x] Default SEO meta + fallback OG/Twitter image in Layout
+- [x] Dynamic sitemap via `@astrojs/sitemap`; robots points to `/sitemap-index.xml`
+
 ---
 
 ## Phase 4: Events, Search & Feeds (Week 4)

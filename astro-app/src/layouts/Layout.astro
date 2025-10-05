@@ -50,6 +50,16 @@ const { title, alternate } = Astro.props as Props;
 
     <slot name="head" />
     <title>{title}</title>
+    <meta name="description" content="Quadball Canada — official site. Building community through sport across Canada." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Quadball Canada" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content="Quadball Canada — official site. Building community through sport across Canada." />
+    <meta property="og:image" content="/hero-cover.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content="Quadball Canada — official site. Building community through sport across Canada." />
+    <meta name="twitter:image" content="/hero-cover.jpg" />
     {alternate && (
       <>
         <link rel="alternate" hreflang="en" href={alternate.en} />

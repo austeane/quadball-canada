@@ -10,10 +10,13 @@ const { currentPath, alternate } = Astro.props as Props;
 
 const navItems = [
   { href: "/news/", label: "News" },
-  { href: "/about/", label: "About" },
-  { href: "/play/", label: "Play" },
   { href: "/events/", label: "Events" },
   { href: "/teams/", label: "Teams" },
+  { href: "/get-involved/", label: "Get Involved" },
+  { href: "/media/", label: "Media" },
+  { href: "/support/", label: "Support" },
+  { href: "/about/", label: "About" },
+  { href: "/contact/", label: "Contact" },
 ];
 
 function isActive(href: string) {
@@ -30,6 +33,7 @@ function isActive(href: string) {
     {navItems.map((item) => (
       <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
     ))}
+    <a class="btn btn--secondary" href="https://www.vcultimate.com/" target="_blank" rel="noopener">Store</a>
     <a class="btn btn--primary" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
     <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
   </nav>
@@ -55,6 +59,7 @@ function isActive(href: string) {
   .site-header__nav a { margin-left:16px; color: var(--brand-primary); text-decoration:none; font-weight:600; }
   .btn { display:inline-block; padding:.5rem .9rem; border-radius:6px; text-decoration:none; }
   .btn--primary { background: var(--brand-primary); color: #fff; }
+  .btn--secondary { background: #fff; border:1px solid var(--border); color: var(--text-strong); }
   .nav-toggle { display:none; border:1px solid var(--border); border-radius:6px; padding:.45rem .7rem; background:#fff; }
   @media (max-width: 768px){
     .nav-toggle { display:block; }
