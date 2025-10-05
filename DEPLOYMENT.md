@@ -1,152 +1,106 @@
 # Quadball Canada - Deployment Documentation
 
-## Summary
+## Overview
 
-Astro + Sanity CMS is set up and builds locally. Deployment to Cloudflare Pages with the Cloudflare adapter and React 19 fails at runtime due to a Workers limitation (MessageChannel not available). This document captures verified behavior, how to reproduce, and practical paths to fix it.
+This is a fully automated Astro + Sanity CMS website with continuous deployment. Content changes in Sanity automatically trigger rebuilds and deploy to Cloudflare Pages.
 
-## What Was Accomplished
+## Architecture
 
-- Configured Cloudflare adapter (`@astrojs/cloudflare`) and build pipeline.
-- Created Sanity project (ID `kbufa3g3`) and published initial content.
-- Local build renders homepage and post at `/post/welcome-to-quadball-canada`.
+- **Frontend**: Static Astro site (SSG)
+- **CMS**: Sanity Studio for content management
+- **Hosting**: Cloudflare Pages
+- **CI/CD**: GitHub Actions
+- **Webhook Proxy**: Cloudflare Worker
 
-## Files Created/Modified
+## Live URLs
 
-- `astro-app/wrangler.toml`
-  ```toml
-  name = "quadball-canada"
-  compatibility_date = "2024-09-30"
-  pages_build_output_dir = "./dist"
-  compatibility_flags = ["nodejs_compat"]
-  ```
-- `astro-app/package.json`: uses `@astrojs/cloudflare@^11.1.0` and React 19.
-- `astro-app/astro.config.mjs`: Cloudflare adapter enabled, `output: "hybrid"`.
-- Root `package.json`: `build` script delegates to the Astro workspace.
-- `.env` files (untracked): `astro-app/.env`, `studio/.env`.
-
-## Environment Variables
-
-- Astro app (`astro-app/.env`):
-  ```
-  PUBLIC_SANITY_STUDIO_PROJECT_ID="kbufa3g3"
-  PUBLIC_SANITY_STUDIO_DATASET="production"
-  ```
-- Studio (`studio/.env`):
-  ```
-  SANITY_STUDIO_PROJECT_ID="kbufa3g3"
-  SANITY_STUDIO_DATASET="production"
-  ```
-- Cloudflare Pages: set the Astro app variables exactly as above (the `PUBLIC_...` names) in Settings → Variables for both Production and Preview.
-
-## Git Commits
-
-1. `d09c21e` — Configure Cloudflare Pages deployment
-2. `e192f11` — Add build script to root package.json
-3. `a171629` — Add Node.js compatibility for React 19
-
-## Verified Issues
-
-### 1) React 19 breaks in Cloudflare Workers
-
-- Error: `Uncaught ReferenceError: MessageChannel is not defined` during Workers startup.
-- Reproduced locally with Cloudflare Pages dev runtime:
-  ```bash
-  cd astro-app
-  npm run build
-  npx wrangler pages dev dist --port 8788 --local
-  ```
-  Expected: Workers fails to start with the MessageChannel error.
-- Cause: React 19’s scheduler initializes `MessageChannel` at module load; Cloudflare Workers runtime does not provide it.
-- Status: `compatibility_flags = ["nodejs_compat"]` and adapter runtime options do not resolve this.
-
-### 2) Pages build configuration alignment
-
-- The repo uses npm workspaces; ensure Cloudflare Pages builds the Astro app and publishes the right directory.
-- Two valid configurations:
-  - Use root as the project root:
-    - Build command: `npm run build --workspace=astro-app`
-    - Build output directory: `astro-app/dist`
-  - Or set Project Root Directory to `astro-app` in Pages:
-    - Build command: `npm run build`
-    - Build output directory: `dist`
-- If the `PUBLIC_SANITY_STUDIO_*` variables aren’t present at build time, prerender may produce the Welcome fallback instead of posts.
-
-## Deployment URLs
-
-- Cloudflare Pages (Production): https://quadball-canada.pages.dev
-- Sanity Studio (Local): http://localhost:3333
-- Astro Dev (Local): http://localhost:4321
-
-## Recommendations
-
-### Option 1 (Recommended): Static SSG
-
-If SSR isn’t required, switch to static output to avoid the Workers runtime entirely.
-
-1) Edit `astro-app/astro.config.mjs` and change to static output (remove the adapter):
-```js
-import {defineConfig} from 'astro/config'
-import sanity from '@sanity/astro'
-import react from '@astrojs/react'
-
-export default defineConfig({
-  output: 'static',
-  integrations: [
-    sanity({
-      projectId: process.env.PUBLIC_SANITY_STUDIO_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID,
-      dataset: process.env.PUBLIC_SANITY_STUDIO_DATASET || process.env.PUBLIC_SANITY_DATASET,
-      useCdn: false,
-      apiVersion: '2024-12-08',
-    }),
-    react(),
-  ],
-})
-```
-2) In Cloudflare Pages, use one of the build configurations from “Pages build configuration alignment”.
-
-Result: No Workers runtime; deploys as static assets; React 19 is fine client-side.
-
-### Option 2: Keep SSR, downgrade to React 18
-
-If you need SSR or an embedded Studio route under the Astro app, use React 18 which works in Workers today.
-
-```bash
-cd astro-app
-npm install react@^18.3.0 react-dom@^18.3.0 @types/react@^18.3.0 @types/react-dom@^18.3.0
-```
-
-### Option 3: Wait for React 19 support in Workers
-
-Track updates from Cloudflare Workers, `@astrojs/cloudflare`, and the Astro React integration.
-
-### Option 4: Use another platform for SSR with React 19
-
-If SSR with React 19 is required now, deploy to Vercel, Netlify, or Render.
-
-## Current Configuration
-
-**✅ Implemented: Static SSG (Option 1)**
-
-The project now uses static output instead of SSR with Cloudflare adapter:
-- `astro-app/astro.config.mjs`: Changed to `output: "static"`
-- Removed `@astrojs/cloudflare` dependency
-- React 19 works fine in static mode (no Workers runtime)
-- Build tested successfully: generates 2 static pages
-
-**✅ Deployed:**
-- **Frontend**: https://quadball-canada.pages.dev (or https://60bc0fa0.quadball-canada.pages.dev)
+- **Production Site**: https://quadball-canada.pages.dev
 - **Sanity Studio**: https://quadball-canada.sanity.studio
+- **Webhook Proxy**: https://sanity-webhook-proxy.austeane.workers.dev
 
-## Content Management
+## How It Works
 
-To edit content:
-1. Visit https://quadball-canada.sanity.studio
-2. Log in with your Sanity account
-3. Create/edit posts in the CMS
-4. Changes are saved immediately to Sanity
+1. **Content Editing**: Editors make changes in Sanity Studio
+2. **Publish**: Click publish to save changes to Sanity's cloud
+3. **Webhook**: Sanity sends webhook to Cloudflare Worker proxy
+4. **Proxy**: Worker transforms request and triggers GitHub Action
+5. **Build**: GitHub Action builds static site with latest content
+6. **Deploy**: Wrangler deploys to Cloudflare Pages
+7. **Live**: New content appears at production URL (~2 minutes total)
 
-**Important**: The static site won't update automatically after content changes. You need to manually rebuild:
+## Project Structure
 
+```
+quadball-canada/
+├── astro-app/           # Frontend Astro application
+│   ├── src/
+│   ├── public/
+│   └── astro.config.mjs # Static output configuration
+├── studio/              # Sanity Studio CMS
+│   ├── src/schemaTypes/
+│   └── sanity.cli.ts
+├── .github/workflows/   # GitHub Actions
+│   └── deploy-on-sanity-update.yml
+└── webhook-proxy.js     # Cloudflare Worker for webhook handling
+```
+
+## Configuration Details
+
+### Astro Configuration
+- **Output Mode**: `static` (pure SSG, no SSR)
+- **Framework**: React 19 (works fine in static mode)
+- **Build Output**: `astro-app/dist/`
+
+### Sanity Configuration
+- **Project ID**: `kbufa3g3`
+- **Dataset**: `production`
+- **Studio Host**: `quadball-canada`
+
+### Environment Variables
+
+**Local Development** (`.env` files):
+```bash
+# astro-app/.env
+PUBLIC_SANITY_STUDIO_PROJECT_ID="kbufa3g3"
+PUBLIC_SANITY_STUDIO_DATASET="production"
+
+# studio/.env
+SANITY_STUDIO_PROJECT_ID="kbufa3g3"
+SANITY_STUDIO_DATASET="production"
+```
+
+**GitHub Secrets** (for CI/CD):
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `PUBLIC_SANITY_STUDIO_PROJECT_ID`
+- `PUBLIC_SANITY_STUDIO_DATASET`
+
+### Webhook Configuration
+
+The Sanity webhook triggers the Cloudflare Worker proxy:
+- **Name**: Deploy via Proxy
+- **URL**: https://sanity-webhook-proxy.austeane.workers.dev
+- **Triggers**: Create, Update, Delete
+- **Dataset**: production
+
+## Development
+
+### Local Development
+```bash
+# Install dependencies
+npm install
+
+# Run both Astro and Studio
+npm run dev
+
+# Astro only (localhost:4321)
+npm run dev --workspace=astro-app
+
+# Studio only (localhost:3333)
+npm run dev --workspace=studio
+```
+
+### Manual Deployment
 ```bash
 # Build the site
 npm run build
@@ -155,41 +109,88 @@ npm run build
 npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
 ```
 
-For automatic rebuilds when content changes, set up a Sanity webhook (see "Automatic Deployments" section below).
+## Deployment URLs
 
-## Automatic Deployments (Optional)
+Each deployment creates two URLs:
+1. **Production URL**: `https://quadball-canada.pages.dev` - Always shows latest deployment
+2. **Preview URL**: `https://[hash].quadball-canada.pages.dev` - Unique URL for each deployment (useful for rollbacks)
 
-To automatically rebuild the site when content changes in Sanity:
+## Monitoring Deployments
 
-1. Set up a GitHub Action or Cloudflare Pages webhook
-2. In Sanity Studio dashboard, go to **API → Webhooks**
-3. Create webhook pointing to your build trigger URL
-4. Now content updates will automatically trigger rebuilds
-
-## Local Development
-
+### Check GitHub Actions
 ```bash
-# Start both Astro and Studio
-npm run dev
+# View recent runs
+gh run list --workflow="Deploy on Sanity Update" --limit 5
 
-# Start just Astro (localhost:4321)
-npm run dev --workspace=astro-app
-
-# Start just Studio (localhost:3333)
-npm run dev --workspace=studio
-
-# Build for production (Astro)
-npm run build
+# Watch a specific run
+gh run watch [RUN_ID]
 ```
 
-## Sanity Project Details
+### Check Sanity Webhooks
+```bash
+cd studio
+# List webhooks
+npx sanity hook list
 
-- Project ID: `kbufa3g3`
-- Dataset: `production`
-- Studio URL (after deploy): https://quadball-canada.sanity.studio
+# Check webhook logs
+npx sanity hook logs "Deploy via Proxy"
+```
+
+### Check Cloudflare Deployments
+```bash
+npx wrangler pages deployment list --project-name=quadball-canada
+```
 
 ## Troubleshooting
 
-- Welcome screen instead of posts: confirm Pages build settings, env vars, and that at least one post is published in the dataset.
-- Workers crash with MessageChannel error: use Option 1 (static) or Option 2 (React 18).
+### Content Not Updating
+1. Check webhook fired: `npx sanity hook logs "Deploy via Proxy"`
+2. Check GitHub Action ran: `gh run list --workflow="Deploy on Sanity Update"`
+3. Verify deployment succeeded: Check GitHub Action logs
+4. Clear browser cache and check production URL
 
+### Webhook Not Firing
+1. Verify webhook exists in Sanity dashboard
+2. Check webhook is enabled
+3. Ensure content was actually published (not just saved as draft)
+
+### Build Failures
+1. Check GitHub Action logs for errors
+2. Verify environment variables are set in GitHub Secrets
+3. Test build locally: `npm run build`
+
+## Rollback Procedure
+
+If a bad deployment occurs:
+1. Find the last good deployment URL from GitHub Actions logs
+2. Access the preview URL (e.g., `https://[hash].quadball-canada.pages.dev`)
+3. If needed, manually redeploy a previous commit:
+   ```bash
+   git checkout [GOOD_COMMIT]
+   npm run build
+   npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
+   ```
+
+## Adding New Content Types
+
+1. Define schema in `studio/src/schemaTypes/`
+2. Export in `studio/src/schemaTypes/index.ts`
+3. Add TypeScript types in `astro-app/src/utils/sanity.ts`
+4. Create GROQ queries to fetch content
+5. Build pages/components to display content
+6. Publish changes - deployment is automatic!
+
+## Security Notes
+
+- GitHub token in webhook proxy is read-only for repository dispatch
+- Cloudflare API token only has Pages edit permissions
+- Sanity webhook has no authentication (relies on obscure Worker URL)
+- All secrets are stored in GitHub Secrets and Cloudflare Workers
+
+## Performance
+
+- **Build Time**: ~1 minute
+- **Deploy Time**: ~30 seconds
+- **Total Update Time**: ~2 minutes from publish to live
+- **CDN**: Cloudflare global network
+- **Static Files**: No server runtime, instant response
