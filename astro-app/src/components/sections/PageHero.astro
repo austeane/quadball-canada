@@ -1,0 +1,121 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  image?: string; // /about-cover.jpg etc.
+}
+const { title, subtitle, ctaText, ctaHref, image = "/hero-cover.jpg" } = Astro.props as Props;
+---
+<section class="pagehero">
+  <img src={image} alt="" width="1920" height="560" class="pagehero__img" decoding="async" loading="eager" />
+  <div class="pagehero__overlay">
+    <div class="pagehero__content">
+      <h1 class="pagehero__title">{title}</h1>
+      {subtitle && <p class="pagehero__sub">{subtitle}</p>}
+      {ctaText && ctaHref && <a class="btn btn--hero" href={ctaHref}>{ctaText}</a>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .pagehero {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    margin-left: -50vw;
+    overflow: hidden;
+  }
+
+  .pagehero__img {
+    width: 100%;
+    height: 35vw;
+    max-height: 400px;
+    min-height: 280px;
+    object-fit: cover;
+    filter: saturate(90%);
+  }
+
+  .pagehero__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.60) 0%,
+      rgba(0,0,0,0.35) 60%,
+      rgba(0,0,0,0) 100%
+    );
+    padding: 24px;
+  }
+
+  .pagehero__content {
+    max-width: 800px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .pagehero__title {
+    color: #fff;
+    font-size: clamp(32px, 6vw, 52px);
+    margin: 0 0 12px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+
+  .pagehero__sub {
+    color: #fff;
+    margin: 0 0 20px;
+    max-width: 60ch;
+    font-size: clamp(16px, 2.5vw, 20px);
+    opacity: 0.95;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  }
+
+  .btn--hero {
+    display: inline-block;
+    background: var(--brand-primary);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn--hero:hover {
+    background: var(--brand-ink);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    text-decoration: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .pagehero__img {
+      height: 50vw;
+      min-height: 200px;
+    }
+
+    .pagehero__title {
+      font-size: clamp(28px, 7vw, 38px);
+    }
+
+    .pagehero__sub {
+      font-size: clamp(14px, 3vw, 18px);
+    }
+  }
+</style>

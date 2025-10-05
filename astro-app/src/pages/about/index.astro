@@ -1,11 +1,29 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/sections/PageHero.astro";
 ---
 
 <Layout title="About Quadball Canada">
-  <section>
-    <h1>About Quadball Canada</h1>
-    <p>Learn about our mission, values, and programs.</p>
+  <PageHero
+    title="About Us"
+    subtitle="Advancing the sport of quadball in Canada since 2014."
+    ctaText="Get Involved"
+    ctaHref="/get-involved/"
+  />
+  <section style="padding: 3rem 0;">
+    <h2>Our Mission</h2>
+    <p>Quadball Canada is dedicated to growing and supporting the sport of quadball across the nation. We promote inclusivity, athleticism, and community through this unique sport.</p>
+
+    <h2>Our Values</h2>
+    <ul>
+      <li>Inclusivity and diversity in sport</li>
+      <li>Fair play and sportsmanship</li>
+      <li>Community building</li>
+      <li>Athletic excellence</li>
+    </ul>
+
+    <h2>Programs</h2>
+    <p>We offer various programs to support players, teams, and communities across Canada, including national championships, development camps, and referee training.</p>
   </section>
 </Layout>
 

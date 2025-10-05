@@ -1,6 +1,7 @@
 ---
 // Client-side routing (Astro 5)
 import { ClientRouter } from 'astro:transitions';
+import UtilityBar from "../components/layout/UtilityBar.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 
@@ -69,9 +70,11 @@ const { title, alternate } = Astro.props as Props;
     <ClientRouter />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <UtilityBar />
     <div class="container">
       <Header currentPath={Astro.url.pathname} alternate={alternate} />
-      <main>
+      <main id="main">
         <slot />
       </main>
       <Footer />
@@ -93,6 +96,28 @@ const { title, alternate } = Astro.props as Props;
   @media (min-width: 575px) {
     .container { padding: 0 var(--space-4); }
     main { margin-top: unset; }
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .skip-link:focus {
+    left: 16px;
+    top: 16px;
+    width: auto;
+    height: auto;
+    background: #fff;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    z-index: 999;
+    text-decoration: none;
+    color: var(--text-strong);
   }
 </style>
 
@@ -148,6 +173,8 @@ const { title, alternate } = Astro.props as Props;
 
     /* Brand tokens */
     --brand-primary: #9E1703;
+    --brand-ink: #7A1302;
+    --brand-tint: #F7EAE8;
     --text: #666666;
     --text-strong: #222222;
     --bg: #ffffff;
@@ -174,5 +201,5 @@ const { title, alternate } = Astro.props as Props;
   h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; }
   h2 { font-size: clamp(24px, 3.5vw, 36px); line-height: 1.1; }
   h3 { font-size: clamp(20px, 2.8vw, 30px); line-height: 1.15; }
-  p  { font-size: 1rem; line-height: 1.6; }
+  p  { font-size: 1rem; line-height: 1.65; max-width: 68ch; }
 </style>

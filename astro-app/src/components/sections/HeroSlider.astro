@@ -1,19 +1,143 @@
 ---
 ---
 <section class="hero">
-  <img class="hero__img" src="/hero-cover.jpg" alt="Quadball Canada cover" />
+  <picture>
+    <source
+      type="image/avif"
+      srcset="/hero-cover-1280.avif 1280w, /hero-cover-1920.avif 1920w, /hero-cover-2560.avif 2560w"
+      sizes="100vw" />
+    <source
+      type="image/webp"
+      srcset="/hero-cover-1280.webp 1280w, /hero-cover-1920.webp 1920w, /hero-cover-2560.webp 2560w"
+      sizes="100vw" />
+    <img
+      class="hero__img"
+      src="/hero-cover.jpg"
+      srcset="/hero-cover-1280.jpg 1280w, /hero-cover-1920.jpg 1920w, /hero-cover-2560.jpg 2560w"
+      sizes="100vw"
+      width="1920"
+      height="1080"
+      alt="Quadball Canada cover"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async" />
+  </picture>
   <div class="hero__overlay">
-    <h1 class="hero__title">Quadball Canada</h1>
-    <p class="hero__subtitle">Building community through sport across Canada.</p>
-    <a class="btn" href="/news/">Read the latest</a>
+    <div class="hero__content">
+      <h1 class="hero__title">Quadball Canada</h1>
+      <p class="hero__subtitle">Building community through sport across Canada.</p>
+      <a class="btn btn--hero" href="/news/">Read the latest</a>
+    </div>
   </div>
 </section>
 
 <style>
-  .hero { position: relative; width: 100vw; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow: hidden; }
-  .hero__img { width: 100%; height: 42vw; max-height: 520px; min-height: 260px; object-fit: cover; display: block; }
-  .hero__overlay { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0) 100%); }
-  .hero__title { color: #fff; font-size: clamp(28px, 6vw, 56px); margin: 0 0 8px; letter-spacing: -0.02em; }
-  .hero__subtitle { color: #fff; font-size: clamp(14px, 2.5vw, 20px); margin: 0 0 12px; }
-  .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; font-weight: 700; }
+  .hero {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
+  }
+
+  .hero__img {
+    width: 100%;
+    height: 50vw;
+    max-height: 600px;
+    min-height: 400px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(95%);
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.35) 50%,
+      rgba(0,0,0,0.15) 80%,
+      rgba(0,0,0,0) 100%
+    );
+  }
+
+  .hero__content {
+    max-width: 800px;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .hero__title {
+    color: #fff;
+    font-size: clamp(36px, 7vw, 64px);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    font-weight: 800;
+  }
+
+  .hero__subtitle {
+    color: #fff;
+    font-size: clamp(16px, 2.8vw, 22px);
+    margin: 0 0 24px;
+    opacity: 0.95;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    font-weight: 500;
+  }
+
+  .btn--hero {
+    display: inline-block;
+    background: var(--brand-primary);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn--hero:hover {
+    background: var(--brand-ink);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    text-decoration: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero__img {
+      height: 70vw;
+      min-height: 300px;
+    }
+
+    .hero__title {
+      font-size: clamp(28px, 8vw, 42px);
+    }
+
+    .hero__subtitle {
+      font-size: clamp(14px, 3vw, 18px);
+    }
+
+    .btn--hero {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+    }
+  }
 </style>
