@@ -188,3 +188,8 @@ CLI used:
 - `cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "…" --commit-dirty=true`
 - `npm i -w astro-app @astrojs/sitemap`
 - `npm i -w astro-app zod` (dev server hot reload needed to clear overlay after install)
+- `cd studio && npx sanity documents query '*[_type == "newsArticle" && slug.en.current == "test-article"][0..1]{_id, slug, title}'`
+- `npx npm-check-updates -u && npm install` (root)
+- `cd astro-app && npx npm-check-updates -u && npm install`
+- `cd studio && npx npm-check-updates -u && npm install`
+- `npm run build -w astro-app && npx wrangler pages deploy dist --project-name=quadball-canada`
