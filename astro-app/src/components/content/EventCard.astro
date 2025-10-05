@@ -1,0 +1,27 @@
+---
+import { formatDate } from "../../utils";
+import type { EventSummary } from "../../utils/sanity";
+
+interface Props {
+  event: EventSummary;
+}
+
+const { event } = Astro.props as Props;
+---
+
+<article class="card">
+  <div class="card__container">
+    <h3 class="card__title">
+      <a class="card__link" href={`/events/${event.slug}`}>{event.title}</a>
+    </h3>
+    <p class="card__date">{formatDate(event.startDateTime)}</p>
+  </div>
+</article>
+
+<style>
+  .card { border-bottom: 1px solid var(--border); padding: 12px 0; }
+  .card__title { margin: 0 0 6px; font-size: var(--font-size-6); }
+  .card__link { color: var(--brand-primary); text-decoration: none; }
+  .card__date { color: var(--gray-600); font-size: var(--font-size-1); }
+</style>
+

@@ -9,12 +9,15 @@ interface Props {
 const { currentPath, alternate } = Astro.props as Props;
 ---
 <header class="site-header">
-  <a class="site-header__title" href="/">Quadball Canada</a>
+  <a class="site-header__title" href="/">
+    <img src="/quadball-canada-logo.jpg" alt="Quadball Canada" class="logo" />
+  </a>
   <nav class="site-header__nav">
     <a href="/news/">News</a>
+    <a href="/about/">About</a>
+    <a href="/play/">Play</a>
     <a href="/events/">Events</a>
     <a href="/teams/">Teams</a>
-    <a href="/about/">About</a>
     <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
   </nav>
 </header>
@@ -28,13 +31,14 @@ const { currentPath, alternate } = Astro.props as Props;
     padding: 12px 0;
   }
   .site-header__title {
-    font-weight: 800;
-    color: var(--black);
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
   }
+  .logo { height: 36px; width: auto; display: block; }
   .site-header__nav a {
-    margin-left: 12px;
-    color: var(--black);
+    margin-left: 16px;
+    color: var(--brand-primary);
     text-decoration: none;
   }
 </style>

@@ -106,7 +106,7 @@
 
 ### Notes
 - Event schema already includes timezone and RRULE support
-- Need to handle "quidditch" → "quadball" synonyms in search
+- Include "quidditch" as a synonym of "quadball" in search
 
 ---
 

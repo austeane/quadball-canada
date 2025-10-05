@@ -1,15 +1,53 @@
 ---
 ---
 <footer class="site-footer">
-  <p>© {new Date().getFullYear()} Quadball Canada</p>
+  <div class="cols">
+    <div>
+      <h4>Quadball Canada</h4>
+      <p>© {new Date().getFullYear()} Quadball Canada</p>
+      <p>Charitable Registration Number: 820553188RR0001</p>
+    </div>
+    <div>
+      <h4>Get Involved</h4>
+      <ul>
+        <li><a href="/teams/">Join a Team</a></li>
+        <li><a href="/events/">Host an Event</a></li>
+        <li><a href="/news/">Volunteer</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Follow Us</h4>
+      <ul>
+        <li><a target="_blank" rel="noopener" href="https://www.facebook.com/QuidditchCanada/">Facebook</a></li>
+        <li><a target="_blank" rel="noopener" href="https://twitter.com/quidditchcanada">Twitter</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.flickr.com/photos/quidditchcanada/">Flickr</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.youtube.com/channel/UC9v_MQffSUVrEoZmOdIEenw">YouTube</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/news/">Latest News</a></li>
+        <li><a href="/play/">Rules</a></li>
+      </ul>
+    </div>
+  </div>
 </footer>
 
 <style>
   .site-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 12px 0;
-    color: var(--gray-600);
+    padding: 24px 0;
+    color: var(--text);
+    border-top: 1px solid var(--border);
   }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  h4 { margin: 0 0 8px; color: var(--text-strong); }
+  a { color: var(--brand-primary); text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: 6px 0; }
 </style>
-
