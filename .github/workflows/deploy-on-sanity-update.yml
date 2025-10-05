@@ -1,0 +1,44 @@
+name: Deploy on Sanity Update
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Webhook trigger from Sanity
+  repository_dispatch:
+    types: [sanity-update]
+
+  # Also trigger on push to main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Astro site
+        env:
+          PUBLIC_SANITY_STUDIO_PROJECT_ID: ${{ secrets.PUBLIC_SANITY_STUDIO_PROJECT_ID }}
+          PUBLIC_SANITY_STUDIO_DATASET: ${{ secrets.PUBLIC_SANITY_STUDIO_DATASET }}
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy astro-app/dist --project-name=quadball-canada --branch=main --commit-dirty=true
