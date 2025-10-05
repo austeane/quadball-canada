@@ -16,5 +16,8 @@ export default defineCliConfig({
     dataset,
   },
   studioHost: 'quadball-canada',
-  autoUpdates: true,
+  deployment: {
+    appId: 'm02f8067m8wz4al1wcsnbq4s',
+    autoUpdates: true,
+  },
 })
