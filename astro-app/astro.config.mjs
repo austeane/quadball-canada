@@ -8,6 +8,7 @@ const {
   PUBLIC_SANITY_DATASET,
 } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 
 // Different environments use different variables
 const projectId = PUBLIC_SANITY_STUDIO_PROJECT_ID || PUBLIC_SANITY_PROJECT_ID;
@@ -18,6 +19,7 @@ import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://quadball-canada.pages.dev",
   output: "static",
   integrations: [
     sanity({
@@ -27,5 +29,8 @@ export default defineConfig({
       apiVersion: "2024-12-08",
     }),
     react(),
+    sitemap({
+      entryLimit: 45000,
+    }),
   ],
 });

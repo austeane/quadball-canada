@@ -181,3 +181,9 @@ Visual polish applied to Astro app:
 Verification:
 - Confirmed local servers with `lsof -iTCP -sTCP:LISTEN -P`
 - Used Playwright MCP to validate UI at `http://localhost:4321/` (mobile menu toggle, language switcher active state, title)
+- Added `@astrojs/sitemap` integration and updated `robots.txt` to point to `/sitemap-index.xml` using `site` from config
+
+CLI used:
+- `cd astro-app && npm run build`
+- `cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "…" --commit-dirty=true`
+- `npm i -w astro-app @astrojs/sitemap`

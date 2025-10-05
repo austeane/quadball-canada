@@ -16,6 +16,7 @@
 > - Upgraded News cards to fixed aspect ratio with srcset/sizes and width/height to reduce CLS.
 > - Homepage title updated to “Quadball Canada — Official Site”.
 > - Added `preconnect` to `cdn.sanity.io` for image performance.
+> - Sitemap now generated via `@astrojs/sitemap`; robots points to `/sitemap-index.xml`.
 > - See `CHECKLIST.md` → “Visual polish updates (completed)” for granular items.
 
 ### Technology Stack

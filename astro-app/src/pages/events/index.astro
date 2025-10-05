@@ -1,20 +1,43 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { getEvents, type Locale } from "../../utils/sanity";
+import { formatDate } from "../../utils";
 import EventCard from "../../components/content/EventCard.astro";
 
 const locale: Locale = "en";
 const events = await getEvents(locale);
+const now = new Date();
+const upcoming = [...events]
+  .filter((e) => new Date(e.startDateTime) >= now)
+  .sort((a, b) => +new Date(a.startDateTime) - +new Date(b.startDateTime));
+const featured = upcoming[0];
 ---
 
 <Layout title="Events" alternate={{ en: "/events/", fr: "/fr/evenements/" }}>
-  <section>
+  <section class="events">
     <h1>Events</h1>
     <p><a class="btn-secondary" href="/events.ics">Add to Calendar (ICS)</a></p>
-    {events.length ? events.map((e) => <EventCard event={e} />) : <p>No events yet.</p>}
+
+    {featured && (
+      <div class="featured">
+        <div class="datechip">{formatDate(featured.startDateTime)}</div>
+        <h2 class="featured__title"><a href={`/events/${featured.slug}`}>{featured.title}</a></h2>
+        <p><a class="btn btn--primary" href={`/events/${featured.slug}`}>Details</a></p>
+      </div>
+    )}
+
+    <div class="list">
+      {events.length ? events.map((e) => <EventCard event={e} />) : <p>No events yet.</p>}
+    </div>
   </section>
 
 <style>
   .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+  .events { display: grid; gap: 12px; }
+  .featured { border: 1px solid var(--border); border-radius: 8px; padding: 16px; background: #fff; }
+  .datechip { display:inline-block; padding:.2rem .6rem; border-radius:999px; background: color-mix(in oklab, var(--brand-primary) 10%, white); color: var(--brand-primary); font-weight: 700; font-size: 0.8rem; }
+  .featured__title { margin: 8px 0 8px; }
+  .btn { display:inline-block; padding:.5rem .9rem; border-radius:6px; text-decoration:none; }
+  .btn--primary { background: var(--brand-primary); color:#fff; }
 </style>
 </Layout>

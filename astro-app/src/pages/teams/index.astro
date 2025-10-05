@@ -3,20 +3,48 @@ import Layout from "../../layouts/Layout.astro";
 import { getTeams } from "../../utils/sanity";
 
 const teams = await getTeams('en');
+const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))).sort();
 ---
 
 <Layout title="Teams">
-  <section>
+  <section class="teams">
     <h1>Teams</h1>
+    {provinces.length > 0 && (
+      <div class="filters">
+        <label for="province">Province</label>
+        <select id="province">
+          <option value="">All</option>
+          {provinces.map(p => <option value={p!}>{p}</option>)}
+        </select>
+      </div>
+    )}
     {teams.length ? (
-      <ul>
+      <ul id="team-list">
         {teams.map((t) => (
-          <li>{t.name} — {t.city}{t.province ? `, ${t.province}` : ''}</li>
+          <li data-province={t.province || ''}>{t.name} — {t.city}{t.province ? `, ${t.province}` : ''}</li>
         ))}
       </ul>
     ) : (
       <p>No teams available.</p>
     )}
   </section>
-</Layout>
 
+  <script>
+    const select = document.getElementById('province');
+    const list = document.getElementById('team-list');
+    if (select && list) {
+      select.addEventListener('change', () => {
+        const value = (select as HTMLSelectElement).value;
+        list.querySelectorAll('li').forEach((li) => {
+          const prov = (li as HTMLElement).dataset.province || '';
+          (li as HTMLElement).style.display = !value || prov === value ? '' : 'none';
+        });
+      });
+    }
+  </script>
+  <style>
+    .filters { margin: 8px 0 12px; display:flex; align-items:center; gap: 8px; }
+    label { font-weight: 600; }
+    select { padding: 6px 8px; }
+  </style>
+</Layout>
