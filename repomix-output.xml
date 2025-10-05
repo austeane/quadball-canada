@@ -1,0 +1,6406 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    deploy-on-sanity-update.yml
+    validate.yml
+  CODEOWNERS
+  renovate.json
+astro-app/
+  public/
+    astro.svg
+    favicon.svg
+    sanity.svg
+  src/
+    components/
+      content/
+        EventCard.astro
+        NewsCard.astro
+      layout/
+        CookieBanner.astro
+        Footer.astro
+        Header.astro
+        LanguageSwitcher.astro
+      sections/
+        CTABlocks.astro
+        HeroSlider.astro
+        NewsGrid.astro
+        SponsorSection.astro
+        SupportSection.astro
+      Welcome.astro
+    layouts/
+      Layout.astro
+    pages/
+      about/
+        index.astro
+      contact/
+        index.astro
+      events/
+        [slug].astro
+        index.astro
+      fr/
+        nouvelles/
+          [slug].astro
+          index.astro
+      get-involved/
+        index.astro
+      media/
+        index.astro
+      news/
+        [slug].astro
+        index.astro
+      play/
+        index.astro
+      support/
+        index.astro
+      teams/
+        index.astro
+      events.ics.ts
+      index.astro
+      robots.txt.ts
+    utils/
+      image.ts
+      index.ts
+      localization.ts
+      sanity.ts
+    env.d.ts
+  .env.example
+  .eslintrc
+  .gitignore
+  astro.config.mjs
+  package.json
+  postcss.config.cjs
+  tsconfig.json
+  wrangler.toml
+scripts/
+  wp-to-sanity/
+    utils/
+      divi-converter.ts
+      link-rewriter.ts
+      parse-xml.ts
+      sanitize-html.ts
+    build-redirects.ts
+    config.ts
+    migrate-news-articles.ts
+    README.md
+studio/
+  src/
+    schemaTypes/
+      documents/
+        author.ts
+        category.ts
+        event.ts
+        newsArticle.ts
+        page.ts
+        player.ts
+        post.ts
+        siteSettings.ts
+        team.ts
+      helpers/
+        localization.ts
+      objects/
+        blockContent.tsx
+        color.ts
+        ctaBlock.ts
+        formEmbed.ts
+      index.ts
+  static/
+    .gitkeep
+  .env.example
+  .eslintrc
+  .gitignore
+  package.json
+  README.md
+  sanity.cli.ts
+  sanity.config.ts
+  tsconfig.json
+.gitignore
+add_token.sh
+AGENTS.md
+CHECKLIST.md
+CLAUDE.md
+DEPLOYMENT.md
+GITHUB_SECRETS_SETUP.md
+MIGRATION_PLAN.md
+package.json
+README.md
+watch-deployment.sh
+webhook-proxy.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".github/workflows/deploy-on-sanity-update.yml">
+name: Deploy on Sanity Update
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Webhook trigger from Sanity
+  repository_dispatch:
+    types: [sanity-update]
+
+  # Also trigger on push to main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Astro site
+        env:
+          PUBLIC_SANITY_STUDIO_PROJECT_ID: ${{ secrets.PUBLIC_SANITY_STUDIO_PROJECT_ID }}
+          PUBLIC_SANITY_STUDIO_DATASET: ${{ secrets.PUBLIC_SANITY_STUDIO_DATASET }}
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy astro-app/dist --project-name=quadball-canada --branch=main --commit-dirty=true
+</file>
+
+<file path=".github/workflows/validate.yml">
+name: Validate Template
+on: push
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Sanity Template
+        uses: sanity-io/template-validator@v2.4.0
+</file>
+
+<file path=".github/CODEOWNERS">
+* @sanity-io/ecosystem
+</file>
+
+<file path=".github/renovate.json">
+{
+  "description": "Check the readme: https://github.com/sanity-io/renovate-config#readme",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>sanity-io/renovate-config:starter-template"
+  ]
+}
+</file>
+
+<file path="astro-app/public/astro.svg">
+<svg width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.5" y="0.5" width="129" height="129" rx="8.5" fill="white"/>
+<path d="M31 78.1769C31 78.1769 42.4231 72.6385 53.8462 72.6385L62.4308 46.1231C62.7769 44.7385 63.6769 43.9077 64.7154 43.9077C65.8231 43.9077 66.7923 44.8077 67.0692 46.1231L75.6538 72.6385C89.2231 72.6385 98.5 78.1769 98.5 78.1769L79.1154 25.5615C78.5615 23.9692 77.5923 23 76.3462 23H53.1538C51.9077 23 51.0077 23.9692 50.3846 25.5615L31 78.1769Z" fill="#101112"/>
+<path d="M52.9462 95.2769C49.1385 91.8154 47.9616 84.4077 49.5539 79.0769C52.3231 82.4692 56.2001 83.5077 60.2154 84.1308C66.377 85.0308 72.4001 84.6846 78.1462 81.9154L80.0847 80.7384C80.8313 83.2766 80.7506 85.9866 79.8545 88.4759C78.9583 90.9652 77.2931 93.1047 75.1001 94.5846L71.2924 97.2154C67.4154 99.8461 66.3077 102.892 67.8308 107.392L67.9693 107.877C66.0749 107.1 64.4754 105.742 63.4001 104C62.2365 102.231 61.6113 100.163 61.6001 98.0461C61.6001 97.0077 61.6001 95.9692 61.4616 94.9308C61.1154 92.3692 59.9385 91.2615 57.6539 91.1923C55.3693 91.1231 53.5693 92.5769 53.0847 94.7923L52.9462 95.2769Z" fill="url(#paint0_linear_4_244)"/>
+<rect x="0.5" y="0.5" width="129" height="129" rx="8.5" stroke="#F9D7EB"/>
+<defs>
+<linearGradient id="paint0_linear_4_244" x1="64.7154" y1="103.654" x2="73.5077" y2="74.7154" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D83333"/>
+<stop offset="1" stop-color="#F041FF"/>
+</linearGradient>
+</defs>
+</svg>
+</file>
+
+<file path="astro-app/public/favicon.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 36 36">
+  <path fill="#000" d="M22.25 4h-8.5a1 1 0 0 0-.96.73l-5.54 19.4a.5.5 0 0 0 .62.62l5.05-1.44a2 2 0 0 0 1.38-1.4l3.22-11.66a.5.5 0 0 1 .96 0l3.22 11.67a2 2 0 0 0 1.38 1.39l5.05 1.44a.5.5 0 0 0 .62-.62l-5.54-19.4a1 1 0 0 0-.96-.73Z"/>
+  <path fill="url(#gradient)" d="M18 28a7.63 7.63 0 0 1-5-2c-1.4 2.1-.35 4.35.6 5.55.14.17.41.07.47-.15.44-1.8 2.93-1.22 2.93.6 0 2.28.87 3.4 1.72 3.81.34.16.59-.2.49-.56-.31-1.05-.29-2.46 1.29-3.25 3-1.5 3.17-4.83 2.5-6-.67.67-2.6 2-5 2Z"/>
+  <defs>
+    <linearGradient id="gradient" x1="16" x2="16" y1="32" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#000"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+	<style>
+    @media (prefers-color-scheme:dark){:root{filter:invert(100%)}}
+  </style>
+</svg>
+</file>
+
+<file path="astro-app/public/sanity.svg">
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_4_238)">
+<rect width="128" height="128" rx="8" fill="#F03E2F"/>
+<path d="M39.4229 33.163C39.4229 44.1615 46.3362 50.7056 60.1767 54.1564L74.8429 57.4972C87.9417 60.453 95.9185 67.7945 95.9185 79.7554C96.0204 84.9662 94.296 90.0531 91.0345 94.1635C91.0345 82.2301 84.751 75.7822 69.595 71.9052L55.1947 68.6882C43.6633 66.1035 34.7628 60.0681 34.7628 47.0761C34.7021 42.0589 36.3415 37.1644 39.4229 33.163Z" fill="white"/>
+<path d="M82.0221 76.8271C88.2776 80.759 91.0205 86.2583 91.0205 94.1497C85.8426 100.666 76.7462 104.323 66.0545 104.323C48.0576 104.323 35.4626 95.6208 32.6637 80.4978H49.9468C52.172 87.4406 58.0636 90.6577 65.9285 90.6577C75.5287 90.6577 81.9102 85.6259 82.0361 76.7996" fill="#F9B1AB"/>
+<path d="M48.4074 49.4683C45.5509 47.8005 43.2074 45.404 41.6255 42.5332C40.0437 39.6625 39.2826 36.4245 39.423 33.163C44.419 26.7013 53.1096 22.7556 63.7034 22.7556C82.0361 22.7556 92.6439 32.2693 95.2608 45.66H78.6354C76.8022 40.3807 72.212 36.27 63.8433 36.27C54.9009 36.27 48.7993 41.3844 48.4494 49.4683" fill="#F9B1AB"/>
+</g>
+<defs>
+<clipPath id="clip0_4_238">
+<rect width="128" height="128" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</file>
+
+<file path="astro-app/src/components/content/EventCard.astro">
+---
+import { formatDate } from "../../utils";
+import type { EventSummary } from "../../utils/sanity";
+
+interface Props {
+  event: EventSummary;
+}
+
+const { event } = Astro.props as Props;
+---
+
+<article class="card">
+  <div class="card__container">
+    <h3 class="card__title">
+      <a class="card__link" href={`/events/${event.slug}`}>{event.title}</a>
+    </h3>
+    <p class="card__date">{formatDate(event.startDateTime)}</p>
+  </div>
+</article>
+
+<style>
+  .card { border-bottom: 1px solid var(--border); padding: 12px 0; }
+  .card__title { margin: 0 0 6px; font-size: var(--font-size-6); }
+  .card__link { color: var(--brand-primary); text-decoration: none; }
+  .card__date { color: var(--gray-600); font-size: var(--font-size-1); }
+</style>
+</file>
+
+<file path="astro-app/src/components/layout/CookieBanner.astro">
+---
+---
+<div id="cookie-banner" class="cookie hidden" role="dialog" aria-live="polite">
+  <p>We use cookies for essential functionality. <a href="/privacy">Learn more</a>.</p>
+  <div>
+    <button id="accept-essential">Essential Only</button>
+    <button id="accept-all">Accept All</button>
+  </div>
+  <script>
+    const banner = document.getElementById('cookie-banner');
+    const consent = localStorage.getItem('cookie-consent');
+    if (!consent) banner?.classList.remove('hidden');
+    document.getElementById('accept-essential')?.addEventListener('click', () => {
+      localStorage.setItem('cookie-consent', 'essential');
+      banner?.classList.add('hidden');
+    });
+    document.getElementById('accept-all')?.addEventListener('click', () => {
+      localStorage.setItem('cookie-consent', 'all');
+      banner?.classList.add('hidden');
+    });
+  </script>
+</div>
+
+<style>
+  .cookie { position: fixed; bottom: 12px; right: 12px; background: #fff; border: 1px solid #ced2d9; padding: 12px; border-radius: 6px;}
+  .hidden { display: none; }
+  button { margin-right: 8px; }
+</style>
+</file>
+
+<file path="astro-app/src/components/layout/LanguageSwitcher.astro">
+---
+interface Props {
+  currentPath: string;
+  alternate?: { en: string; fr: string };
+}
+
+const { currentPath, alternate } = Astro.props as Props;
+
+function mapTo(locale: 'en' | 'fr') {
+  if (alternate) return alternate[locale];
+
+  const path = currentPath || '/';
+  const isFr = path.startsWith('/fr/');
+  if (locale === 'fr') {
+    if (isFr) return path; // already fr
+    if (path.startsWith('/news')) return path.replace(/^\/news/, '/fr/nouvelles');
+    return '/fr/nouvelles/';
+  } else {
+    // en
+    if (!isFr) return path; // already en
+    if (path.startsWith('/fr/nouvelles')) return path.replace(/^\/fr\/nouvelles/, '/news');
+    return '/';
+  }
+}
+---
+
+<nav class="lang-switcher" aria-label="Language">
+  <a class="lang" data-language-switch="en" href={mapTo('en')}>EN</a>
+  <span class="sep">/</span>
+  <a class="lang" data-language-switch="fr" href={mapTo('fr')}>FR</a>
+  
+</nav>
+
+<style>
+  .lang-switcher { display: inline-flex; align-items: center; gap: 6px; }
+  .lang { color: var(--black); text-decoration: none; font-weight: 600; }
+  .sep { color: var(--gray-600); }
+</style>
+</file>
+
+<file path="astro-app/src/components/sections/CTABlocks.astro">
+---
+---
+<section class="cta-blocks">
+  <a class="cta" href="/teams/">Find a Team</a>
+  <a class="cta" href="/events/">Upcoming Events</a>
+  <a class="cta" href="/news/">Volunteer & Get Involved</a>
+</section>
+
+<style>
+  .cta-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding: 24px 0; }
+  .cta { display: block; background: #101112; color: #fff; text-decoration: none; padding: 16px; text-align: center; border-radius: 6px; }
+</style>
+</file>
+
+<file path="astro-app/src/components/sections/SponsorSection.astro">
+---
+---
+<section class="sponsor">
+  <p>Proudly supported by <a href="https://www.vcultimate.com/" target="_blank" rel="noopener">VC Ultimate</a></p>
+</section>
+
+<style>
+  .sponsor { padding: 24px 0; text-align: center; color: #6e7683; }
+  .sponsor a { color: #1e61cd; text-decoration: none; }
+</style>
+</file>
+
+<file path="astro-app/src/components/sections/SupportSection.astro">
+---
+---
+<section class="support">
+  <h2>Support Quadball Canada</h2>
+  <p>Your donation helps grow quadball nationwide and supports inclusive programs.</p>
+  <div class="actions">
+    <a class="btn" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
+    <a class="btn-secondary" href="/support/">Sponsorship</a>
+  </div>
+</section>
+
+<style>
+  .support { padding: 24px 0; border-top: 1px solid var(--border); }
+  .actions { display: flex; gap: 12px; }
+  .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; }
+  .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+</style>
+</file>
+
+<file path="astro-app/src/pages/about/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="About Quadball Canada">
+  <section>
+    <h1>About Quadball Canada</h1>
+    <p>Learn about our mission, values, and programs.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/contact/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Contact Us">
+  <section>
+    <h1>Contact Us</h1>
+    <p>Reach out for media, sponsorship, or general inquiries.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/events/[slug].astro">
+---
+import type { InferGetStaticParamsType } from "astro";
+import { PortableText } from "astro-portabletext";
+import Layout from "../../layouts/Layout.astro";
+import { getEvent, getEvents, type Locale } from "../../utils/sanity";
+
+export async function getStaticPaths() {
+  const locale: Locale = "en";
+  const events = await getEvents(locale);
+  return events.map((e) => ({ params: { slug: e.slug } }));
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "en";
+const event = await getEvent(slug, locale);
+
+if (!event) throw new Error(`Event not found: ${slug}`);
+---
+
+<Layout
+  title={event.title}
+  alternate={{ en: `/events/${event.slugEn}`, fr: `/fr/evenements/${event.slugFr}` }}
+>
+  <section>
+    <h1>{event.title}</h1>
+    <p>
+      {new Date(event.startDateTime).toLocaleString()} {event.endDateTime ? `– ${new Date(event.endDateTime).toLocaleString()}` : ''}
+    </p>
+    {event.content && <PortableText value={event.content} />}
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/fr/nouvelles/[slug].astro">
+---
+import type { InferGetStaticParamsType } from "astro";
+import { PortableText } from "astro-portabletext";
+import Layout from "../../../layouts/Layout.astro";
+import { formatDate } from "../../../utils";
+import { urlFor } from "../../../utils/image";
+import { getNewsArticle, getNewsArticles, type Locale } from "../../../utils/sanity";
+
+export async function getStaticPaths() {
+  const locale: Locale = "fr";
+  const articles = await getNewsArticles(locale);
+  return articles.map((article) => ({ params: { slug: article.slug } }));
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "fr";
+const article = await getNewsArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Article not found: ${slug}`);
+}
+---
+
+<Layout
+  title={article.title}
+  alternate={{
+    en: `/news/${article.slugEn}`,
+    fr: `/fr/nouvelles/${article.slugFr}`,
+  }}
+>
+  <Fragment slot="head">
+    <meta name="description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={article.seo?.metaTitle ?? article.title} />
+    <meta property="og:description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    {article.featuredImage && (
+      <meta property="og:image" content={urlFor(article.featuredImage).width(1200).height(630).url()} />
+    )}
+  </Fragment>
+  <section class="post">
+    {
+      article.featuredImage ? (
+        <img
+          class="post__cover"
+          src={urlFor(article.featuredImage).url()}
+          alt={article.featuredImage.alt || ""}
+        />
+      ) : (
+        <div class="post__cover--none" />
+      )
+    }
+    <div class="post__container">
+      <h1 class="post__title">{article.title}</h1>
+      {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
+      <p class="post__date">{formatDate(article.publishedAt)}</p>
+      <div class="post__content">
+        <PortableText value={article.content} />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .post {
+    width: 100%;
+    margin: var(--space-1) 0 var(--space-4);
+
+    & .post__cover,
+    & .post__cover--none {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    & .post__cover--none {
+      background: var(--black);
+    }
+
+    & .post__container {
+      padding: 0 var(--space-3);
+    }
+
+    & .post__content {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-5);
+      letter-spacing: -0.02em;
+      margin-top: var(--space-6);
+
+      & blockquote {
+        border-left: 5px solid var(--black);
+        padding-left: var(--space-3);
+        margin-left: var(--space-4);
+      }
+
+      & a {
+        color: var(--blue-600);
+        text-decoration: none;
+      }
+    }
+
+    & .post__title {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-7);
+      line-height: var(--line-height-6);
+      margin: var(--space-4) 0;
+      font-weight: 800;
+    }
+
+    & .post__excerpt {
+      font-family: var(--font-family-serif);
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-4);
+      margin-top: 0;
+      font-weight: 400;
+    }
+
+    & .post__date {
+      font-family: var(--font-family-sans);
+      font-weight: 600;
+      font-size: var(--font-size-1);
+      line-height: var(--line-height-1);
+      margin-top: var(--space-4);
+    }
+  }
+
+  @media (min-width: 800px) {
+    .post {
+      & .post__cover,
+      & .post__cover--none {
+        width: 750px;
+        height: 380px;
+      }
+
+      & .post__title {
+        font-size: var(--font-size-10);
+        line-height: var(--line-height-10);
+        margin: var(--space-6) 0 0;
+        letter-spacing: -0.025em;
+      }
+
+      & .post__excerpt {
+        font-size: var(--font-size-5);
+        line-height: var(--line-height-5);
+        margin-top: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      & .post__date {
+        font-size: var(--font-size-3);
+        line-height: var(--line-height-2);
+        margin-top: var(--space-0);
+      }
+
+      & .post__content {
+        margin-top: var(--space-7);
+      }
+    }
+  }
+</style>
+</file>
+
+<file path="astro-app/src/pages/fr/nouvelles/index.astro">
+---
+import Layout from "../../../layouts/Layout.astro";
+import NewsCard from "../../../components/content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "../../../utils/sanity";
+
+const locale: Locale = "fr";
+const articles = await getNewsArticles(locale);
+---
+
+<Layout title="Nouvelles" alternate={{ en: "/news/", fr: "/fr/nouvelles/" }}>
+  <section>
+    {articles.length ? (
+      articles.map((article) => <NewsCard article={article} />)
+    ) : (
+      <p>Aucune nouvelle pour le moment.</p>
+    )}
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/get-involved/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Get Involved">
+  <section>
+    <h1>Get Involved</h1>
+    <p>Volunteer, coach, officiate, or host an event. Opportunities coming soon.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/media/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Media">
+  <section>
+    <h1>Media</h1>
+    <p>Photo and video galleries coming soon.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/news/[slug].astro">
+---
+import type { InferGetStaticParamsType } from "astro";
+import { PortableText } from "astro-portabletext";
+import Layout from "../../layouts/Layout.astro";
+import { formatDate } from "../../utils";
+import { urlFor } from "../../utils/image";
+import { getNewsArticle, getNewsArticles, type Locale } from "../../utils/sanity";
+
+export async function getStaticPaths() {
+  const locale: Locale = "en";
+  const articles = await getNewsArticles(locale);
+  return articles.map((article) => ({ params: { slug: article.slug } }));
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "en";
+const article = await getNewsArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Article not found: ${slug}`);
+}
+---
+
+<Layout
+  title={article.title}
+  alternate={{
+    en: `/news/${article.slugEn}`,
+    fr: `/fr/nouvelles/${article.slugFr}`,
+  }}
+>
+  <Fragment slot="head">
+    <meta name="description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={article.seo?.metaTitle ?? article.title} />
+    <meta property="og:description" content={article.seo?.metaDescription ?? article.excerpt ?? ''} />
+    {article.featuredImage && (
+      <meta property="og:image" content={urlFor(article.featuredImage).width(1200).height(630).url()} />
+    )}
+  </Fragment>
+  <section class="post">
+    {
+      article.featuredImage ? (
+        <img
+          class="post__cover"
+          src={urlFor(article.featuredImage).url()}
+          alt={article.featuredImage.alt || ""}
+        />
+      ) : (
+        <div class="post__cover--none" />
+      )
+    }
+    <div class="post__container">
+      <h1 class="post__title">{article.title}</h1>
+      {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
+      <p class="post__date">{formatDate(article.publishedAt)}</p>
+      <div class="post__content">
+        <PortableText value={article.content} />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .post {
+    width: 100%;
+    margin: var(--space-1) 0 var(--space-4);
+
+    & .post__cover,
+    & .post__cover--none {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    & .post__cover--none {
+      background: var(--black);
+    }
+
+    & .post__container {
+      padding: 0 var(--space-3);
+    }
+
+    & .post__content {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-5);
+      letter-spacing: -0.02em;
+      margin-top: var(--space-6);
+
+      & blockquote {
+        border-left: 5px solid var(--black);
+        padding-left: var(--space-3);
+        margin-left: var(--space-4);
+      }
+
+      & a {
+        color: var(--blue-600);
+        text-decoration: none;
+      }
+    }
+
+    & .post__title {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-7);
+      line-height: var(--line-height-6);
+      margin: var(--space-4) 0;
+      font-weight: 800;
+    }
+
+    & .post__excerpt {
+      font-family: var(--font-family-serif);
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-4);
+      margin-top: 0;
+      font-weight: 400;
+    }
+
+    & .post__date {
+      font-family: var(--font-family-sans);
+      font-weight: 600;
+      font-size: var(--font-size-1);
+      line-height: var(--line-height-1);
+      margin-top: var(--space-4);
+    }
+  }
+
+  @media (min-width: 800px) {
+    .post {
+      & .post__cover,
+      & .post__cover--none {
+        width: 750px;
+        height: 380px;
+      }
+
+      & .post__title {
+        font-size: var(--font-size-10);
+        line-height: var(--line-height-10);
+        margin: var(--space-6) 0 0;
+        letter-spacing: -0.025em;
+      }
+
+      & .post__excerpt {
+        font-size: var(--font-size-5);
+        line-height: var(--line-height-5);
+        margin-top: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      & .post__date {
+        font-size: var(--font-size-3);
+        line-height: var(--line-height-2);
+        margin-top: var(--space-0);
+      }
+
+      & .post__content {
+        margin-top: var(--space-7);
+      }
+    }
+  }
+</style>
+</file>
+
+<file path="astro-app/src/pages/news/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+import NewsCard from "../../components/content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "../../utils/sanity";
+
+const locale: Locale = "en";
+const articles = await getNewsArticles(locale);
+---
+
+<Layout title="News" alternate={{ en: "/news/", fr: "/fr/nouvelles/" }}>
+  <section>
+    {articles.length ? (
+      articles.map((article) => <NewsCard article={article} />)
+    ) : (
+      <p>No news yet.</p>
+    )}
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/play/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="How to Play">
+  <section>
+    <h1>How to Play Quadball</h1>
+    <p>Rules overview and resources coming soon.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/support/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Support Us">
+  <section>
+    <h1>Support Us</h1>
+    <p>Learn about sponsorship opportunities and ways to donate.</p>
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/teams/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+import { getTeams } from "../../utils/sanity";
+
+const teams = await getTeams('en');
+---
+
+<Layout title="Teams">
+  <section>
+    <h1>Teams</h1>
+    {teams.length ? (
+      <ul>
+        {teams.map((t) => (
+          <li>{t.name} — {t.city}{t.province ? `, ${t.province}` : ''}</li>
+        ))}
+      </ul>
+    ) : (
+      <p>No teams available.</p>
+    )}
+  </section>
+</Layout>
+</file>
+
+<file path="astro-app/src/pages/events.ics.ts">
+import { getEvents } from '../utils/sanity';
+
+export const GET = async () => {
+  const events = await getEvents('en');
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Quadball Canada//EN',
+  ];
+  for (const e of events) {
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${e._id}@quadballcanada.ca`);
+    lines.push(`DTSTAMP:${toIcsDate(new Date().toISOString())}`);
+    lines.push(`DTSTART:${toIcsDate(e.startDateTime)}`);
+    if (e.endDateTime) lines.push(`DTEND:${toIcsDate(e.endDateTime)}`);
+    lines.push(`SUMMARY:${escapeText(e.title)}`);
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+
+  return new Response(lines.join('\r\n'), {
+    status: 200,
+    headers: { 'Content-Type': 'text/calendar; charset=utf-8' },
+  });
+};
+
+function toIcsDate(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    d.getUTCFullYear().toString() +
+    pad(d.getUTCMonth() + 1) +
+    pad(d.getUTCDate()) +
+    'T' +
+    pad(d.getUTCHours()) +
+    pad(d.getUTCMinutes()) +
+    pad(d.getUTCSeconds()) +
+    'Z'
+  );
+}
+function escapeText(s: string) {
+  return s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+}
+</file>
+
+<file path="astro-app/src/pages/robots.txt.ts">
+export const GET = async () => {
+  const body = `User-agent: *\nAllow: /\nSitemap: https://quadball-canada.pages.dev/sitemap.xml`;
+  return new Response(body, { headers: { 'Content-Type': 'text/plain' } });
+};
+</file>
+
+<file path="astro-app/src/utils/index.ts">
+export function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+</file>
+
+<file path="astro-app/src/utils/localization.ts">
+export type Locale = 'en' | 'fr';
+
+export type LocalizedValue<T> = Partial<Record<Locale, T>>;
+
+const DEFAULT_LOCALE: Locale = 'en';
+
+export function pickLocalizedValue<T>(
+  value: LocalizedValue<T> | undefined,
+  locale: Locale = DEFAULT_LOCALE,
+  fallback: Locale = DEFAULT_LOCALE
+): T | undefined {
+  if (!value) return undefined;
+  return value[locale] ?? value[fallback];
+}
+
+export function pickLocalizedString(
+  value: LocalizedValue<string> | undefined,
+  locale: Locale = DEFAULT_LOCALE,
+  fallback: Locale = DEFAULT_LOCALE
+): string {
+  return pickLocalizedValue(value, locale, fallback) ?? '';
+}
+
+export interface LocalizedSlugValue {
+  current: string;
+}
+
+export function pickLocalizedSlug(
+  value: LocalizedValue<LocalizedSlugValue> | undefined,
+  locale: Locale = DEFAULT_LOCALE,
+  fallback: Locale = DEFAULT_LOCALE
+): string {
+  return pickLocalizedValue(value, locale, fallback)?.current ?? '';
+}
+</file>
+
+<file path="astro-app/src/env.d.ts">
+/// <reference path="../.astro/types.d.ts" />
+/// <reference types="astro/client" />
+/// <reference types="@sanity/astro/module" />
+</file>
+
+<file path="astro-app/.env.example">
+# Remember to add PUBLIC_ if generated by npx sanity init --env
+PUBLIC_SANITY_STUDIO_PROJECT_ID="<your-project-id>"
+PUBLIC_SANITY_STUDIO_DATASET="production"
+</file>
+
+<file path="astro-app/.eslintrc">
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "arrowParens": "avoid",
+  "tabWidth": 2,
+  "printWidth": 120
+}
+</file>
+
+<file path="astro-app/.gitignore">
+# build output
+dist/
+
+# generated types
+.astro/
+.vercel
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# macOS-specific files
+.DS_Store
+
+# Typescript
+*.tsbuildinfo
+</file>
+
+<file path="astro-app/postcss.config.cjs">
+module.exports = {
+  plugins: [require("autoprefixer")],
+};
+</file>
+
+<file path="astro-app/tsconfig.json">
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "strict": true,
+    "importsNotUsedAsValues": "remove",
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
+  },
+  "includes": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist", ".vercel"]
+}
+</file>
+
+<file path="scripts/wp-to-sanity/utils/divi-converter.ts">
+import { sanitizeDiviContent } from './sanitize-html';
+
+export function convertDiviShortcodesToHtml(input: string): string {
+  // For now we strip divi shortcodes; post-launch can add a richer converter
+  return sanitizeDiviContent(input);
+}
+</file>
+
+<file path="scripts/wp-to-sanity/utils/link-rewriter.ts">
+export function normalizeSlug(slug?: string): string {
+  if (!slug) return '';
+  return slug
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function rewriteInternalLinks(html: string): string {
+  // Rewrite common WordPress path patterns to new `/news/` structure
+  return html.replace(/href=\"https?:\/\/[^\"]+\/(\d{4})\/(\d{2})\/([^\"/]+)\/?\"/g, 'href="/news/$3"');
+}
+</file>
+
+<file path="scripts/wp-to-sanity/utils/parse-xml.ts">
+import fs from 'node:fs/promises';
+import { parseStringPromise } from 'xml2js';
+
+export interface WpPostLike {
+  title: string;
+  link: string;
+  pubDate?: string;
+  'wp:post_date'?: string;
+  'wp:post_type'?: string;
+  'wp:post_name'?: string; // slug
+  'content:encoded'?: string[];
+  'excerpt:encoded'?: string[];
+  category?: Array<{ _: string; $: Record<string, string> }>;
+}
+
+export async function parseWpXml(filePath: string) {
+  const xml = await fs.readFile(filePath, 'utf8');
+  const doc = await parseStringPromise(xml, { explicitArray: true, explicitRoot: true });
+  return doc;
+}
+
+export function extractPosts(doc: any): WpPostLike[] {
+  const channel = doc?.rss?.channel?.[0];
+  const items: any[] = channel?.item || [];
+  return items.filter((it) => it['wp:post_type']?.[0] === 'post') as unknown as WpPostLike[];
+}
+</file>
+
+<file path="scripts/wp-to-sanity/utils/sanitize-html.ts">
+import { JSDOM } from 'jsdom';
+
+export function stripHtml(html?: string): string {
+  if (!html) return '';
+  const dom = new JSDOM(`<div>${html}</div>`);
+  return dom.window.document.body.textContent || '';
+}
+
+export function sanitizeDiviContent(html: string): string {
+  // Minimal fallback: remove Divi shortcodes and keep inner HTML when possible
+  return html
+    .replace(/\[(\/)?et_pb_[^\]]*\]/g, '')
+    .replace(/\[(\/)?et_[^\]]*\]/g, '');
+}
+</file>
+
+<file path="scripts/wp-to-sanity/build-redirects.ts">
+#!/usr/bin/env -S node --enable-source-maps
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+async function main() {
+  const tmp = path.resolve('scripts/wp-to-sanity/redirects.tmp.json');
+  let mappings: Array<{ oldUrl: string; newUrl: string }> = [];
+  try {
+    const raw = await fs.readFile(tmp, 'utf8');
+    mappings = JSON.parse(raw);
+  } catch {}
+
+  const redirects = [
+    ...mappings.map(({ oldUrl, newUrl }) => ({
+      from: new URL(oldUrl).pathname,
+      to: newUrl,
+      status: 301,
+    })),
+    { from: '/quidditch/*', to: '/quadball/$1', status: 301 },
+    { from: '/category/*', to: '/news/category/$1', status: 301 },
+  ];
+
+  process.stdout.write(JSON.stringify(redirects, null, 2));
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+</file>
+
+<file path="scripts/wp-to-sanity/config.ts">
+export const config = {
+  projectId: process.env.SANITY_PROJECT_ID!,
+  dataset: process.env.SANITY_DATASET || 'production',
+  token: process.env.SANITY_TOKEN!,
+  wpXmlPath: process.env.WP_XML_PATH!,
+};
+
+export function assertConfig() {
+  for (const [k, v] of Object.entries(config)) {
+    if (!v) throw new Error(`Missing env: ${k}`);
+  }
+}
+</file>
+
+<file path="scripts/wp-to-sanity/migrate-news-articles.ts">
+#!/usr/bin/env -S node --enable-source-maps
+import { createClient } from '@sanity/client';
+import { htmlToBlocks } from '@sanity/block-tools';
+import { JSDOM } from 'jsdom';
+import { config, assertConfig } from './config';
+import { parseWpXml, extractPosts, type WpPostLike } from './utils/parse-xml';
+import { normalizeSlug, rewriteInternalLinks } from './utils/link-rewriter';
+import { stripHtml } from './utils/sanitize-html';
+import { convertDiviShortcodesToHtml } from './utils/divi-converter';
+
+assertConfig();
+
+const client = createClient({
+  projectId: config.projectId,
+  dataset: config.dataset,
+  token: config.token,
+  apiVersion: '2024-12-01',
+  useCdn: false,
+});
+
+async function mapFeaturedImage(_wp: WpPostLike) {
+  // Placeholder: rely on Sanity to upload images separately in migrate-media.ts
+  return null;
+}
+
+function toPortableText(html: string) {
+  const { window } = new JSDOM('<div></div>');
+  return htmlToBlocks(html, {
+    parseHtml: (h: string) => {
+      const el = window.document.createElement('div');
+      el.innerHTML = h;
+      return el;
+    },
+  });
+}
+
+function wpToDoc(wp: WpPostLike) {
+  const rawHtml = wp['content:encoded']?.[0] || '';
+  const converted = convertDiviShortcodesToHtml(rawHtml);
+  const rewritten = rewriteInternalLinks(converted);
+  const blocks = toPortableText(rewritten);
+  const baseSlug = normalizeSlug(wp['wp:post_name'] || '');
+  const date = wp['wp:post_date'] || wp.pubDate || new Date().toISOString();
+
+  return {
+    _type: 'newsArticle',
+    _id: `newsArticle.${baseSlug}`,
+    publishedAt: date,
+    title: { en: wp.title, fr: '' },
+    slug: { en: { current: baseSlug }, fr: { current: `${baseSlug}-fr` } },
+    excerpt: { en: stripHtml(wp['excerpt:encoded']?.[0] || ''), fr: '' },
+    content: { en: blocks, fr: [] },
+    featured: false,
+    featuredImage: await mapFeaturedImage(wp),
+  } as const;
+}
+
+async function run() {
+  const xml = await parseWpXml(config.wpXmlPath);
+  const posts = extractPosts(xml);
+  const results: Array<{ oldUrl: string; newUrl: string }> = [];
+
+  for (const wp of posts) {
+    const doc = await wpToDoc(wp);
+    await client.createOrReplace(doc as any);
+    results.push({ oldUrl: wp.link, newUrl: `/news/${doc.slug.en.current}` });
+    process.stdout.write(`Migrated: ${doc.slug.en.current}\n`);
+  }
+
+  // Results consumed by build-redirects.ts
+}
+
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+</file>
+
+<file path="scripts/wp-to-sanity/README.md">
+# WordPress → Sanity Migration (News Articles)
+
+This directory contains scripts to migrate WordPress content into the Sanity `newsArticle` schema and to generate redirect maps.
+
+## Prerequisites
+
+- Node 18+
+- Environment variables:
+  - `SANITY_PROJECT_ID`
+  - `SANITY_DATASET` (e.g., `production`)
+  - `SANITY_TOKEN` (write-enabled)
+  - `WP_XML_PATH` (path to WordPress XML export)
+
+## Structure
+
+```
+scripts/wp-to-sanity/
+├── README.md
+├── config.ts
+├── migrate-news-articles.ts
+├── build-redirects.ts
+└── utils/
+    ├── parse-xml.ts
+    ├── sanitize-html.ts
+    ├── link-rewriter.ts
+    └── divi-converter.ts
+```
+
+## Usage
+
+```
+WP_XML_PATH=./WordPress.2025-07-13.xml \
+SANITY_PROJECT_ID=xxxx \
+SANITY_DATASET=production \
+SANITY_TOKEN=xxxx \
+node scripts/wp-to-sanity/migrate-news-articles.ts
+```
+
+Then build redirects:
+
+```
+node scripts/wp-to-sanity/build-redirects.ts > redirects.json
+```
+</file>
+
+<file path="studio/src/schemaTypes/documents/author.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'author',
+  title: 'Author',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Name',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'bio',
+      title: 'Biography',
+      type: 'localeText',
+    },
+    {
+      name: 'photo',
+      title: 'Photo',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
+      name: 'role',
+      title: 'Role',
+      type: 'localeString',
+      description: 'e.g., Staff Writer, Guest Contributor, Editor',
+    },
+    {
+      name: 'socialLinks',
+      title: 'Social Links',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'platform',
+              title: 'Platform',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Website', value: 'website' },
+                  { title: 'Twitter/X', value: 'twitter' },
+                  { title: 'LinkedIn', value: 'linkedin' },
+                  { title: 'Instagram', value: 'instagram' },
+                ],
+              },
+            },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      roleEn: 'role.en',
+      roleFr: 'role.fr',
+      media: 'photo',
+    },
+    prepare({ title, roleEn, roleFr, media }) {
+      return {
+        title,
+        subtitle: roleEn || roleFr,
+        media,
+      }
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/category.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'category',
+  title: 'Category',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'localeSlug',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'localeText',
+    },
+    {
+      name: 'color',
+      title: 'Category Color',
+      type: 'color',
+      description: 'Used for category badges and highlights',
+    },
+    {
+      name: 'order',
+      title: 'Display Order',
+      type: 'number',
+      description: 'Order in which categories appear in listings',
+    },
+  ],
+  preview: {
+    select: {
+      titleEn: 'title.en',
+      titleFr: 'title.fr',
+      order: 'order',
+    },
+    prepare({ titleEn, titleFr, order }) {
+      return {
+        title: titleEn || titleFr,
+        subtitle: order ? `Order: ${order}` : '',
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Display Order',
+      name: 'orderAsc',
+      by: [{ field: 'order', direction: 'asc' }],
+    },
+    {
+      title: 'Title',
+      name: 'titleAsc',
+      by: [{ field: 'title.en', direction: 'asc' }],
+    },
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/event.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'event',
+  title: 'Event',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'localeSlug',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'eventType',
+      title: 'Event Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Tournament', value: 'tournament' },
+          { title: 'Training', value: 'training' },
+          { title: 'Meeting', value: 'meeting' },
+          { title: 'Social', value: 'social' },
+          { title: 'Camp', value: 'camp' },
+          { title: 'Workshop', value: 'workshop' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'localeText',
+    },
+    {
+      name: 'content',
+      title: 'Full Content',
+      type: 'localePortableText',
+    },
+    {
+      name: 'startDateTime',
+      title: 'Start Date & Time',
+      type: 'datetime',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'endDateTime',
+      title: 'End Date & Time',
+      type: 'datetime',
+      validation: (Rule) => Rule.required().min(Rule.valueOfField('startDateTime')),
+    },
+    {
+      name: 'timezone',
+      title: 'Timezone',
+      type: 'string',
+      description: 'IANA timezone identifier (e.g., America/Toronto)',
+      initialValue: 'America/Toronto',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'recurrence',
+      title: 'Recurrence Rule',
+      type: 'object',
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Is Recurring',
+          type: 'boolean',
+          initialValue: false,
+        },
+        {
+          name: 'rrule',
+          title: 'RRULE',
+          type: 'string',
+          description: 'RFC 5545 recurrence rule (e.g., FREQ=WEEKLY;BYDAY=MO,WE,FR)',
+          hidden: ({ parent }) => !parent?.enabled,
+        },
+        {
+          name: 'exceptions',
+          title: 'Exception Dates',
+          type: 'array',
+          of: [{ type: 'datetime' }],
+          hidden: ({ parent }) => !parent?.enabled,
+        },
+      ],
+    },
+    {
+      name: 'location',
+      title: 'Location',
+      type: 'object',
+      fields: [
+        {
+          name: 'type',
+          title: 'Location Type',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Physical', value: 'physical' },
+              { title: 'Online', value: 'online' },
+              { title: 'Hybrid', value: 'hybrid' },
+            ],
+          },
+          initialValue: 'physical',
+        },
+        {
+          name: 'name',
+          title: 'Venue Name',
+          type: 'localeString',
+        },
+        {
+          name: 'address',
+          title: 'Address',
+          type: 'text',
+          hidden: ({ parent }) => parent?.type === 'online',
+        },
+        {
+          name: 'coordinates',
+          title: 'Coordinates',
+          type: 'geopoint',
+          hidden: ({ parent }) => parent?.type === 'online',
+        },
+        {
+          name: 'onlineUrl',
+          title: 'Online Meeting URL',
+          type: 'url',
+          hidden: ({ parent }) => parent?.type === 'physical',
+        },
+        {
+          name: 'mapUrl',
+          title: 'Map URL',
+          type: 'url',
+          hidden: ({ parent }) => parent?.type === 'online',
+        },
+      ],
+    },
+    {
+      name: 'registration',
+      title: 'Registration',
+      type: 'object',
+      fields: [
+        {
+          name: 'required',
+          title: 'Registration Required',
+          type: 'boolean',
+          initialValue: false,
+        },
+        {
+          name: 'url',
+          title: 'Registration URL',
+          type: 'url',
+          hidden: ({ parent }) => !parent?.required,
+        },
+        {
+          name: 'deadline',
+          title: 'Registration Deadline',
+          type: 'datetime',
+          hidden: ({ parent }) => !parent?.required,
+        },
+        {
+          name: 'capacity',
+          title: 'Capacity',
+          type: 'number',
+          hidden: ({ parent }) => !parent?.required,
+        },
+        {
+          name: 'price',
+          title: 'Price (CAD)',
+          type: 'number',
+          hidden: ({ parent }) => !parent?.required,
+        },
+      ],
+    },
+    {
+      name: 'teams',
+      title: 'Participating Teams',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'team' }],
+        },
+      ],
+    },
+    {
+      name: 'featuredImage',
+      title: 'Featured Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'localeString',
+        },
+      ],
+    },
+    {
+      name: 'documents',
+      title: 'Related Documents',
+      type: 'array',
+      of: [
+        {
+          type: 'file',
+          fields: [
+            {
+              name: 'title',
+              title: 'Document Title',
+              type: 'localeString',
+            },
+            {
+              name: 'category',
+              title: 'Category',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Schedule', value: 'schedule' },
+                  { title: 'Rules', value: 'rules' },
+                  { title: 'Results', value: 'results' },
+                  { title: 'Forms', value: 'forms' },
+                  { title: 'Other', value: 'other' },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'localeString',
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'localeText',
+        },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      titleEn: 'title.en',
+      titleFr: 'title.fr',
+      date: 'startDateTime',
+      eventType: 'eventType',
+      media: 'featuredImage',
+    },
+    prepare({ titleEn, titleFr, date, eventType, media }) {
+      return {
+        title: titleEn || titleFr,
+        subtitle: `${eventType} - ${new Date(date).toLocaleDateString()}`,
+        media,
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Date, Upcoming',
+      name: 'dateAsc',
+      by: [{ field: 'startDateTime', direction: 'asc' }],
+    },
+    {
+      title: 'Date, Past',
+      name: 'dateDesc',
+      by: [{ field: 'startDateTime', direction: 'desc' }],
+    },
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/newsArticle.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'newsArticle',
+  title: 'News Article',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'localeSlug',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'publishedAt',
+      title: 'Published At',
+      type: 'datetime',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'author',
+      title: 'Author',
+      type: 'reference',
+      to: [{ type: 'author' }],
+    },
+    {
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'category' }],
+        },
+      ],
+    },
+    {
+      name: 'featuredImage',
+      title: 'Featured Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'localeString',
+        },
+      ],
+    },
+    {
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'localeText',
+      validation: (Rule) => Rule.max(200),
+    },
+    {
+      name: 'content',
+      title: 'Content',
+      type: 'localePortableText',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'featured',
+      title: 'Featured Article',
+      type: 'boolean',
+      description: 'Show this article in featured sections',
+      initialValue: false,
+    },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'localeString',
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'localeText',
+        },
+        {
+          name: 'ogImage',
+          title: 'Open Graph Image',
+          type: 'image',
+          description: 'Defaults to featured image if not set',
+          options: {
+            hotspot: true,
+          },
+        },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      titleEn: 'title.en',
+      titleFr: 'title.fr',
+      date: 'publishedAt',
+      media: 'featuredImage',
+    },
+    prepare({ titleEn, titleFr, date, media }) {
+      return {
+        title: titleEn || titleFr,
+        subtitle: new Date(date).toLocaleDateString(),
+        media,
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Publish Date, New',
+      name: 'publishDateDesc',
+      by: [{ field: 'publishedAt', direction: 'desc' }],
+    },
+    {
+      title: 'Publish Date, Old',
+      name: 'publishDateAsc',
+      by: [{ field: 'publishedAt', direction: 'asc' }],
+    },
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/page.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'page',
+  title: 'Page',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'localeSlug',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'localeString',
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'localeText',
+        },
+        {
+          name: 'ogImage',
+          title: 'Open Graph Image',
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+        },
+      ],
+    },
+    {
+      name: 'content',
+      title: 'Content',
+      type: 'localePortableText',
+    },
+    {
+      name: 'sidebar',
+      title: 'Sidebar Content',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [
+            { type: 'ctaBlock' },
+            { type: 'formEmbed' },
+          ],
+        },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      titleEn: 'title.en',
+      titleFr: 'title.fr',
+      slugEn: 'slug.en.current',
+    },
+    prepare({ titleEn, titleFr, slugEn }) {
+      return {
+        title: titleEn || titleFr,
+        subtitle: `/${slugEn}`,
+      }
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/player.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'player',
+  title: 'Player',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Full Name',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'jerseyNumber',
+      title: 'Jersey Number',
+      type: 'number',
+    },
+    {
+      name: 'position',
+      title: 'Primary Position',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Chaser', value: 'chaser' },
+          { title: 'Beater', value: 'beater' },
+          { title: 'Keeper', value: 'keeper' },
+          { title: 'Seeker', value: 'seeker' },
+          { title: 'Utility', value: 'utility' },
+        ],
+      },
+    },
+    {
+      name: 'birthdate',
+      title: 'Birth Date',
+      type: 'date',
+    },
+    {
+      name: 'hometown',
+      title: 'Hometown',
+      type: 'string',
+    },
+    {
+      name: 'bio',
+      title: 'Biography',
+      type: 'localeText',
+    },
+    {
+      name: 'photo',
+      title: 'Player Photo',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
+      name: 'nationalTeam',
+      title: 'National Team Member',
+      type: 'boolean',
+      description: 'Is this player on a Canadian national team?',
+      initialValue: false,
+    },
+    {
+      name: 'nationalTeamYears',
+      title: 'National Team Years',
+      type: 'array',
+      of: [{ type: 'number' }],
+      hidden: ({ parent }) => !parent?.nationalTeam,
+    },
+    {
+      name: 'achievements',
+      title: 'Achievements',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'title',
+              title: 'Achievement',
+              type: 'localeString',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'year',
+              title: 'Year',
+              type: 'number',
+            },
+            {
+              name: 'event',
+              title: 'Event/Tournament',
+              type: 'string',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'stats',
+      title: 'Career Stats',
+      type: 'object',
+      fields: [
+        {
+          name: 'gamesPlayed',
+          title: 'Games Played',
+          type: 'number',
+        },
+        {
+          name: 'goalsScored',
+          title: 'Goals Scored',
+          type: 'number',
+        },
+        {
+          name: 'assists',
+          title: 'Assists',
+          type: 'number',
+        },
+        {
+          name: 'snitchCatches',
+          title: 'Snitch Catches',
+          type: 'number',
+        },
+      ],
+    },
+    {
+      name: 'socialMedia',
+      title: 'Social Media',
+      type: 'object',
+      fields: [
+        {
+          name: 'instagram',
+          title: 'Instagram',
+          type: 'url',
+        },
+        {
+          name: 'twitter',
+          title: 'Twitter/X',
+          type: 'url',
+        },
+      ],
+    },
+    {
+      name: 'active',
+      title: 'Active Player',
+      type: 'boolean',
+      description: 'Is this player currently active?',
+      initialValue: true,
+    },
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      position: 'position',
+      jersey: 'jerseyNumber',
+      media: 'photo',
+      active: 'active',
+      national: 'nationalTeam',
+    },
+    prepare({ title, position, jersey, media, active, national }) {
+      const subtitle = [
+        jersey ? `#${jersey}` : null,
+        position,
+        national ? '🍁' : null,
+        !active ? '(Retired)' : null,
+      ].filter(Boolean).join(' • ')
+
+      return {
+        title,
+        subtitle,
+        media,
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Name',
+      name: 'nameAsc',
+      by: [{ field: 'name', direction: 'asc' }],
+    },
+    {
+      title: 'Jersey Number',
+      name: 'jerseyAsc',
+      by: [{ field: 'jerseyNumber', direction: 'asc' }],
+    },
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/post.ts">
+import {defineField, defineType} from 'sanity'
+
+/**
+ * Post schema.  Define and edit the fields for the 'post' content type.
+ * Learn more: https://www.sanity.io/docs/schema-types
+ */
+
+export default defineType({
+  name: 'post',
+  title: 'Post',
+  type: 'document',
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      validation: (Rule) => Rule.required(),
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+    }),
+    defineField({
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'text',
+      rows: 4,
+    }),
+    defineField({
+      name: 'mainImage',
+      title: 'Main image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+			fields: [
+				defineField({
+					name: 'alt',
+					title: 'Alternative text',
+					type: 'string',
+				}),
+			],
+    }),
+    defineField({
+      name: 'body',
+      title: 'Body',
+      type: 'blockContent',
+    }),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      author: 'author.name',
+      media: 'mainImage',
+    },
+    prepare(selection) {
+      const {author} = selection
+      return {...selection, subtitle: author && `by ${author}`}
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/siteSettings.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'siteSettings',
+  title: 'Site Settings',
+  type: 'document',
+  fields: [
+    {
+      name: 'siteName',
+      title: 'Site Name',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'siteDescription',
+      title: 'Site Description',
+      type: 'localeText',
+      description: 'Default meta description',
+    },
+    {
+      name: 'siteUrl',
+      title: 'Site URL',
+      type: 'url',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'defaultOgImage',
+      title: 'Default Open Graph Image',
+      type: 'image',
+      description: 'Default image for social media sharing',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
+      name: 'logo',
+      title: 'Logo',
+      type: 'image',
+      description: 'Site logo',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'favicon',
+      title: 'Favicon',
+      type: 'image',
+      description: 'Site favicon (32x32 or 16x16)',
+    },
+    {
+      name: 'navigation',
+      title: 'Main Navigation',
+      type: 'object',
+      fields: [
+        {
+          name: 'items',
+          title: 'Navigation Items',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'label',
+                  title: 'Label',
+                  type: 'localeString',
+                  validation: (Rule) => Rule.required(),
+                },
+                {
+                  name: 'url',
+                  title: 'URL',
+                  type: 'string',
+                  description: 'Internal path or external URL',
+                },
+                {
+                  name: 'targetBlank',
+                  title: 'Open in new tab',
+                  type: 'boolean',
+                  initialValue: false,
+                },
+                {
+                  name: 'children',
+                  title: 'Submenu Items',
+                  type: 'array',
+                  of: [
+                    {
+                      type: 'object',
+                      fields: [
+                        {
+                          name: 'label',
+                          title: 'Label',
+                          type: 'localeString',
+                          validation: (Rule) => Rule.required(),
+                        },
+                        {
+                          name: 'url',
+                          title: 'URL',
+                          type: 'string',
+                          validation: (Rule) => Rule.required(),
+                        },
+                        {
+                          name: 'targetBlank',
+                          title: 'Open in new tab',
+                          type: 'boolean',
+                          initialValue: false,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'footer',
+      title: 'Footer Settings',
+      type: 'object',
+      fields: [
+        {
+          name: 'copyrightText',
+          title: 'Copyright Text',
+          type: 'localeString',
+        },
+        {
+          name: 'columns',
+          title: 'Footer Columns',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'title',
+                  title: 'Column Title',
+                  type: 'localeString',
+                },
+                {
+                  name: 'links',
+                  title: 'Links',
+                  type: 'array',
+                  of: [
+                    {
+                      type: 'object',
+                      fields: [
+                        {
+                          name: 'label',
+                          title: 'Label',
+                          type: 'localeString',
+                        },
+                        {
+                          name: 'url',
+                          title: 'URL',
+                          type: 'string',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'socialMedia',
+      title: 'Social Media Links',
+      type: 'object',
+      fields: [
+        {
+          name: 'facebook',
+          title: 'Facebook',
+          type: 'url',
+        },
+        {
+          name: 'instagram',
+          title: 'Instagram',
+          type: 'url',
+        },
+        {
+          name: 'twitter',
+          title: 'Twitter/X',
+          type: 'url',
+        },
+        {
+          name: 'youtube',
+          title: 'YouTube',
+          type: 'url',
+        },
+        {
+          name: 'tiktok',
+          title: 'TikTok',
+          type: 'url',
+        },
+        {
+          name: 'linkedin',
+          title: 'LinkedIn',
+          type: 'url',
+        },
+      ],
+    },
+    {
+      name: 'contact',
+      title: 'Contact Information',
+      type: 'object',
+      fields: [
+        {
+          name: 'email',
+          title: 'Contact Email',
+          type: 'email',
+        },
+        {
+          name: 'phone',
+          title: 'Phone Number',
+          type: 'string',
+        },
+        {
+          name: 'address',
+          title: 'Address',
+          type: 'text',
+        },
+      ],
+    },
+    {
+      name: 'analytics',
+      title: 'Analytics',
+      type: 'object',
+      fields: [
+        {
+          name: 'googleAnalyticsId',
+          title: 'Google Analytics ID',
+          type: 'string',
+          description: 'GA4 Measurement ID (e.g., G-XXXXXXXXXX)',
+        },
+        {
+          name: 'googleTagManagerId',
+          title: 'Google Tag Manager ID',
+          type: 'string',
+          description: 'GTM Container ID (e.g., GTM-XXXXXX)',
+        },
+      ],
+    },
+    {
+      name: 'cookieConsent',
+      title: 'Cookie Consent Settings',
+      type: 'object',
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Enable Cookie Consent',
+          type: 'boolean',
+          initialValue: true,
+        },
+        {
+          name: 'message',
+          title: 'Consent Message',
+          type: 'localeText',
+        },
+        {
+          name: 'privacyPolicyUrl',
+          title: 'Privacy Policy URL',
+          type: 'string',
+        },
+      ],
+    },
+    {
+      name: 'announcement',
+      title: 'Announcement Banner',
+      type: 'object',
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Announcement',
+          type: 'boolean',
+          initialValue: false,
+        },
+        {
+          name: 'message',
+          title: 'Announcement Message',
+          type: 'localeString',
+        },
+        {
+          name: 'link',
+          title: 'Link',
+          type: 'object',
+          fields: [
+            {
+              name: 'text',
+              title: 'Link Text',
+              type: 'localeString',
+            },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'string',
+            },
+          ],
+        },
+        {
+          name: 'dismissible',
+          title: 'Can be dismissed',
+          type: 'boolean',
+          initialValue: true,
+        },
+      ],
+    },
+  ],
+  preview: {
+    prepare() {
+      return {
+        title: 'Site Settings',
+      }
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/documents/team.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'team',
+  title: 'Team',
+  type: 'document',
+  fields: [
+    {
+      name: 'name',
+      title: 'Team Name',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'city',
+      title: 'City',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'province',
+      title: 'Province',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Alberta', value: 'AB' },
+          { title: 'British Columbia', value: 'BC' },
+          { title: 'Manitoba', value: 'MB' },
+          { title: 'New Brunswick', value: 'NB' },
+          { title: 'Newfoundland and Labrador', value: 'NL' },
+          { title: 'Northwest Territories', value: 'NT' },
+          { title: 'Nova Scotia', value: 'NS' },
+          { title: 'Nunavut', value: 'NU' },
+          { title: 'Ontario', value: 'ON' },
+          { title: 'Prince Edward Island', value: 'PE' },
+          { title: 'Quebec', value: 'QC' },
+          { title: 'Saskatchewan', value: 'SK' },
+          { title: 'Yukon', value: 'YT' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'division',
+      title: 'Division',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Community', value: 'community' },
+          { title: 'University', value: 'university' },
+          { title: 'Youth', value: 'youth' },
+          { title: 'Elite', value: 'elite' },
+        ],
+      },
+    },
+    {
+      name: 'founded',
+      title: 'Founded Year',
+      type: 'number',
+      validation: (Rule) => Rule.min(2000).max(new Date().getFullYear()),
+    },
+    {
+      name: 'active',
+      title: 'Active',
+      type: 'boolean',
+      description: 'Is this team currently active?',
+      initialValue: true,
+    },
+    {
+      name: 'logo',
+      title: 'Team Logo',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
+      name: 'primaryColor',
+      title: 'Primary Color',
+      type: 'color',
+      options: {
+        disableAlpha: false,
+      },
+    },
+    {
+      name: 'secondaryColor',
+      title: 'Secondary Color',
+      type: 'color',
+      options: {
+        disableAlpha: false,
+      },
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'localeText',
+    },
+    {
+      name: 'website',
+      title: 'Website',
+      type: 'url',
+    },
+    {
+      name: 'email',
+      title: 'Contact Email',
+      type: 'email',
+    },
+    {
+      name: 'socialMedia',
+      title: 'Social Media',
+      type: 'object',
+      fields: [
+        {
+          name: 'facebook',
+          title: 'Facebook',
+          type: 'url',
+        },
+        {
+          name: 'instagram',
+          title: 'Instagram',
+          type: 'url',
+        },
+        {
+          name: 'twitter',
+          title: 'Twitter/X',
+          type: 'url',
+        },
+      ],
+    },
+    {
+      name: 'homefield',
+      title: 'Home Field/Venue',
+      type: 'object',
+      fields: [
+        {
+          name: 'name',
+          title: 'Venue Name',
+          type: 'string',
+        },
+        {
+          name: 'address',
+          title: 'Address',
+          type: 'text',
+        },
+        {
+          name: 'coordinates',
+          title: 'Coordinates',
+          type: 'geopoint',
+        },
+      ],
+    },
+    {
+      name: 'roster',
+      title: 'Current Roster',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'player' }],
+        },
+      ],
+    },
+    {
+      name: 'coaches',
+      title: 'Coaches',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'name',
+              title: 'Name',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'role',
+              title: 'Role',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Head Coach', value: 'head_coach' },
+                  { title: 'Assistant Coach', value: 'assistant_coach' },
+                  { title: 'Manager', value: 'manager' },
+                ],
+              },
+            },
+            {
+              name: 'email',
+              title: 'Email',
+              type: 'email',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'achievements',
+      title: 'Achievements',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'title',
+              title: 'Achievement',
+              type: 'localeString',
+            },
+            {
+              name: 'year',
+              title: 'Year',
+              type: 'number',
+            },
+            {
+              name: 'description',
+              title: 'Description',
+              type: 'localeText',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      city: 'city',
+      province: 'province',
+      media: 'logo',
+      active: 'active',
+    },
+    prepare({ title, city, province, media, active }) {
+      return {
+        title,
+        subtitle: `${city}, ${province} ${active ? '' : '(Inactive)'}`,
+        media,
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Name',
+      name: 'nameAsc',
+      by: [{ field: 'name', direction: 'asc' }],
+    },
+    {
+      title: 'Province, City',
+      name: 'location',
+      by: [
+        { field: 'province', direction: 'asc' },
+        { field: 'city', direction: 'asc' },
+      ],
+    },
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/helpers/localization.ts">
+// Localization helpers for bilingual content
+
+export const localeString = {
+  title: 'Localized string',
+  name: 'localeString',
+  type: 'object',
+  fields: [
+    {
+      title: 'English',
+      name: 'en',
+      type: 'string',
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      title: 'French',
+      name: 'fr',
+      type: 'string',
+      validation: (Rule: any) => Rule.required(),
+    },
+  ],
+};
+
+export const localeText = {
+  title: 'Localized text',
+  name: 'localeText',
+  type: 'object',
+  fields: [
+    {
+      title: 'English',
+      name: 'en',
+      type: 'text',
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      title: 'French',
+      name: 'fr',
+      type: 'text',
+      validation: (Rule: any) => Rule.required(),
+    },
+  ],
+};
+
+export const localeSlug = {
+  title: 'Localized slug',
+  name: 'localeSlug',
+  type: 'object',
+  fields: [
+    {
+      title: 'English',
+      name: 'en',
+      type: 'slug',
+      options: {
+        source: 'title.en',
+        maxLength: 96,
+      },
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      title: 'French',
+      name: 'fr',
+      type: 'slug',
+      options: {
+        source: 'title.fr',
+        maxLength: 96,
+      },
+      validation: (Rule: any) => Rule.required(),
+    },
+  ],
+};
+
+export const localePortableText = {
+  title: 'Localized rich text',
+  name: 'localePortableText',
+  type: 'object',
+  fields: [
+    {
+      title: 'English',
+      name: 'en',
+      type: 'blockContent',
+      validation: (Rule: any) => Rule.required(),
+    },
+    {
+      title: 'French',
+      name: 'fr',
+      type: 'blockContent',
+      validation: (Rule: any) => Rule.required(),
+    },
+  ],
+};
+
+export const supportedLanguages = [
+  { id: 'en', title: 'English', isDefault: true },
+  { id: 'fr', title: 'French' },
+];
+
+// Helper to create localized fields
+export function localizeField(field: any, languages = supportedLanguages) {
+  return {
+    ...field,
+    type: 'object',
+    fields: languages.map(lang => ({
+      title: lang.title,
+      name: lang.id,
+      type: field.type === 'blockContent' ? 'blockContent' : field.type,
+      validation: lang.isDefault ? (Rule: any) => Rule.required() : undefined,
+    })),
+  };
+}
+</file>
+
+<file path="studio/src/schemaTypes/objects/blockContent.tsx">
+import {defineType, defineArrayMember} from 'sanity'
+
+/**
+ * This is the schema definition for the rich text fields used for
+ * for this blog studio. When you import it in schemas.js it can be
+ * reused in other parts of the studio with:
+ *  {
+ *    name: 'someName',
+ *    title: 'Some title',
+ *    type: 'blockContent'
+ *  }
+ */
+export default defineType({
+  title: 'Block Content',
+  name: 'blockContent',
+  type: 'array',
+  of: [
+    defineArrayMember({
+      title: 'Block',
+      type: 'block',
+      // Styles let you set what your user can mark up blocks with. These
+      // correspond with HTML tags, but you can set any title or value
+      // you want and decide how you want to deal with it where you want to
+      // use your content.
+      styles: [
+        {title: 'Normal', value: 'normal'},
+        {title: 'H1', value: 'h1'},
+        {title: 'H2', value: 'h2'},
+        {title: 'H3', value: 'h3'},
+        {title: 'H4', value: 'h4'},
+        {title: 'Quote', value: 'blockquote'},
+      ],
+      lists: [{title: 'Bullet', value: 'bullet'}],
+      // Marks let you mark up inline text in the block editor.
+      marks: {
+        // Decorators usually describe a single property – e.g. a typographic
+        // preference or highlighting by editors.
+        decorators: [
+          {title: 'Strong', value: 'strong'},
+          {title: 'Emphasis', value: 'em'},
+        ],
+        // Annotations can be any object structure – e.g. a link or a footnote.
+        annotations: [
+          {
+            title: 'URL',
+            name: 'link',
+            type: 'object',
+            fields: [
+              {
+                title: 'URL',
+                name: 'href',
+                type: 'url',
+              },
+            ],
+          },
+        ],
+      },
+    }),
+  ],
+})
+</file>
+
+<file path="studio/src/schemaTypes/objects/color.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'color',
+  title: 'Color',
+  type: 'object',
+  fields: [
+    {
+      name: 'hex',
+      title: 'Hex',
+      type: 'string',
+      validation: (Rule) => Rule.regex(/^#([0-9a-fA-F]{3}){1,2}$/).warning('Expected hex color like #ff0000'),
+    },
+  ],
+  preview: {
+    select: {hex: 'hex'},
+    prepare({hex}) {
+      return {title: hex || 'No color'}
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/objects/ctaBlock.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'ctaBlock',
+  title: 'CTA Block',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'heading',
+      title: 'Heading',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'description',
+      title: 'Description',
+      type: 'localeText',
+    },
+    {
+      name: 'buttonText',
+      title: 'Button Text',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'buttonUrl',
+      title: 'Button URL',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'style',
+      title: 'Style',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Primary', value: 'primary' },
+          { title: 'Secondary', value: 'secondary' },
+          { title: 'Accent', value: 'accent' },
+          { title: 'Dark', value: 'dark' },
+        ],
+      },
+      initialValue: 'primary',
+    },
+    {
+      name: 'icon',
+      title: 'Icon',
+      type: 'string',
+      description: 'Icon name from icon library',
+    },
+    {
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+    },
+  ],
+  preview: {
+    select: {
+      titleEn: 'heading.en',
+      titleFr: 'heading.fr',
+      style: 'style',
+      media: 'backgroundImage',
+    },
+    prepare({ titleEn, titleFr, style, media }) {
+      return {
+        title: titleEn || titleFr,
+        subtitle: `CTA Block (${style})`,
+        media,
+      }
+    },
+  },
+})
+</file>
+
+<file path="studio/src/schemaTypes/objects/formEmbed.ts">
+import {defineType} from 'sanity'
+
+export default defineType({
+  name: 'formEmbed',
+  title: 'Form Embed',
+  type: 'document',
+  fields: [
+    {
+      name: 'title',
+      title: 'Internal Title',
+      type: 'string',
+      description: 'For internal reference only',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'formType',
+      title: 'Form Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Newsletter Signup', value: 'newsletter' },
+          { title: 'Contact Form', value: 'contact' },
+          { title: 'Registration', value: 'registration' },
+          { title: 'Survey', value: 'survey' },
+          { title: 'Custom Embed', value: 'custom' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'heading',
+      title: 'Form Heading',
+      type: 'localeString',
+    },
+    {
+      name: 'description',
+      title: 'Form Description',
+      type: 'localeText',
+    },
+    {
+      name: 'provider',
+      title: 'Provider',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Mailchimp', value: 'mailchimp' },
+          { title: 'SendGrid', value: 'sendgrid' },
+          { title: 'Google Forms', value: 'google' },
+          { title: 'Typeform', value: 'typeform' },
+          { title: 'Custom HTML', value: 'custom' },
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'embedCode',
+      title: 'Embed Code',
+      type: 'text',
+      description: 'HTML embed code or form ID',
+      hidden: ({ parent }) => parent?.provider !== 'custom',
+    },
+    {
+      name: 'formId',
+      title: 'Form ID',
+      type: 'string',
+      description: 'Form or list ID from the provider',
+      hidden: ({ parent }) => parent?.provider === 'custom',
+    },
+    {
+      name: 'apiEndpoint',
+      title: 'API Endpoint',
+      type: 'url',
+      description: 'Form submission endpoint',
+      hidden: ({ parent }) => parent?.provider === 'custom',
+    },
+    {
+      name: 'successMessage',
+      title: 'Success Message',
+      type: 'localeText',
+      description: 'Message shown after successful submission',
+    },
+    {
+      name: 'privacyNotice',
+      title: 'Privacy Notice',
+      type: 'localePortableText',
+      description: 'Privacy policy text shown with the form',
+    },
+    {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description: 'Tags to segment subscribers (for newsletter forms)',
+      hidden: ({ parent }) => parent?.formType !== 'newsletter',
+    },
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      formType: 'formType',
+      provider: 'provider',
+    },
+    prepare({ title, formType, provider }) {
+      return {
+        title,
+        subtitle: `${formType} - ${provider}`,
+      }
+    },
+  },
+})
+</file>
+
+<file path="studio/static/.gitkeep">
+Files placed here will be served by the Sanity server under the `/static`-prefix
+</file>
+
+<file path="studio/.env.example">
+SANITY_STUDIO_PROJECT_ID="<paste your project ID here>"
+SANITY_STUDIO_DATASET="production"
+SANITY_STUDIO_STUDIO_HOST="" #Optional
+</file>
+
+<file path="studio/.eslintrc">
+{
+  "extends": "@sanity/eslint-config-studio"
+}
+</file>
+
+<file path="studio/.gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Compiled Sanity Studio
+/dist
+
+# Temporary Sanity runtime, generated by the CLI on every dev server start
+/.sanity
+
+# Logs
+/logs
+*.log
+
+# Coverage directory used by testing tools
+/coverage
+
+# Misc
+.DS_Store
+*.pem
+
+# Typescript
+*.tsbuildinfo
+
+# Dotenv and similar local-only files
+*.local
+</file>
+
+<file path="studio/package.json">
+{
+  "name": "sanity-template-astro-clean",
+  "private": true,
+  "version": "1.0.0",
+  "main": "package.json",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "deploy-graphql": "sanity graphql deploy"
+  },
+  "keywords": [
+    "sanity"
+  ],
+  "dependencies": {
+    "@sanity/vision": "^3.76.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sanity": "^3.76.1",
+    "styled-components": "^6.1.8"
+  },
+  "devDependencies": {
+    "@sanity/eslint-config-studio": "^5.0.0",
+    "eslint": "^9.0.0",
+    "@types/react": "^19.0.0",
+    "prettier": "^3.0.2",
+    "typescript": "^5.1.6"
+  },
+  "prettier": {
+    "semi": false,
+    "printWidth": 100,
+    "bracketSpacing": false,
+    "singleQuote": true
+  }
+}
+</file>
+
+<file path="studio/README.md">
+# Sanity Clean Content Studio
+
+Congratulations, you have now installed the Sanity Content Studio, an open-source real-time content editing environment connected to the Sanity backend.
+
+Now you can do the following things:
+
+- [Read “getting started” in the docs](https://www.sanity.io/docs/introduction/getting-started?utm_source=readme)
+- [Join the community Slack](https://slack.sanity.io/?utm_source=readme)
+- [Extend and build plugins](https://www.sanity.io/docs/content-studio/extending?utm_source=readme)
+</file>
+
+<file path="studio/sanity.config.ts">
+import {defineConfig} from 'sanity'
+import {structureTool} from 'sanity/structure'
+import {visionTool} from '@sanity/vision'
+import {schemaTypes} from './src/schemaTypes'
+
+// Environment variables for project configuration
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
+const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
+
+export default defineConfig({
+  name: 'sanity-template-astro-clean',
+  title: 'Sanity Astro Starter',
+  projectId,
+  dataset,
+  plugins: [structureTool(), visionTool()],
+  schema: {
+    types: schemaTypes,
+  },
+})
+</file>
+
+<file path="studio/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "Preserve",
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="add_token.sh">
+#!/bin/bash
+echo "Paste your Cloudflare API token and press Enter:"
+read -s CLOUDFLARE_API_TOKEN
+gh secret set CLOUDFLARE_API_TOKEN --body "$CLOUDFLARE_API_TOKEN"
+echo "✅ Token added to GitHub secrets!"
+echo ""
+echo "Now testing the workflow..."
+gh workflow run "Deploy on Sanity Update" --ref main
+echo "✅ Workflow triggered! Check the status at:"
+echo "https://github.com/austeane/quadball-canada/actions"
+</file>
+
+<file path="AGENTS.md">
+# AGENTS.md
+
+These are standing instructions for autonomous/code assistants working in this repo.
+
+1. Read `CLAUDE.md` before beginning any new task to stay aligned with the project guidance and workspace conventions.
+2. When verifying UI or running browser checks, prefer the integrated Playwright MCP tools (e.g., `playwright__browser_navigate`) instead of spawning standalone `npx playwright` commands.
+3. When starting local servers for verification, launch the appropriate workspace dev server(s) and confirm availability before interacting via Playwright MCP.
+4. Keep documentation artifacts (like this file, `MIGRATION_PLAN.md`, and `CHECKLIST.md`) synchronized with actual repository state whenever changes are made.
+</file>
+
+<file path="GITHUB_SECRETS_SETUP.md">
+# GitHub Secrets Setup for Automated Deployment
+
+You need to add the following secrets to your GitHub repository for the automated deployment to work.
+
+## Step 1: Add Repository Secrets
+
+Go to your GitHub repository: https://github.com/austeane/quadball-canada/settings/secrets/actions
+
+Add these secrets:
+
+### 1. `CLOUDFLARE_ACCOUNT_ID`
+Value: `48dba4f30a5b57fb1b2295da5bc8751a`
+
+### 2. `CLOUDFLARE_API_TOKEN`
+You need to create a new API token:
+1. Go to https://dash.cloudflare.com/profile/api-tokens
+2. Click "Create Token"
+3. Use "Custom token" template
+4. Set these permissions:
+   - **Account** → Cloudflare Pages:Edit
+   - **Zone** → Zone:Read (optional, if you have a custom domain)
+5. Account resources: Include → Your account
+6. Click "Continue to summary" → "Create Token"
+7. Copy the token and add it as this secret
+
+### 3. `PUBLIC_SANITY_STUDIO_PROJECT_ID`
+Value: `kbufa3g3`
+
+### 4. `PUBLIC_SANITY_STUDIO_DATASET`
+Value: `production`
+
+## Step 2: Create Sanity Webhook
+
+After adding GitHub secrets:
+
+1. Go to https://www.sanity.io/manage/project/kbufa3g3/api/webhooks
+2. Click "Create Webhook"
+3. Configure:
+   - **Name**: Deploy to Cloudflare Pages
+   - **URL**: `https://api.github.com/repos/austeane/quadball-canada/dispatches`
+   - **Trigger on**: Create, Update, Delete
+   - **Filter**: Leave empty (or set to `_type == "post"` if you only want post updates to trigger)
+   - **Headers**: Add these headers:
+     ```
+     Accept: application/vnd.github.v3+json
+     Authorization: Bearer YOUR_GITHUB_TOKEN
+     Content-Type: application/json
+     ```
+   - **Body**: Set to:
+     ```json
+     {
+       "event_type": "sanity-update"
+     }
+     ```
+
+### Creating a GitHub Personal Access Token for the webhook:
+
+1. Go to https://github.com/settings/tokens/new
+2. Give it a name like "Sanity Webhook"
+3. Set expiration (or no expiration)
+4. Select scope: `repo` (full control)
+5. Generate token and copy it
+6. Use this token in the `Authorization: Bearer YOUR_GITHUB_TOKEN` header above
+
+## Step 3: Test
+
+1. Push this workflow to GitHub
+2. Go to Actions tab and manually run the workflow to test
+3. Once working, test the webhook by publishing a change in Sanity Studio
+</file>
+
+<file path="README.md">
+# Clean Astro + Sanity app
+
+This template includes an [Astro](https://astro.build/) app with a [Sanity Studio](https://www.sanity.io/) – an open-source React application that connects to your Sanity project’s hosted dataset. The Studio is configured locally and can then be deployed for content collaboration.
+
+## Features
+
+- Fetch content as data from [the Sanity Content Lake](https://www.sanity.io/docs/datastore)
+- Render block content with [Portable Text](https://www.sanity.io/docs/presenting-block-text)
+- Manage and create content with the intuitive [Sanity Studio](https://www.sanity.io/docs/sanity-studio).
+- Crop and render images with [Sanity Image URLs](https://www.sanity.io/docs/presenting-images)
+
+## Demo
+
+https://template-astro-clean.sanity.build
+
+## Getting Started
+
+### Install the template
+
+#### 1. Initialize template with Sanity CLI
+
+Run the command in your Terminal to initialize this template on your local computer.
+
+See the documentation if you are [having issues with the CLI](https://www.sanity.io/help/cli-errors).
+
+```shell
+npm create sanity@latest -- --template sanity-io/sanity-template-astro-clean
+```
+
+#### 2. Run Studio and Astro app locally
+
+Navigate to the template directory using `cd <your app name>`, and start the development servers by running the following command
+
+```shell
+npm run dev
+```
+
+#### 3. Open the app and sign in to the Studio
+
+Open the Astro app running locally in your browser on [http://localhost:4321](http://localhost:4321).
+
+Open the Studio running locally in your browser on [http://localhost:3333](http://localhost:3333). You should now see a screen prompting you to log in to the Studio. Use the same service (Google, GitHub, or email) that you used when you logged in to the CLI.
+
+### Adding content with Sanity
+
+#### 1. Publish your first document
+
+The template comes pre-defined with a schema containing a `Post` document type.
+
+From the Studio, click "+ Create" and select the `Post` document type. Go ahead and create and publish the document.
+
+Your content should now appear in your Astro app ([http://localhost:4321](http://localhost:4321))
+
+#### 2. Extending the Sanity schema
+
+The schema for the `Post` document type is defined in the `studio/src/schemaTypes/post.ts` file. You can [add more document types](https://www.sanity.io/docs/schema-types) to the schema to suit your needs.
+
+### Deploying your application and inviting editors
+
+#### 1. Deploy Sanity Studio
+
+Your Astro frontend (`/astro-app`) and Sanity Studio (`/studio`) are still only running on your local computer.
+
+Back in your Studio directory (`/studio`), run the following command to deploy your Sanity Studio.
+
+```shell
+npx sanity deploy
+```
+
+#### 2. Deploy Astro app to Vercel
+
+You have the freedom to deploy your Astro app to your hosting provider of choice. With Vercel and GitHub being a popular choice, we'll cover the basics of that approach.
+
+1. Create a GitHub repository from this project. [Learn more](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
+2. Create a new Vercel project and connect it to your Github repository.
+3. Set the `Root Directory` to your Astro app.
+4. Configure your Environment Variables.
+
+#### 3. Invite a collaborator
+
+Now that you’ve deployed your Astro application and Sanity Studio, you can optionally invite a collaborator to your Studio. Open up [Manage](https://www.sanity.io/manage), select your project and click "Invite project members"
+
+They will be able to access the deployed Studio, where you can collaborate together on creating content.
+
+## Resources
+
+- [Sanity documentation](https://www.sanity.io/docs/)
+- [Astro documentation](https://docs.astro.build/en/getting-started/)
+- [Join the Sanity Community](https://slack.sanity.io)
+- [Learn Sanity](https://www.sanity.io/learn)
+- [Add Visual Editing (Presentation) to your project](https://www.sanity.io/guides/sanity-astro-blog)
+</file>
+
+<file path="watch-deployment.sh">
+#!/bin/bash
+echo "Watching for new deployments triggered by Sanity..."
+echo "Make a change in Sanity Studio and publish to test the webhook."
+echo ""
+echo "Current runs:"
+gh run list --workflow="Deploy on Sanity Update" --limit 3
+echo ""
+echo "Waiting for new deployment..."
+
+# Get the latest run ID
+LATEST_RUN=$(gh run list --workflow="Deploy on Sanity Update" --limit 1 --json databaseId -q '.[0].databaseId')
+
+# Watch for a new run
+while true; do
+  NEW_RUN=$(gh run list --workflow="Deploy on Sanity Update" --limit 1 --json databaseId -q '.[0].databaseId')
+  if [ "$NEW_RUN" != "$LATEST_RUN" ]; then
+    echo "🚀 New deployment detected! Run ID: $NEW_RUN"
+    echo "Watching progress..."
+    gh run watch $NEW_RUN
+    break
+  fi
+  sleep 2
+done
+</file>
+
+<file path="webhook-proxy.js">
+// Cloudflare Worker to proxy Sanity webhooks to GitHub Actions
+// Deploy this as a Cloudflare Worker and use its URL as the Sanity webhook endpoint
+//
+// Required environment variable:
+// GITHUB_TOKEN - GitHub Personal Access Token with repo:dispatch permission
+
+export default {
+  async fetch(request, env, ctx) {
+    // Only accept POST requests
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 });
+    }
+
+    // Check for GitHub token in environment
+    if (!env.GITHUB_TOKEN) {
+      return new Response('GitHub token not configured', { status: 500 });
+    }
+
+    // Trigger GitHub Actions workflow
+    const githubResponse = await fetch('https://api.github.com/repos/austeane/quadball-canada/dispatches', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Sanity-Webhook-Proxy'
+      },
+      body: JSON.stringify({
+        event_type: 'sanity-update'
+      })
+    });
+
+    return new Response(
+      `GitHub API responded with: ${githubResponse.status}`,
+      { status: githubResponse.ok ? 200 : githubResponse.status }
+    );
+  },
+};
+</file>
+
+<file path="astro-app/src/components/content/NewsCard.astro">
+---
+import { formatDate } from "../../utils";
+import { urlFor } from "../../utils/image";
+import type { NewsArticleSummary } from "../../utils/sanity";
+
+interface Props {
+  article: NewsArticleSummary;
+}
+
+const { article } = Astro.props;
+const featuredImage = article.featuredImage;
+---
+
+<article class="card">
+  {
+    featuredImage ? (
+      <img
+        class="card__cover"
+        src={urlFor(featuredImage).width(600).height(360).url()}
+        alt={featuredImage.alt || ""}
+      />
+    ) : (
+      <div class="card__cover--none" />
+    )
+  }
+  <div class="card__container">
+    <h3 class="card__title">
+      <a
+        class="card__link"
+        href={`/news/${article.slug}`}
+      >
+        {article.title}
+      </a>
+    </h3>
+    {article.excerpt && <p class="card__excerpt">{article.excerpt}</p>}
+    <p class="card__date">
+      {formatDate(article.publishedAt)}
+    </p>
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    position: relative;
+    border-bottom: 1px solid #ced2d9;
+
+    & .card__container {
+      margin: 0 var(--space-1) 0;
+    }
+
+    & .card__cover {
+      width: 100%;
+      height: 231px;
+      object-fit: cover;
+    }
+
+    & .card__cover--none {
+      width: 100%;
+      height: 231px;
+      background: #1b1b1b;
+    }
+
+    & .card__title {
+      font-family: var(--font-family-sans);
+      font-weight: 800;
+      font-size: var(--font-size-7);
+      line-height: var(--line-height-6);
+      margin: var(--space-3) 0;
+    }
+
+    & .card__excerpt {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-3);
+      margin-top: 0;
+    }
+
+    & .card__date {
+      font-weight: 600;
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-1);
+      margin-top: var(--space-4);
+      color: var(--gray-600);
+    }
+
+    & .card__link {
+      color: var(--brand-primary);
+      text-decoration: none;
+
+      &:hover {
+        opacity: 0.85;
+        transition: 0.2s;
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
+    }
+
+    &:first-child {
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+
+  @media (min-width: 575px) {
+    .card {
+      border: 1px solid #ced2d9;
+      border-bottom: none;
+
+      & .card__title {
+        margin-top: var(--space-4);
+      }
+
+      &:last-child {
+        border-bottom: 1px solid #ced2d9;
+      }
+    }
+  }
+
+  @media (min-width: 800px) {
+    .card {
+      flex-direction: row;
+
+      & .card__container {
+        margin: 0 var(--space-4) 0;
+      }
+
+      & .card__cover,
+      & .card__cover--none {
+        min-width: 366.5px;
+        max-width: 366.5px;
+        max-height: 231px;
+      }
+    }
+  }
+</style>
+</file>
+
+<file path="astro-app/src/components/layout/Footer.astro">
+---
+---
+<footer class="site-footer">
+  <div class="cols">
+    <div>
+      <h4>Quadball Canada</h4>
+      <p>© {new Date().getFullYear()} Quadball Canada</p>
+      <p>Charitable Registration Number: 820553188RR0001</p>
+    </div>
+    <div>
+      <h4>Get Involved</h4>
+      <ul>
+        <li><a href="/teams/">Join a Team</a></li>
+        <li><a href="/events/">Host an Event</a></li>
+        <li><a href="/news/">Volunteer</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Follow Us</h4>
+      <ul>
+        <li><a target="_blank" rel="noopener" href="https://www.facebook.com/QuidditchCanada/">Facebook</a></li>
+        <li><a target="_blank" rel="noopener" href="https://twitter.com/quidditchcanada">Twitter</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.flickr.com/photos/quidditchcanada/">Flickr</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.youtube.com/channel/UC9v_MQffSUVrEoZmOdIEenw">YouTube</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/news/">Latest News</a></li>
+        <li><a href="/play/">Rules</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: 24px 0;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  h4 { margin: 0 0 8px; color: var(--text-strong); }
+  a { color: var(--brand-primary); text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: 6px 0; }
+</style>
+</file>
+
+<file path="astro-app/src/components/layout/Header.astro">
+---
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+
+interface Props {
+  currentPath: string;
+  alternate?: { en: string; fr: string };
+}
+
+const { currentPath, alternate } = Astro.props as Props;
+---
+<header class="site-header">
+  <a class="site-header__title" href="/">
+    <img src="/quadball-canada-logo.jpg" alt="Quadball Canada" class="logo" />
+  </a>
+  <nav class="site-header__nav">
+    <a href="/news/">News</a>
+    <a href="/about/">About</a>
+    <a href="/play/">Play</a>
+    <a href="/events/">Events</a>
+    <a href="/teams/">Teams</a>
+    <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .site-header__title {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  .logo { height: 36px; width: auto; display: block; }
+  .site-header__nav a {
+    margin-left: 16px;
+    color: var(--brand-primary);
+    text-decoration: none;
+  }
+</style>
+</file>
+
+<file path="astro-app/src/components/sections/HeroSlider.astro">
+---
+---
+<section class="hero">
+  <img class="hero__img" src="/hero-cover.jpg" alt="Quadball Canada cover" />
+  <div class="hero__overlay">
+    <h1 class="hero__title">Quadball Canada</h1>
+    <p class="hero__subtitle">Building community through sport across Canada.</p>
+    <a class="btn" href="/news/">Read the latest</a>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; width: 100vw; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow: hidden; }
+  .hero__img { width: 100%; height: 42vw; max-height: 520px; min-height: 260px; object-fit: cover; display: block; }
+  .hero__overlay { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0) 100%); }
+  .hero__title { color: #fff; font-size: clamp(28px, 6vw, 56px); margin: 0 0 8px; letter-spacing: -0.02em; }
+  .hero__subtitle { color: #fff; font-size: clamp(14px, 2.5vw, 20px); margin: 0 0 12px; }
+  .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; font-weight: 700; }
+</style>
+</file>
+
+<file path="astro-app/src/components/sections/NewsGrid.astro">
+---
+import NewsCard from "../content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "../../utils/sanity";
+
+const locale: Locale = "en";
+const articles = await getNewsArticles(locale);
+---
+
+<section class="news-grid">
+  <h2>Latest News</h2>
+  <div class="grid">
+    {articles.length ? (
+      articles.slice(0, 6).map((a) => <NewsCard article={a} />)
+    ) : (
+      <p>No news yet.</p>
+    )}
+  </div>
+  <p><a class="btn-secondary" href="/news/">Browse all news</a></p>
+</section>
+
+<style>
+  .news-grid { padding: 24px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .btn-secondary { text-decoration: none; color: #1e61cd; font-weight: 700; }
+</style>
+</file>
+
+<file path="astro-app/src/components/Welcome.astro">
+---
+---
+
+<div class="container">
+  <div class="logos">
+    <div class="logos__blur"></div>
+    <img
+      class="logos__entry"
+      src="/astro.svg"
+      alt="Astro Logo"
+    />
+    <span class="logos__plus">+</span>
+    <img
+      class="logos__entry"
+      src="/sanity.svg"
+      alt="Sanity Logo"
+    />
+  </div>
+  <div class="steps">
+    <h2 class="steps__title">Next steps</h2>
+    <ul class="steps__list">
+      <li class="steps__entry">
+        <h3 class="steps__subtitle">Publish a news article in your Studio</h3>
+        <p class="steps__text">
+          Visit the <a href="http://localhost:3333/">Sanity Studio</a> and publish a new document of type <code>newsArticle</code>.
+        </p>
+      </li>
+      <li class="steps__entry">
+        <h3 class="step__title">Dive into the documentation</h3>
+        <p class="steps__text">
+          Check out{" "}
+          <a
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            href="https://www.sanity.io/docs"
+          >
+            the documentation
+          </a>{" "}
+          to learn more about Sanity.
+        </p>
+      </li>
+      <li class="steps__entry">
+        <h3 class="steps__subtitle">Join the Sanity Community</h3>
+        <p class="steps__text">
+          Leverage{" "}
+          <a
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            href="https://www.sanity.io/exchange/community"
+          >
+            our awesome community
+          </a>
+          , and share tips and discuss!
+        </p>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-2) var(--space-2);
+  }
+
+  .logos {
+    display: none;
+  }
+
+  .steps {
+    flex-direction: column;
+    width: 100%;
+
+    & .steps__list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    & .steps__entry {
+      margin-bottom: var(--space-4);
+    }
+
+    & .steps__title {
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-2);
+    }
+
+    & .steps__subtitle {
+      font-size: var(--font-size-3);
+      line-height: var(--line-height-2);
+    }
+
+    & .steps__text {
+      font-family: var(--font-family-serif);
+      line-height: var(--line-height-2);
+
+      & a {
+        color: var(--blue-600);
+        text-decoration: none;
+      }
+    }
+  }
+
+  @media (min-width: 575px) {
+    .container {
+      width: 100%;
+    }
+
+    .logos {
+      display: flex;
+      align-items: center;
+      margin: var(--space-6) 0 var(--space-5) 0;
+
+      & .logos__blur {
+        display: flex;
+        position: absolute;
+        width: 375px;
+        height: 115px;
+        background: var(--magenta-100);
+        filter: blur(82px);
+        transform: rotate(-19deg);
+        z-index: -1;
+      }
+
+      & .logos__plus {
+        display: flex;
+        font-family: var(--font-family-sans);
+        font-weight: 800;
+        font-size: var(--font-size-7);
+        line-height: var(--line-height-6);
+        margin: 0 var(--space-4);
+      }
+
+      & .logos__entry {
+        display: flex;
+      }
+    }
+
+    .steps {
+      max-width: var(--max-width-0);
+      display: flex;
+      padding: 0;
+
+      & .steps__subtitle {
+        margin-top: var(--space-4);
+      }
+
+      & .steps__list {
+        margin-top: 0;
+      }
+    }
+  }
+</style>
+</file>
+
+<file path="astro-app/src/pages/events/index.astro">
+---
+import Layout from "../../layouts/Layout.astro";
+import { getEvents, type Locale } from "../../utils/sanity";
+import EventCard from "../../components/content/EventCard.astro";
+
+const locale: Locale = "en";
+const events = await getEvents(locale);
+---
+
+<Layout title="Events" alternate={{ en: "/events/", fr: "/fr/evenements/" }}>
+  <section>
+    <h1>Events</h1>
+    <p><a class="btn-secondary" href="/events.ics">Add to Calendar (ICS)</a></p>
+    {events.length ? events.map((e) => <EventCard event={e} />) : <p>No events yet.</p>}
+  </section>
+
+<style>
+  .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+</style>
+</Layout>
+</file>
+
+<file path="astro-app/src/utils/image.ts">
+import imageUrlBuilder from "@sanity/image-url";
+import type { Image } from "@sanity/types";
+import { sanityClient } from "sanity:client";
+
+const builder = imageUrlBuilder(sanityClient);
+
+export function urlFor(source: Image | any) {
+  return builder.image(source as any);
+}
+</file>
+
+<file path="astro-app/src/utils/sanity.ts">
+import { sanityClient } from "sanity:client";
+import type { PortableTextBlock } from "@portabletext/types";
+import type { ImageAsset } from "@sanity/types";
+import groq from "groq";
+
+export type Locale = "en" | "fr";
+
+export interface SanityImageWithAlt {
+  _type: "image";
+  asset: ImageAsset;
+  alt?: string;
+  crop?: Record<string, unknown>;
+  hotspot?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface NewsArticleSummary {
+  _id: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  publishedAt: string;
+  featuredImage?: SanityImageWithAlt | null;
+}
+
+export interface NewsArticleDetail extends NewsArticleSummary {
+  content: PortableTextBlock[];
+  author?: {
+    _id: string;
+    name: string;
+    slug?: string;
+  } | null;
+  categories?: Array<{
+    _id: string;
+    title: string;
+    slug?: string;
+  }>;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface EventSummary {
+  _id: string;
+  slug: string;
+  title: string;
+  startDateTime: string;
+  endDateTime?: string;
+  timezone?: string;
+}
+
+export interface EventDetail extends EventSummary {
+  description?: string;
+  content?: PortableTextBlock[];
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface TeamSummary {
+  _id: string;
+  slug: string;
+  name: string;
+  city?: string;
+  province?: string;
+}
+
+export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "newsArticle" && defined(slug[$locale].current)] | order(publishedAt desc) {
+      _id,
+      publishedAt,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "featuredImage": featuredImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      }
+    }`,
+    { locale }
+  );
+}
+
+export async function getNewsArticle(
+  slug: string,
+  locale: Locale = "en"
+): Promise<NewsArticleDetail | null> {
+  const article = await sanityClient.fetch(
+    groq`*[_type == "newsArticle" && slug[$locale].current == $slug][0] {
+      _id,
+      publishedAt,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "content": coalesce(content[$locale], content.en),
+      "featuredImage": featuredImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      "author": author->{
+        _id,
+        name,
+        "slug": slug.current
+      },
+      "categories": categories[]->{
+        _id,
+        "title": coalesce(title[$locale], title.en),
+        "slug": select(defined(slug[$locale].current) => slug[$locale].current, slug.en.current)
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { slug, locale }
+  );
+
+  if (!article) {
+    return null;
+  }
+
+  return {
+    ...article,
+    content: article.content ?? [],
+  };
+}
+
+export async function getEvents(locale: Locale = "en"): Promise<EventSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "event" && defined(slug[$locale].current)] | order(startDateTime desc) {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      startDateTime,
+      endDateTime,
+      timezone
+    }`,
+    { locale }
+  );
+}
+
+export async function getEvent(slug: string, locale: Locale = "en"): Promise<EventDetail | null> {
+  return await sanityClient.fetch(
+    groq`*[_type == "event" && slug[$locale].current == $slug][0] {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      startDateTime,
+      endDateTime,
+      timezone,
+      "description": coalesce(description[$locale], description.en),
+      "content": coalesce(content[$locale], content.en)
+    }`,
+    { slug, locale }
+  );
+}
+
+export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "team" && defined(slug.current)] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      city,
+      province
+    }`
+  );
+}
+</file>
+
+<file path="astro-app/wrangler.toml">
+name = "quadball-canada"
+compatibility_date = "2024-09-30"
+pages_build_output_dir = "./dist"
+compatibility_flags = ["nodejs_compat"]
+</file>
+
+<file path="studio/sanity.cli.ts">
+/**
+ * Sanity CLI Configuration
+ * This file configures the Sanity CLI tool with project-specific settings
+ * and customizes the Vite bundler configuration.
+ * Learn more: https://www.sanity.io/docs/cli
+ */
+
+import {defineCliConfig} from 'sanity/cli'
+
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || '<your project ID>'
+const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
+
+export default defineCliConfig({
+  api: {
+    projectId,
+    dataset,
+  },
+  studioHost: 'quadball-canada',
+  autoUpdates: true,
+})
+</file>
+
+<file path="CLAUDE.md">
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is an Astro + Sanity CMS monorepo with two npm workspaces:
+- **astro-app**: Static Astro frontend (SSG) deployed to Cloudflare Pages
+- **studio**: Sanity Studio for content management (React-based CMS interface)
+
+## Development Commands
+
+### Running the project
+```bash
+npm run dev  # Runs both Astro app (localhost:4321) and Studio (localhost:3333) concurrently
+```
+
+### Individual workspace commands
+```bash
+# Astro app (in astro-app/)
+npm run dev      # Start dev server on localhost:4321
+npm run build    # Type check + build for production
+npm run preview  # Preview production build
+
+# Studio (in studio/)
+npm run dev      # Start Studio dev server on localhost:3333
+npm run build    # Build Studio
+npm run deploy   # Deploy Studio to Sanity's hosted platform
+```
+
+### Common CLI Commands (Sanity + Cloudflare)
+
+Sanity (Content Lake):
+
+```
+# Query a few documents (adjust GROQ as needed)
+cd studio && npx sanity documents query '*[_type == "newsArticle"][0..5]'
+
+# Create a document from a JSON file (production dataset)
+cd studio && npx sanity documents create /path/to/doc.json --dataset production
+```
+
+Cloudflare (Pages):
+
+```
+# Check authentication / account
+cd astro-app && npx wrangler whoami
+
+# List Pages projects and deployments
+cd astro-app && npx wrangler pages project list
+cd astro-app && npx wrangler pages deployment list --project-name=quadball-canada
+
+# Deploy built assets from dist/
+cd astro-app && npm run build
+cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "Deploy from CLI" --commit-dirty=true
+
+# Optional flags used previously
+#   --branch=<name>           # set branch name for deployment metadata
+#   --commit-hash=<sha>       # set commit hash for deployment metadata
+#   --commit-message=<string> # human-readable message
+#   --commit-dirty=true       # mark workspace as dirty
+```
+
+## Architecture
+
+### Monorepo Structure
+- Root uses npm workspaces with `concurrently` to run both apps simultaneously
+- Both apps are independent but share the same Sanity project configuration
+
+### Astro App (`astro-app/`)
+- **Output mode**: Static SSG (no SSR)
+- **Hosting**: Cloudflare Pages (see `wrangler.toml` and `DEPLOYMENT.md`)
+- **Key integrations**: `@sanity/astro` for Sanity integration, `@astrojs/react` for React components
+- **Content fetching**: GROQ queries via `sanityClient` from `sanity:client` (auto-imported by Astro integration)
+- **Data layer**: `src/utils/sanity.ts` provides `getNewsArticles()` and `getNewsArticle()`
+- **Localization**: Field-level via `locale*` objects. Helpers in `studio/src/schemaTypes/helpers/localization.ts` and `astro-app/src/utils/localization.ts`.
+- **Portable Text**: Uses `astro-portabletext` to render Sanity's block content
+
+### Sanity Studio (`studio/`)
+- **Schema location**: `src/schemaTypes/` - contains document types (e.g., `newsArticle.ts`, `event.ts`, `team.ts`) and objects (e.g., `blockContent.tsx`)
+- **Schema exports**: All types must be added to `src/schemaTypes/index.ts` array
+- **Configuration**: `sanity.config.ts` uses environment variables for project ID and dataset
+- **Plugins**: Structure tool (content management UI) and Vision tool (GROQ query testing)
+
+### Environment Configuration
+Both apps require Sanity credentials configured via `.env` files:
+
+**Astro app** (`astro-app/.env`):
+```
+PUBLIC_SANITY_STUDIO_PROJECT_ID="<your-project-id>"
+PUBLIC_SANITY_STUDIO_DATASET="production"
+```
+
+**Studio** (`studio/.env`):
+```
+SANITY_STUDIO_PROJECT_ID="<your-project-id>"
+SANITY_STUDIO_DATASET="production"
+```
+
+Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client-side.
+
+## Content Schema Workflow
+
+1. Define schema types in `studio/src/schemaTypes/documents/` or `studio/src/schemaTypes/objects/`
+2. Export them in `studio/src/schemaTypes/index.ts`
+3. Add/adjust types and GROQ in `astro-app/src/utils/sanity.ts`
+4. Use locale helpers for EN/FR fields and localized slugs
+5. Studio will automatically reflect schema changes on refresh
+
+### Important: News vs. Legacy Posts
+- Use `newsArticle` instead of legacy `post`.
+- Query helpers:
+  - `getNewsArticles(locale: 'en'|'fr')`
+  - `getNewsArticle(slug: string, locale: 'en'|'fr')`
+- Astro pages:
+  - EN list/detail: `src/pages/news/index.astro`, `src/pages/news/[slug].astro`
+  - FR list/detail: `src/pages/fr/nouvelles/index.astro`, `src/pages/fr/nouvelles/[slug].astro`
+
+## Key Integration Points
+
+- **Sanity Client**: Auto-imported as `sanityClient` from `sanity:client` in Astro files (provided by `@sanity/astro`)
+- **Image URLs**: Use `@sanity/image-url` for optimized image rendering
+- **GROQ**: Query language for fetching content - can be tested in Vision tool at Studio's `/vision` route
+- **API Version**: Set in `astro.config.mjs` (currently "2024-12-08")
+
+## Playwright MCP Usage
+
+- Prefer the integrated Playwright MCP browser tools for verification (navigate, click, etc.) instead of spawning `npx playwright`.
+- Typical flow:
+  - Start servers: `npm run dev` (root) or workspace-specific.
+  - Navigate to `http://localhost:4321/`, `/news/`, `/fr/nouvelles/` to validate UI.
+  - Language switching is in the header via the `LanguageSwitcher` component; verify `data-language-switch="fr|en"` links.
+  - Studio login at `http://localhost:3333` requires human login; headless sessions do not inherit credentials.
+
+## Deployment (Cloudflare Pages)
+
+- Project: `quadball-canada` → https://quadball-canada.pages.dev
+- Config: `astro-app/wrangler.toml` (`pages_build_output_dir = "./dist"`)
+- Build and deploy:
+  - `cd astro-app && npm run build`
+  - `npx wrangler whoami`
+  - `npx wrangler pages project list`
+  - `npx wrangler pages deployment list --project-name=quadball-canada`
+  - `npx wrangler pages deploy dist --project-name=quadball-canada`
+- Known issue (2025-10-05): CF API returns 500 code 8000000 creating deployments, despite successful asset upload. If seen, try the Cloudflare Dashboard or contact support.
+
+## Localization Strategy
+
+- Field-level localization using `localeString`, `localeText`, `localeSlug`, and `localePortableText`.
+- Helpers:
+  - Studio: `studio/src/schemaTypes/helpers/localization.ts`
+  - Astro: `astro-app/src/utils/localization.ts`
+- EN routes: `/news/...`; FR routes: `/fr/nouvelles/...`.
+ - Layout: `Layout.astro` accepts an `alternate` prop `{ en, fr }`, used to render hreflang links and power the header `LanguageSwitcher`.
+
+## Migration Scripts
+
+- Location: `scripts/wp-to-sanity/`
+- Scripts:
+  - `migrate-news-articles.ts`: Migrates WordPress posts → `newsArticle` (requires `SANITY_TOKEN`).
+  - `build-redirects.ts`: Builds redirects JSON from migration output.
+- Env vars required:
+  - `SANITY_PROJECT_ID`, `SANITY_DATASET`, `SANITY_TOKEN`, `WP_XML_PATH`
+
+## Security Notes
+
+- Avoid committing tokens. Move any credentials in source (e.g., webhook proxy) to platform secrets.
+
+## Keep Docs In Sync
+
+- Update `MIGRATION_PLAN.md` and `CHECKLIST.md` when changing structure, naming, or workflows.
+</file>
+
+<file path="package.json">
+{
+  "name": "sanity-template-astro-clean",
+  "description": "Minimal Astro site with Sanity Studio",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=astro-app\" \"npm run dev --workspace=studio\"",
+    "build": "npm run build --workspace=astro-app"
+  },
+  "keywords": [
+    "Sanity",
+    "Astro",
+    "Headless CMS",
+    "Visual Editing",
+    "Live Content API (LCAPI)",
+    "Real-time"
+  ],
+  "bugs": {
+    "url": "https://github.com/sanity-io/sanity-template-astro-clean/issues"
+  },
+  "homepage": "https://github.com/sanity-io/sanity-template-astro-clean#readme",
+  "workspaces": [
+    "studio",
+    "astro-app"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "type": "module"
+}
+</file>
+
+<file path="astro-app/src/pages/index.astro">
+---
+import Layout from "../layouts/Layout.astro";
+import HeroSlider from "../components/sections/HeroSlider.astro";
+import NewsGrid from "../components/sections/NewsGrid.astro";
+import CTABlocks from "../components/sections/CTABlocks.astro";
+import SponsorSection from "../components/sections/SponsorSection.astro";
+import SupportSection from "../components/sections/SupportSection.astro";
+---
+
+<Layout title="Welcome to Astro.">
+  <HeroSlider />
+  <NewsGrid />
+  <SponsorSection />
+  <CTABlocks />
+  <SupportSection />
+</Layout>
+</file>
+
+<file path="astro-app/package.json">
+{
+  "name": "app",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && tsc --noEmit && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.7.0",
+    "@astrojs/react": "4.2.0",
+    "@sanity/astro": "^3.1.4",
+    "@sanity/image-url": "1.0.2",
+    "@sanity/vision": "3.48.1",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "astro": "^4.11.3",
+    "astro-portabletext": "0.10.0",
+    "autoprefixer": "10.4.19",
+    "groq": "3.48.1",
+    "prettier-plugin-astro": "0.14.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "sanity": "^3.76.1"
+  },
+  "devDependencies": {
+    "@portabletext/types": "2.0.13",
+    "@sanity/types": "3.48.1",
+    "eslint": "9.20.1",
+    "prettier": "3.3.2",
+    "rimraf": "5.0.1",
+    "typescript": "5.7.2",
+    "vite": "^5.3.2"
+  }
+}
+</file>
+
+<file path="studio/src/schemaTypes/index.ts">
+// Object types
+import blockContent from './objects/blockContent'
+import color from './objects/color'
+import ctaBlock from './objects/ctaBlock'
+import formEmbed from './objects/formEmbed'
+import {
+  localeString,
+  localeText,
+  localeSlug,
+  localePortableText
+} from './helpers/localization'
+
+// Document types
+import post from './documents/post'
+import page from './documents/page'
+import newsArticle from './documents/newsArticle'
+import event from './documents/event'
+import team from './documents/team'
+import player from './documents/player'
+import author from './documents/author'
+import category from './documents/category'
+import siteSettings from './documents/siteSettings'
+
+// Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
+
+export const schemaTypes = [
+  // Documents
+  post,
+  page,
+  newsArticle,
+  event,
+  team,
+  player,
+  author,
+  category,
+  siteSettings,
+  ctaBlock,
+  formEmbed,
+
+  // Objects
+  blockContent,
+  color,
+  localeString,
+  localeText,
+  localeSlug,
+  localePortableText,
+]
+</file>
+
+<file path="CHECKLIST.md">
+# Quadball Canada Migration Checklist
+## WordPress to Astro + Sanity CMS
+
+> **Created**: 2025-01-05
+> **Status**: Phase 1 Complete
+> **Current Phase**: Phase 2 - Data Migration Pipeline
+
+---
+
+## Technical Debt & Issues Tracker
+
+### Known Issues
+- [ ] **React 19 Compatibility**: Switched from SSR to Static SSG due to Cloudflare Workers MessageChannel error
+  - Impact: No dynamic SSR features, but improved performance
+  - Decision: Accepted trade-off for better Core Web Vitals
+- [x] ~~**Sanity Studio Port Conflict**: Studio running on port 3334 instead of default 3333~~ *(2025-10-05: dev server back on 3333, keep monitoring)*
+- [ ] **Astro fetch utilities outdated**: `astro-app/src/utils/sanity.ts` still targets the legacy `post` type instead of `newsArticle`
+- [x] ~~**Astro fetch utilities outdated**~~: Updated to `getNewsArticles`/`getNewsArticle` with locale support
+- [x] ~~**Card component route mismatch**~~: Replaced with `NewsCard.astro` using `/news/` routes and localized fields
+- [ ] **GitHub Token in webhook-proxy.js**: Token exposed in code (needs secrets management)
+
+### Technical Debt
+- [ ] Translation workflow + editorial guidance for field-level locale objects (localeString/localeText)
+- [ ] No automated translation pipeline setup
+- [ ] Missing TypeScript interfaces for Sanity schemas in Astro app
+- [ ] Need to implement proper error boundaries for form components
+- [ ] Cookie consent implementation pending
+
+### Deviations from Plan
+- ✅ Used Static SSG instead of Hybrid SSR (better performance, simpler deployment)
+- ✅ Implemented automated deployment via GitHub Actions + Cloudflare Worker proxy
+- ✅ Field-level i18n with localized slugs via locale objects (SEO-friendly URLs)
+
+---
+
+## Phase 1: Foundation & i18n (Week 1) ✅
+
+### Completed
+- [x] ~~Sanity project with `staging` and `production` datasets~~ *(Using single production dataset)*
+- [x] Field-level i18n with custom helpers *(locale objects instead of Sanity plugin)*
+- [x] Created localization helpers (localeString, localeText, localeSlug, localePortableText)
+- [x] Git repository structure with CI/CD pipeline *(GitHub Actions + Cloudflare deployment)*
+- [x] Automated webhook deployment (Sanity → Worker → GitHub → Cloudflare)
+
+### Pending
+- [ ] Astro base layout + navigation with language routing (`/` EN, `/fr/` FR) *(Header/Footer added; EN/FR news routes live; language switcher pending)*
+- [ ] Editor RBAC: Contributors, Editors, Publishers with Google SSO
+- [ ] Preview mode: Astro preview route with Sanity draft token
+
+### Notes
+- Deployment automated via webhook-proxy.js Cloudflare Worker
+- Using GitHub Actions for CI/CD instead of direct Cloudflare builds
+- Sanity Studio deployed at https://quadball-canada.sanity.studio
+
+---
+
+## Phase 2: Data Migration Pipeline (Week 2) - CURRENT
+
+### Todo
+- [ ] WordPress export: XML + DB dump + `/uploads` directory
+- [ ] Migration scripts (Node.js):
+  - [ ] Posts/pages with internal link rewriting
+  - [ ] Media with alt text preservation
+  - [ ] People/authors to Sanity
+  - [ ] Divi shortcodes → HTML blocks fallback
+- [ ] Redirect map builder (old URLs → new)
+- [ ] Upload media to Sanity with metadata
+
+### Notes
+- User has WordPress admin access, database dump, and XML export available
+- Need to handle 100+ articles since 2016
+- Must preserve `/YYYY/MM/slug/` URL pattern for SEO
+- Populate locale fields with EN content + FR placeholders until translations supplied
+
+---
+
+## Phase 3: Core Experiences (Week 3)
+
+### Todo
+- [x] Homepage sections:
+  - [x] Hero slider (static placeholder)
+  - [x] News grid (shows latest articles)
+  - [x] Sponsor section (VC Ultimate link)
+  - [x] 3 CTA blocks (Join Team, Standings, Volunteer)
+- [x] News listing/detail pages (EN/FR) with localized slugs
+- [x] About/Play static pages (placeholder content)
+- [x] Team directory (basic list; filters pending)
+- [x] Bilingual navigation + language switcher + hreflang
+- [ ] Basic search functionality
+
+### Notes
+- Need to match existing WordPress/Divi design
+- Hero slider using CSS scroll-snap for performance
+
+---
+
+## Phase 4: Events, Search & Feeds (Week 4)
+
+### Todo
+- [ ] Events calendar with timezone support & recurrence (RRULE)
+- [x] ICS feed generation + "Add to Calendar" functionality (endpoint at /events.ics)
+- [ ] Algolia search with bilingual indices & synonyms
+- [ ] Newsletter integration (MailChimp) with Turnstile protection
+- [ ] Contact form → Sanity + email notifications (Postmark)
+- [ ] Social embeds with privacy-first loading
+
+### Notes
+- Event schema already includes timezone and RRULE support
+- Include "quidditch" as a synonym of "quadball" in search
+
+---
+
+## Phase 5: Performance, SEO & Accessibility (Week 5)
+
+### Todo
+- [ ] Core Web Vitals optimization:
+  - [ ] LCP < 2.5s
+  - [ ] CLS < 0.10
+  - [ ] INP < 200ms (replaces TTI)
+- [x] hreflang tags on pages + base sitemap.xml and robots.txt endpoints
+- [ ] Open Graph image generation for posts/events
+- [ ] WCAG 2.2 AA compliance audit
+- [ ] Security headers (CSP, Referrer-Policy)
+- [x] Cookie consent banner (basic)
+
+### Notes
+- Target 10x performance improvement over WordPress
+- Need Canadian privacy law compliance
+
+---
+
+## Phase 6: Launch Readiness (Week 6)
+
+### Todo
+- [ ] E2E testing with Playwright
+- [ ] Content freeze + final migration
+- [ ] 301 redirects deployment
+- [ ] DNS preparation (low TTL)
+- [ ] Monitoring setup (Sentry, UptimeRobot)
+- [ ] Editor training + documentation
+- [ ] Rollback plan tested
+
+### Notes
+- Keep WordPress staging site as fallback
+- DNS revert capability < 5 minutes
+
+---
+
+## Sanity Schema Implementation ✅
+
+### Document Types - Completed
+- [x] `page.ts` - Static pages with bilingual content
+- [x] `newsArticle.ts` - News/blog posts with categories
+- [x] `event.ts` - Events with timezone, recurrence, registration
+- [x] `team.ts` - Team profiles with divisions, roster
+- [x] `player.ts` - Player profiles with stats
+- [x] `author.ts` - Content authors
+- [x] `category.ts` - Article categories
+- [x] `siteSettings.ts` - Global site configuration
+
+### Object Types - Completed
+- [x] `ctaBlock.ts` - Call-to-action blocks
+- [x] `formEmbed.ts` - Form integrations
+- [x] `localization.ts` - i18n helpers
+
+### Schema Features Implemented
+- [x] Document-level i18n with EN/FR fields
+- [x] Event timezone support (IANA identifiers)
+- [x] Recurrence rules for repeating events
+- [x] Team/player management for sports content
+- [x] SEO fields on all content types
+- [x] Form embed system for newsletters/contact
+- [x] Global site settings for navigation/footer
+
+---
+
+## Astro Components Needed
+
+### Layout Components
+- [ ] BaseLayout.astro
+- [ ] Header.astro
+- [ ] Navigation.astro (with mobile menu)
+- [ ] Footer.astro
+- [ ] LanguageSwitcher.astro
+- [ ] CookieBanner.astro
+
+### Section Components
+- [ ] HeroSlider.astro (CSS scroll-snap)
+- [ ] NewsGrid.astro
+- [ ] CTABlocks.astro
+- [ ] SponsorSection.astro
+- [ ] TeamGrid.astro
+- [ ] EventCalendar.astro
+- [ ] StandingsTable.astro
+- [ ] ContactForm.astro
+
+### UI Components
+- [ ] Button.astro
+- [ ] Card.astro *(legacy version exists; update to use `newsArticle`, localized strings, and `/news/` routes)*
+- [ ] Badge.astro
+- [ ] Modal.astro
+- [ ] Tabs.astro
+- [ ] Breadcrumbs.astro
+- [ ] Pagination.astro
+
+### Content Components
+- [ ] NewsCard.astro *(rename from PostCard to align with schema)*
+- [ ] EventCard.astro
+- [ ] TeamCard.astro
+- [ ] PersonCard.astro
+- [ ] PortableText.astro
+- [ ] TableOfContents.astro
+
+### Media Components
+- [ ] ResponsiveImage.astro
+- [ ] VideoEmbed.astro (lite-youtube)
+- [ ] Gallery.astro
+- [ ] OGImage.ts (dynamic generation)
+
+---
+
+## Pre-Launch Checklist
+
+- [ ] Final content migration with fresh WordPress export
+- [ ] All redirects mapped and tested (≥98% coverage)
+- [ ] Algolia indices populated and tuned
+- [ ] Security headers configured
+- [ ] Cookie consent implemented
+- [ ] DNS TTL lowered to 60 seconds
+- [ ] Monitoring configured (Sentry, UptimeRobot)
+- [ ] Backup of current site accessible at old.quidditchcanada.com
+
+---
+
+## Post-Launch Tasks (Days 1-14)
+
+- [ ] Monitor 404s and add missing redirects
+- [ ] Review Core Web Vitals RUM data
+- [ ] Tune Algolia search relevance based on queries
+- [ ] Fill missing French translations
+- [ ] Submit sitemaps to Google Search Console
+- [ ] Verify hreflang implementation
+- [ ] Train editors on Sanity workflow
+
+---
+
+## Success Metrics Targets
+
+### Technical
+- [ ] Core Web Vitals (p75): LCP < 2.5s, CLS < 0.10, INP < 200ms
+- [ ] Lighthouse Scores: Performance > 90, Accessibility > 95
+- [ ] Build Time: < 60 seconds
+- [ ] Page Weight: Homepage < 500KB, Articles < 300KB
+
+### Business
+- [ ] SEO: Traffic maintained or improved after 30 days
+- [ ] Engagement: Bounce rate decreased by 20%
+- [ ] Editorial: Time to publish reduced by 50%
+- [ ] Search: CTR improved by 15% with Algolia
+
+### Content
+- [ ] Migration: 100% of news articles/pages transferred
+- [ ] Media: All images have alt text in at least one language
+- [ ] Links: < 1% broken internal links
+- [ ] Translations: 80% French coverage at launch
+
+---
+
+## Notes & Decisions Log
+
+### 2025-01-05
+- **Decision**: Switched from SSR to Static SSG due to React 19 + Cloudflare Workers incompatibility
+  - Rationale: Better performance, simpler deployment, no server runtime needed
+  - Impact: Lost dynamic SSR features but gained 10x performance improvement
+
+- **Decision**: Implemented field-level i18n via locale object helpers
+  - Rationale: Keep EN/FR content in sync while preserving localized slugs for SEO
+  - Impact: Requires helper utilities in queries but simplifies editorial workflow
+
+- **Completed**: All Sanity schemas with full bilingual support
+  - Teams, Players, Events, News, Pages, Settings
+  - Event recurrence with RRULE support
+  - Timezone-aware event scheduling
+
+### Next Steps
+1. Update Astro utilities/components to use `newsArticle` schema + locale helpers
+2. Set up WordPress data export pipeline
+3. Create `migrate-news-articles.ts` script and redirect builder
+4. Build core Astro shell (Header, Navigation, Footer) and homepage sections
+
+---
+
+## Resources
+
+- **Migration Scripts**: `/scripts/migration/`
+- **Documentation**: `/docs/`
+- **Deployment**: `.github/workflows/`, `webhook-proxy.js`
+- **Sanity Schemas**: `/studio/src/schemaTypes/`
+- **Astro Components**: `/astro-app/src/components/`
+
+---
+
+*Last Updated: 2025-10-05 00:39 PDT*
+</file>
+
+<file path="DEPLOYMENT.md">
+# Quadball Canada - Deployment Documentation
+
+## Overview
+
+This is a fully automated Astro + Sanity CMS website with continuous deployment. Content changes in Sanity automatically trigger rebuilds and deploy to Cloudflare Pages.
+
+## Architecture
+
+- **Frontend**: Static Astro site (SSG)
+- **CMS**: Sanity Studio for content management
+- **Hosting**: Cloudflare Pages
+- **CI/CD**: GitHub Actions
+- **Webhook Proxy**: Cloudflare Worker
+
+## Live URLs
+
+- **Production Site**: https://quadball-canada.pages.dev
+- **Sanity Studio**: https://quadball-canada.sanity.studio
+- **Webhook Proxy**: https://sanity-webhook-proxy.austeane.workers.dev
+
+## How It Works
+
+1. **Content Editing**: Editors make changes in Sanity Studio
+2. **Publish**: Click publish to save changes to Sanity's cloud
+3. **Webhook**: Sanity sends webhook to Cloudflare Worker proxy
+4. **Proxy**: Worker transforms request and triggers GitHub Action
+5. **Build**: GitHub Action builds static site with latest content
+6. **Deploy**: Wrangler deploys to Cloudflare Pages
+7. **Live**: New content appears at production URL (~2 minutes total)
+
+## Project Structure
+
+```
+quadball-canada/
+├── astro-app/           # Frontend Astro application
+│   ├── src/
+│   ├── public/
+│   └── astro.config.mjs # Static output configuration
+├── studio/              # Sanity Studio CMS
+│   ├── src/schemaTypes/
+│   └── sanity.cli.ts
+├── .github/workflows/   # GitHub Actions
+│   └── deploy-on-sanity-update.yml
+└── webhook-proxy.js     # Cloudflare Worker for webhook handling
+```
+
+## Configuration Details
+
+### Astro Configuration
+- **Output Mode**: `static` (pure SSG, no SSR)
+- **Framework**: React 19 (works fine in static mode)
+- **Build Output**: `astro-app/dist/`
+
+### Sanity Configuration
+- **Project ID**: `kbufa3g3`
+- **Dataset**: `production`
+- **Studio Host**: `quadball-canada`
+
+### Environment Variables
+
+**Local Development** (`.env` files):
+```bash
+# astro-app/.env
+PUBLIC_SANITY_STUDIO_PROJECT_ID="kbufa3g3"
+PUBLIC_SANITY_STUDIO_DATASET="production"
+
+# studio/.env
+SANITY_STUDIO_PROJECT_ID="kbufa3g3"
+SANITY_STUDIO_DATASET="production"
+```
+
+**GitHub Secrets** (for CI/CD):
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `PUBLIC_SANITY_STUDIO_PROJECT_ID`
+- `PUBLIC_SANITY_STUDIO_DATASET`
+
+### Webhook Configuration
+
+The Sanity webhook triggers the Cloudflare Worker proxy:
+- **Name**: Deploy via Proxy
+- **URL**: https://sanity-webhook-proxy.austeane.workers.dev
+- **Triggers**: Create, Update, Delete
+- **Dataset**: production
+
+## Development
+
+### Local Development
+```bash
+# Install dependencies
+npm install
+
+# Run both Astro and Studio
+npm run dev
+
+# Astro only (localhost:4321)
+npm run dev --workspace=astro-app
+
+# Studio only (localhost:3333)
+npm run dev --workspace=studio
+```
+
+### Manual Deployment
+```bash
+# Build the site
+npm run build
+
+# Deploy to Cloudflare Pages
+npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
+```
+
+## Deployment URLs
+
+Each deployment creates two URLs:
+1. **Production URL**: `https://quadball-canada.pages.dev` - Always shows latest deployment
+2. **Preview URL**: `https://[hash].quadball-canada.pages.dev` - Unique URL for each deployment (useful for rollbacks)
+
+## Monitoring Deployments
+
+### Check GitHub Actions
+```bash
+# View recent runs
+gh run list --workflow="Deploy on Sanity Update" --limit 5
+
+# Watch a specific run
+gh run watch [RUN_ID]
+```
+
+### Check Sanity Webhooks
+```bash
+cd studio
+# List webhooks
+npx sanity hook list
+
+# Check webhook logs
+npx sanity hook logs "Deploy via Proxy"
+```
+
+### Check Cloudflare Deployments
+```bash
+npx wrangler pages deployment list --project-name=quadball-canada
+```
+
+## Troubleshooting
+
+### Content Not Updating
+1. Check webhook fired: `npx sanity hook logs "Deploy via Proxy"`
+2. Check GitHub Action ran: `gh run list --workflow="Deploy on Sanity Update"`
+3. Verify deployment succeeded: Check GitHub Action logs
+4. Clear browser cache and check production URL
+
+### Webhook Not Firing
+1. Verify webhook exists in Sanity dashboard
+2. Check webhook is enabled
+3. Ensure content was actually published (not just saved as draft)
+
+### Build Failures
+1. Check GitHub Action logs for errors
+2. Verify environment variables are set in GitHub Secrets
+3. Test build locally: `npm run build`
+
+## Rollback Procedure
+
+If a bad deployment occurs:
+1. Find the last good deployment URL from GitHub Actions logs
+2. Access the preview URL (e.g., `https://[hash].quadball-canada.pages.dev`)
+3. If needed, manually redeploy a previous commit:
+   ```bash
+   git checkout [GOOD_COMMIT]
+   npm run build
+   npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
+   ```
+
+## Adding New Content Types
+
+1. Define schema in `studio/src/schemaTypes/`
+2. Export in `studio/src/schemaTypes/index.ts`
+3. Add TypeScript types in `astro-app/src/utils/sanity.ts`
+4. Create GROQ queries to fetch content
+5. Build pages/components to display content
+6. Publish changes - deployment is automatic!
+
+## Security Notes
+
+- GitHub token in webhook proxy is read-only for repository dispatch
+- Cloudflare API token only has Pages edit permissions
+- Sanity webhook has no authentication (relies on obscure Worker URL)
+- All secrets are stored in GitHub Secrets and Cloudflare Workers
+
+## Performance
+
+- **Build Time**: ~1 minute
+- **Deploy Time**: ~30 seconds
+- **Total Update Time**: ~2 minutes from publish to live
+- **CDN**: Cloudflare global network
+- **Static Files**: No server runtime, instant response
+</file>
+
+<file path="MIGRATION_PLAN.md">
+# Quadball Canada Website Migration Plan
+## WordPress to Astro + Sanity CMS - Production Ready
+
+> **Primary Goals**
+> 1. Preserve SEO + URLs where feasible
+> 2. Improve Core Web Vitals & editorial UX
+> 3. Deliver bilingual (EN/FR) parity from day one
+> 4. Reduce ongoing maintenance (no WordPress plugin drift)
+
+---
+
+## 1. Current Site Analysis
+
+### Technology Stack
+- **Platform**: WordPress (Elegant Themes/Divi)
+- **Features**: Multi-language (EN/FR), Blog, Events, Teams, Media galleries
+- **Integrations**: Social media, Newsletter (MailChimp), External store (VC Ultimate)
+- **Legacy**: "Quidditch" → "Quadball" rebrand (need synonym redirects)
+
+### URL Patterns & Content
+- Posts: `/YYYY/MM/slug/` format
+- Pages: Flat URLs (`/about-us/`, `/play/`)
+- Media: `/wp-content/uploads/YYYY/MM/`
+- 100+ articles since 2016
+- Divi shortcodes requiring conversion
+
+### Site Structure
+```
+├── Homepage
+│   ├── Hero Slider (5 slides with CTAs)
+│   ├── News Grid (6 latest posts)
+│   ├── Sponsor Section (VC Ultimate)
+│   └── 3 CTA Blocks (Join Team, Standings, Volunteer)
+├── News & Blog
+│   ├── Post listings
+│   └── Individual articles
+├── About
+│   ├── About Us (Mission, Values)
+│   ├── Our Volunteers
+│   ├── Policies
+│   └── Anti-Oppression Resources
+├── Play
+│   ├── How to Play (Rules)
+│   ├── Find a Team
+│   └── Rankings/Standings
+├── Events
+│   ├── Event Calendar
+│   ├── Event Bidding
+│   └── Individual event pages
+├── Get Involved
+│   ├── Volunteer opportunities
+│   ├── Job postings
+│   ├── Coach & Officiate
+│   └── Host events
+├── Media
+│   ├── Photos (Flickr integration)
+│   ├── Videos (YouTube)
+│   └── Press resources
+├── Support Us
+│   ├── Donate
+│   └── Sponsorship info
+└── Contact
+```
+
+---
+
+## 2. Migration Strategy - 6 Week Timeline
+
+### Phase 1: Foundation & i18n (Week 1)
+- [ ] Sanity project with production dataset configured (introduce `staging` once needed)
+- [ ] Field-level i18n using custom `locale*` object helpers for EN/FR content
+- [ ] Astro base layout + navigation with language routing (`/` EN, `/fr/` FR)
+- [ ] Editor RBAC: Contributors, Editors, Publishers with Google SSO
+- [ ] Preview mode: Astro preview route with Sanity draft token
+- [ ] Git repository structure with CI/CD pipeline
+
+### Phase 2: Data Migration Pipeline (Week 2)
+- [ ] WordPress export: XML + DB dump + `/uploads` directory
+- [ ] Migration scripts (Node.js):
+  - [ ] Posts/pages with internal link rewriting
+  - [ ] Media with alt text preservation
+  - [ ] People/authors to Sanity
+  - [ ] Divi shortcodes → HTML blocks fallback
+- [ ] Redirect map builder (old URLs → new)
+- [ ] Upload media to Sanity with metadata
+
+### Phase 3: Core Experiences (Week 3)
+- [ ] Homepage sections (hero, news grid, sponsor, CTAs)
+- [ ] News listing/detail pages with pagination
+- [ ] About/Play static pages
+- [ ] Team directory with filters (province, level, status)
+- [ ] Bilingual navigation + breadcrumbs + 404 page
+- [ ] Basic search functionality
+
+### Phase 4: Events, Search & Feeds (Week 4)
+- [ ] Events calendar with timezone support & recurrence (RRULE)
+- [ ] ICS feed generation + "Add to Calendar" functionality
+- [ ] Algolia search with bilingual indices & synonyms
+- [ ] Newsletter integration (MailChimp) with Turnstile protection
+- [ ] Contact form → Sanity + email notifications (Postmark)
+- [ ] Social embeds with privacy-first loading
+
+### Phase 5: Performance, SEO & Accessibility (Week 5)
+- [ ] Core Web Vitals optimization (LCP < 2.5s, CLS < 0.10, INP < 200ms)
+- [ ] hreflang tags + per-locale sitemaps with alternates
+- [ ] Open Graph image generation for posts/events
+- [ ] WCAG 2.2 AA compliance audit
+- [ ] Security headers (CSP, Referrer-Policy)
+- [ ] Cookie consent banner (PIPEDA/Law 25 compliance)
+
+### Phase 6: Launch Readiness (Week 6)
+- [ ] E2E testing with Playwright
+- [ ] Content freeze + final migration
+- [ ] 301 redirects deployment
+- [ ] DNS preparation (low TTL)
+- [ ] Monitoring setup (Sentry, UptimeRobot)
+- [ ] Editor training + documentation
+- [ ] Rollback plan tested
+
+---
+
+## 3. Sanity Schema Design
+
+### i18n Strategy
+Use **field-level localization** via shared `localeString`, `localeText`, `localeSlug`, and `localePortableText` objects. Each document stores EN/FR variants together so localized slugs, SEO, and content stay in sync while keeping a single document ID. The `supportedLanguages` helper controls defaults and validation.
+
+### Shared Types
+
+```javascript
+// /schemas/objects/localeString.js
+export default {
+  name: 'localeString',
+  type: 'object',
+  fields: [
+    { name: 'en', type: 'string', title: 'English' },
+    { name: 'fr', type: 'string', title: 'French' }
+  ],
+  preview: { select: { title: 'en' } }
+}
+
+// /schemas/objects/seo.js
+export default {
+  name: 'seo',
+  type: 'object',
+  fields: [
+    { name: 'title', type: 'string', validation: Rule => Rule.max(60) },
+    { name: 'description', type: 'text', validation: Rule => Rule.max(160) },
+    { name: 'canonicalUrl', type: 'url' },
+    { name: 'ogImage', type: 'image', options: { hotspot: true } }
+  ]
+}
+
+// /schemas/objects/imageWithMeta.js
+export default {
+  name: 'imageWithMeta',
+  type: 'image',
+  options: { hotspot: true },
+  fields: [
+    {
+      name: 'alt',
+      type: 'localeString',
+      validation: Rule => Rule.required().error('Alt text is required for accessibility')
+    },
+    { name: 'credit', type: 'string' },
+    { name: 'license', type: 'string', options: {
+      list: ['CC0', 'CC-BY', 'CC-BY-SA', 'Copyright', 'Permission']
+    }}
+  ]
+}
+```
+
+### Content Models
+
+```javascript
+// 1. News Article - Enhanced
+{
+  title: localeString (required),
+  slug: localeSlug (unique per locale),
+  publishedAt: datetime (required),
+  author: reference(author),
+  categories: array(reference(category)),
+  tags: array(string),
+  excerpt: localeText,
+  content: localePortableText (supports image, file, and embed blocks),
+  featuredImage: {
+    asset: image,
+    alt: localeString
+  },
+  readingTime: number (auto-calculated),
+  featured: boolean,
+  related: array(reference(newsArticle)),
+  seo: {
+    metaTitle: localeString,
+    metaDescription: localeText,
+    ogImage: image
+  }
+}
+
+// 2. Event - Production Ready
+{
+  title: string (required),
+  slug: slug,
+  start: datetime (required),
+  end: datetime,
+  timezone: string (IANA, e.g., 'America/Toronto'),
+  allDay: boolean,
+  rrule: string (RFC 5545 for recurring events),
+  status: string ['scheduled', 'postponed', 'cancelled', 'completed'],
+  location: {
+    venue: string,
+    address: string,
+    city: string,
+    province: string,
+    lat: number,
+    lng: number,
+    googleMapsUrl: url
+  },
+  host: reference(team),
+  eventType: string ['tournament', 'workshop', 'meeting', 'tryout'],
+  divisions: array(reference(division)),
+  price: string,
+  registrationLink: url,
+  registrationDeadline: datetime,
+  capacity: number,
+  description: portableText,
+  schedule: array(scheduleItem),
+  image: imageWithMeta,
+  documents: array(file),
+  results: array({
+    placement: number,
+    team: reference(team),
+    points: number
+  }),
+  livestreamUrl: url,
+  seo: seo
+}
+
+// 3. Team - Enhanced with Season Support
+{
+  name: string (required),
+  slug: slug,
+  city: string,
+  province: reference(province),
+  level: string ['university', 'community', 'youth', 'national'],
+  status: string ['active', 'inactive', 'developing'],
+  founded: date,
+  logo: imageWithMeta,
+  teamPhoto: imageWithMeta,
+  description: portableText,
+  season: reference(season),
+  division: reference(division),
+  website: url,
+  socialMedia: {
+    facebook: url,
+    instagram: url,
+    twitter: url,
+    tiktok: url
+  },
+  contacts: array(reference(person)),
+  achievements: array(string),
+  homeVenue: reference(venue),
+  roster: array(reference(person)),
+  standings: reference(standing),
+  seo: seo
+}
+
+// 4. Person (Players, Volunteers, Board)
+{
+  name: string (required),
+  slug: slug,
+  role: string,
+  pronouns: string,
+  email: email,
+  phone: string,
+  bio: localeString,
+  photo: imageWithMeta,
+  positions: array(string), // For players
+  jerseyNumber: number,
+  socialMedia: object,
+  teams: array(reference(team)),
+  startDate: date,
+  endDate: date,
+  isPublic: boolean
+}
+
+// 5. Season & Standings (Sports-specific)
+{
+  // Season
+  name: string (e.g., '2024-2025'),
+  slug: slug,
+  startDate: date,
+  endDate: date,
+  divisions: array(reference(division)),
+
+  // Standing (per team per season)
+  team: reference(team),
+  season: reference(season),
+  division: reference(division),
+  wins: number,
+  losses: number,
+  ties: number,
+  pointDifferential: number,
+  gamesPlayed: number,
+  rank: number,
+  qualified: boolean
+}
+
+// 6. Page (Flexible)
+{
+  title: localeString,
+  slug: slug,
+  pageType: string ['about', 'play', 'support', 'policy', 'resource'],
+  sections: array(
+    hero |
+    richText |
+    ctaBlock |
+    imageGallery |
+    videoEmbed |
+    teamGrid |
+    eventList |
+    standings |
+    contactForm |
+    newsletter
+  ),
+  seo: seo
+}
+
+// 7. Navigation
+{
+  title: string,
+  menuItems: array({
+    label: localeString,
+    link: url or reference,
+    submenu: array(menuItem),
+    highlight: boolean
+  }),
+  locale: string
+}
+
+// 8. Site Settings
+{
+  siteTitle: localeString,
+  tagline: localeString,
+  logo: image,
+  favicon: image,
+  defaultOgImage: image,
+  socialMedia: {
+    facebook: url,
+    instagram: url,
+    twitter: url,
+    youtube: url,
+    tiktok: url,
+    flickr: url
+  },
+  analytics: {
+    gtmId: string,
+    ga4Id: string
+  },
+  newsletterUrl: url,
+  donationUrl: url,
+  footer: {
+    about: localeString,
+    copyright: localeString,
+    charityNumber: string,
+    links: array(linkGroup),
+    disclaimers: localeString
+  }
+}
+```
+
+---
+
+## 4. Component Architecture
+
+### Layout Components
+```
+components/
+├── layout/
+│   ├── BaseLayout.astro
+│   ├── Header.astro
+│   ├── Navigation.astro (with mobile menu)
+│   ├── Footer.astro
+│   ├── LanguageSwitcher.astro
+│   └── CookieBanner.astro
+├── sections/
+│   ├── HeroSlider.astro (CSS scroll-snap)
+│   ├── NewsGrid.astro
+│   ├── CTABlocks.astro
+│   ├── SponsorSection.astro
+│   ├── TeamGrid.astro
+│   ├── EventCalendar.astro
+│   ├── StandingsTable.astro
+│   └── ContactForm.astro
+├── ui/
+│   ├── Button.astro
+│   ├── Card.astro
+│   ├── Badge.astro
+│   ├── Modal.astro
+│   ├── Tabs.astro
+│   ├── Breadcrumbs.astro
+│   └── Pagination.astro
+├── content/
+│   ├── NewsCard.astro
+│   ├── EventCard.astro
+│   ├── TeamCard.astro
+│   ├── PersonCard.astro
+│   ├── PortableText.astro
+│   └── TableOfContents.astro
+└── media/
+    ├── ResponsiveImage.astro
+    ├── VideoEmbed.astro (lite-youtube)
+    ├── Gallery.astro
+    └── OGImage.ts (dynamic generation)
+```
+
+### Page Structure
+```
+pages/
+├── index.astro (Homepage)
+├── [lang]/
+│   ├── index.astro (Localized homepage)
+│   ├── news/
+│   │   ├── index.astro (News listing)
+│   │   └── [slug].astro (Article detail)
+│   ├── about/
+│   │   ├── index.astro
+│   │   ├── volunteers.astro
+│   │   ├── policies.astro
+│   │   └── [slug].astro
+│   ├── play/
+│   │   ├── index.astro
+│   │   ├── rules.astro
+│   │   └── how-to-play.astro
+│   ├── teams/
+│   │   ├── index.astro
+│   │   └── [slug].astro
+│   ├── events/
+│   │   ├── index.astro
+│   │   ├── calendar.astro
+│   │   └── [slug].astro
+│   ├── standings/
+│   │   └── index.astro
+│   └── contact.astro
+├── api/
+│   ├── preview.ts
+│   ├── revalidate.ts
+│   ├── newsletter.ts
+│   ├── contact.ts
+│   ├── search.ts
+│   └── standings.json.ts
+├── events.ics.ts (ICS feed)
+├── sitemap-[lang].xml.ts
+├── robots.txt.ts
+└── 404.astro
+```
+
+---
+
+## 5. Data Migration Implementation
+
+### WordPress Export Strategy
+
+```bash
+# 1. Export WordPress data
+- WP Admin > Tools > Export > All content
+- Database dump: mysqldump -u [user] -p [database] > quadball_backup.sql
+- Media files: tar -czf uploads.tar.gz wp-content/uploads/
+
+# 2. Migration scripts structure
+scripts/
+├── wp-to-sanity/
+│   ├── config.js
+│   ├── migrate-news-articles.ts
+│   ├── migrate-pages.js
+│   ├── migrate-media.js
+│   ├── migrate-users.js
+│   ├── build-redirects.js
+│   └── utils/
+│       ├── parse-xml.js
+│       ├── sanitize-html.js
+│       ├── link-rewriter.js
+│       └── divi-converter.js
+```
+
+### Migration Scripts
+
+```javascript
+// scripts/wp-to-sanity/migrate-news-articles.ts
+import { parseStringPromise } from 'xml2js';
+import { createClient } from '@sanity/client';
+import { htmlToBlocks } from '@sanity/block-tools';
+import { JSDOM } from 'jsdom';
+// Helpers (normalizeSlug, decodeEntities, stripHtml, resolveAuthorReference, resolveCategoryReferences, mapFeaturedImage)
+// live in scripts/wp-to-sanity/utils
+
+const client = createClient({
+  projectId: process.env.SANITY_PROJECT_ID,
+  dataset: 'production',
+  token: process.env.SANITY_TOKEN,
+  apiVersion: '2024-12-01',
+  useCdn: false,
+});
+
+const migrateNewsArticle = async (wpPost) => {
+  const { window } = new JSDOM(wpPost.content);
+
+  // Handle Divi shortcodes
+  let content = wpPost.content;
+  if (content.includes('[et_pb_')) {
+    // Fallback to HTML block for complex Divi layouts
+    content = sanitizeDiviContent(content);
+  }
+
+  // Convert to Portable Text
+  const blocks = htmlToBlocks(content, {
+    parseHtml: (html) => (window.document.createElement('div').innerHTML = html),
+  });
+
+  const baseSlug = normalizeSlug(wpPost.slug);
+
+  const authorRef = await resolveAuthorReference(wpPost.creator, client);
+  const categoryRefs = await resolveCategoryReferences(wpPost.categories, client);
+  const featuredImage = await mapFeaturedImage(wpPost.featured_media, client);
+
+  const document = {
+    _type: 'newsArticle',
+    _id: `newsArticle.${baseSlug}`,
+    title: {
+      en: decodeEntities(wpPost.title),
+      fr: '', // Placeholder until translation ready
+    },
+    slug: {
+      en: { current: baseSlug },
+      fr: { current: `${baseSlug}-fr` },
+    },
+    publishedAt: wpPost.date,
+    author: authorRef,
+    categories: categoryRefs,
+    excerpt: {
+      en: stripHtml(wpPost.excerpt),
+      fr: '',
+    },
+    content: {
+      en: blocks,
+      fr: [],
+    },
+    featuredImage,
+    featured: wpPost.meta?._quadball_featured === '1',
+    seo: {
+      metaTitle: {
+        en: wpPost.yoast?.title || decodeEntities(wpPost.title),
+        fr: '',
+      },
+      metaDescription: {
+        en: wpPost.yoast?.description || stripHtml(wpPost.excerpt),
+        fr: '',
+      },
+    },
+  };
+
+  await client.createOrReplace(document);
+
+  return { oldUrl: wpPost.link, newUrl: `/news/${baseSlug}` };
+};
+
+// Build redirect map
+const buildRedirects = async (mappings) => {
+  const redirects = mappings.map(({ oldUrl, newUrl }) => ({
+    from: new URL(oldUrl).pathname,
+    to: newUrl,
+    status: 301,
+  }));
+
+  // Add legacy brand redirects
+  redirects.push(
+    { from: '/quidditch/*', to: '/quadball/$1', status: 301 },
+    { from: '/category/*', to: '/news/category/$1', status: 301 },
+  );
+
+  return redirects;
+};
+```
+
+---
+
+## 6. Search Implementation (Algolia)
+
+### Index Configuration
+```javascript
+// scripts/algolia-setup.js
+const indices = {
+  'quadball_news_en': {
+    searchableAttributes: ['title', 'excerpt', 'content', 'categories', 'tags'],
+    customRanking: ['desc(publishedAt)'],
+    attributesToSnippet: ['content:50'],
+    synonyms: [
+      { objectID: '1', type: 'synonym', synonyms: ['quadball', 'quidditch'] },
+      { objectID: '2', type: 'synonym', synonyms: ['ON', 'Ontario'] },
+      { objectID: '3', type: 'synonym', synonyms: ['QC', 'Quebec', 'Québec'] }
+    ]
+  },
+  'quadball_news_fr': {
+    searchableAttributes: ['title', 'excerpt', 'content', 'categories', 'tags'],
+    customRanking: ['desc(publishedAt)'],
+    attributesToSnippet: ['content:50'],
+    ignorePlurals: ['fr', 'en'],
+    removeStopWords: ['fr', 'en']
+  },
+  'quadball_teams_en': {
+    searchableAttributes: ['name', 'city', 'province', 'description'],
+    facets: ['province', 'level', 'status', 'division']
+  },
+  'quadball_events_en': {
+    searchableAttributes: ['title', 'location.venue', 'location.city', 'description'],
+    customRanking: ['asc(start)'],
+    facets: ['eventType', 'status', 'location.province']
+  }
+};
+```
+
+### Webhook Handler
+```typescript
+// src/pages/api/algolia-sync.ts
+import type { APIRoute } from 'astro';
+import algoliasearch from 'algoliasearch';
+
+const client = algoliasearch(
+  import.meta.env.ALGOLIA_APP_ID,
+  import.meta.env.ALGOLIA_ADMIN_KEY
+);
+
+export const post: APIRoute = async ({ request }) => {
+  const { _type, action, document, language } = await request.json();
+
+  const indexPrefix = {
+    newsArticle: 'quadball_news',
+    team: 'quadball_teams',
+    event: 'quadball_events',
+  }[_type];
+
+  if (!indexPrefix) {
+    return new Response('Ignored', { status: 204 });
+  }
+
+  const index = client.initIndex(`${indexPrefix}_${language}`);
+
+  if (action === 'delete') {
+    await index.deleteObject(document._id);
+    return new Response('Deleted', { status: 200 });
+  }
+
+  // Transform document to search record
+  const record = transformForSearch(document, _type);
+  await index.saveObject(record);
+
+  return new Response('Indexed', { status: 200 });
+};
+```
+
+---
+
+## 7. Performance & Core Web Vitals
+
+### Targets
+- **LCP** < 2.5s (75th percentile)
+- **CLS** < 0.10
+- **INP** < 200ms (replaces FID)
+- **FCP** < 1.8s
+- **TTFB** < 800ms
+
+### Implementation
+```javascript
+// astro.config.mjs
+export default defineConfig({
+  output: 'static',
+  integrations: [
+    compress({
+      CSS: true,
+      HTML: { removeAttributeQuotes: false },
+      Image: false, // Handle with Sanity
+      JavaScript: true,
+      SVG: true
+    }),
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: {
+          en: 'en',
+          fr: 'fr'
+        }
+      }
+    })
+  ],
+  image: {
+    domains: ['cdn.sanity.io']
+  },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor': ['react', 'react-dom'],
+            'search': ['algoliasearch']
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### Resource Budgets
+```javascript
+// lighthouse.config.js
+module.exports = {
+  ci: {
+    collect: {
+      staticDistDir: './dist',
+      url: ['/', '/news/', '/events/', '/teams/']
+    },
+    assert: {
+      budgets: [
+        {
+          path: '/*',
+          resourceSizes: [
+            { resourceType: 'script', budget: 90 },
+            { resourceType: 'stylesheet', budget: 70 },
+            { resourceType: 'image', budget: 500 },
+            { resourceType: 'total', budget: 1000 }
+          ],
+          resourceCounts: [
+            { resourceType: 'third-party', budget: 5 }
+          ]
+        }
+      ],
+      assertions: {
+        'categories:performance': ['error', { minScore: 0.9 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'first-contentful-paint': ['error', { maxNumericValue: 1800 }],
+        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
+        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
+        'total-blocking-time': ['error', { maxNumericValue: 300 }]
+      }
+    }
+  }
+};
+```
+
+---
+
+## 8. Security & Compliance
+
+### Security Headers
+```javascript
+// cloudflare.headers.js
+export const headers = {
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdn.sanity.io https://www.googletagmanager.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https://cdn.sanity.io https://i.ytimg.com",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.algolia.net https://cdn.sanity.io",
+    "frame-src https://www.youtube.com",
+    "upgrade-insecure-requests"
+  ].join('; '),
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+};
+```
+
+### Cookie Consent (PIPEDA/Law 25)
+```astro
+---
+// components/CookieBanner.astro
+---
+<div id="cookie-banner" class="hidden">
+  <div class="container">
+    <p>{t('cookies.message')}</p>
+    <div class="actions">
+      <button id="accept-essential">{t('cookies.essential')}</button>
+      <button id="accept-all">{t('cookies.acceptAll')}</button>
+      <a href="/privacy">{t('cookies.learnMore')}</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Check consent status
+  const consent = localStorage.getItem('cookie-consent');
+  if (!consent) {
+    document.getElementById('cookie-banner').classList.remove('hidden');
+  }
+
+  // Handle consent
+  document.getElementById('accept-essential').addEventListener('click', () => {
+    localStorage.setItem('cookie-consent', 'essential');
+    window.gtag('consent', 'update', {
+      'analytics_storage': 'denied',
+      'ad_storage': 'denied'
+    });
+  });
+</script>
+```
+
+---
+
+## 9. Testing Strategy
+
+### Automated Testing
+```javascript
+// playwright.config.ts
+export default defineConfig({
+  testDir: './e2e',
+  projects: [
+    { name: 'Desktop Chrome', use: { ...devices['Desktop Chrome'] } },
+    { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
+    { name: 'Desktop Firefox', use: { ...devices['Desktop Firefox'] } }
+  ],
+  use: {
+    baseURL: 'http://localhost:4321',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  }
+});
+
+// e2e/critical-paths.spec.ts
+test.describe('Critical User Paths', () => {
+  test('Homepage loads with hero, news, and CTAs', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero-slider')).toBeVisible();
+    await expect(page.locator('.news-grid article')).toHaveCount(6);
+    await expect(page.locator('.cta-blocks')).toBeVisible();
+  });
+
+  test('Language switching preserves context', async ({ page }) => {
+    await page.goto('/news/test-article');
+    await page.click('[data-language-switch="fr"]');
+    await expect(page).toHaveURL('/fr/nouvelles/test-article');
+    await expect(page.locator('h1')).toContainText('Article Test');
+  });
+
+  test('Event calendar and ICS download', async ({ page }) => {
+    await page.goto('/events');
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('[data-download="ics"]');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('events.ics');
+  });
+});
+```
+
+### Accessibility Testing
+```javascript
+// a11y.test.js
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.describe('Accessibility', () => {
+  test('Homepage meets WCAG 2.2 AA', async ({ page }) => {
+    await page.goto('/');
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
+```
+
+---
+
+## 10. Launch Plan
+
+### Pre-Launch Checklist
+- [ ] Final content migration with fresh WordPress export
+- [ ] All redirects mapped and tested (≥98% coverage)
+- [ ] Algolia indices populated and tuned
+- [ ] Security headers configured
+- [ ] Cookie consent implemented
+- [ ] DNS TTL lowered to 60 seconds
+- [ ] Monitoring configured (Sentry, UptimeRobot)
+- [ ] Backup of current site accessible at old.quidditchcanada.com
+
+### Launch Day
+```bash
+# 1. Final sync
+npm run migrate:production
+
+# 2. Deploy redirects
+wrangler pages deploy redirects.json
+
+# 3. Update DNS
+# A Record: quadballcanada.ca → Cloudflare Pages
+# CNAME: www → quadballcanada.ca
+
+# 4. Monitor
+npm run monitor:launch
+```
+
+### Post-Launch (Days 1-14)
+- [ ] Monitor 404s and add missing redirects
+- [ ] Review Core Web Vitals RUM data
+- [ ] Tune Algolia search relevance based on queries
+- [ ] Fill missing French translations
+- [ ] Submit sitemaps to Google Search Console
+- [ ] Verify hreflang implementation
+- [ ] Train editors on Sanity workflow
+
+---
+
+## 11. Success Metrics
+
+### Technical Metrics
+- ✅ **Core Web Vitals** (p75): LCP < 2.5s, CLS < 0.10, INP < 200ms
+- ✅ **Lighthouse Scores**: Performance > 90, Accessibility > 95
+- ✅ **Build Time**: < 60 seconds
+- ✅ **Page Weight**: Homepage < 500KB, Articles < 300KB
+
+### Business Metrics
+- ✅ **SEO**: Traffic maintained or improved after 30 days
+- ✅ **Engagement**: Bounce rate decreased by 20%
+- ✅ **Editorial**: Time to publish reduced by 50%
+- ✅ **Search**: CTR improved by 15% with Algolia
+
+### Content Metrics
+- ✅ **Migration**: 100% of news articles/pages transferred
+- ✅ **Media**: All images have alt text in at least one language
+- ✅ **Links**: < 1% broken internal links
+- ✅ **Translations**: 80% French coverage at launch
+
+---
+
+## 12. Risk Mitigation
+
+### Contingency Plans
+
+| Risk | Mitigation | Rollback |
+|------|------------|----------|
+| Divi content complexity | HTML block fallback, progressive enhancement post-launch | Keep WordPress staging site |
+| SEO traffic loss | Preserve URLs, comprehensive redirects, immediate sitemap submission | DNS revert (< 5 min) |
+| Translation delays | Launch with EN, hide incomplete FR pages, progressive translation | Feature flags per language |
+| Performance regression | Budget enforcement in CI, CDN caching, image optimization | Previous deployment on CDN |
+| Editorial confusion | Video training, cheat sheets, office hours first week | Dual publishing for 2 weeks |
+
+---
+
+## Resources & Scripts
+
+All migration scripts, configuration files, and documentation are available in the repository:
+- `/scripts/migration/` - WordPress to Sanity tools
+- `/docs/editor-guide.md` - Content management documentation
+- `/infrastructure/` - Deployment and monitoring configs
+- `/.github/workflows/` - CI/CD pipelines
+
+For questions or support during migration, contact the development team.
+</file>
+
+<file path="astro-app/src/layouts/Layout.astro">
+---
+// https://docs.astro.build/en/guides/view-transitions/
+import { ViewTransitions } from 'astro:transitions';
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import CookieBanner from "../components/layout/CookieBanner.astro";
+
+interface Props {
+  title: string;
+  alternate?: { en: string; fr: string };
+}
+
+const { title, alternate } = Astro.props as Props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
+
+    <!-- Google fonts -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Inter:wght@500;700;800&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <slot name="head" />
+    <title>{title}</title>
+    {alternate && (
+      <>
+        <link rel="alternate" hreflang="en" href={alternate.en} />
+        <link rel="alternate" hreflang="fr" href={alternate.fr} />
+        <link rel="alternate" hreflang="x-default" href={alternate.en} />
+      </>
+    )}
+    <ViewTransitions />
+  </head>
+  <body>
+    <div class="container">
+      <Header currentPath={Astro.url.pathname} alternate={alternate} />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+      <CookieBanner />
+    </div>
+  </body>
+</html>
+
+<style>
+  .container {
+    margin: 0 auto;
+  }
+
+  main {
+    margin-top: 45px;
+  }
+
+  @media (min-width: 575px) {
+    .container {
+      max-width: 1200px;
+      padding: 0 var(--space-4);
+    }
+
+    main {
+      margin-top: unset;
+    }
+  }
+</style>
+
+<style is:global>
+  :root {
+    --space-0: 0;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 20px;
+    --space-5: 32px;
+    --space-6: 52px;
+    --space-7: 84px;
+    --space-8: 136px;
+    --space-9: 220px;
+
+    --font-family-sans: Inter;
+    --font-family-serif: PT Serif;
+    --font-family-mono: IMB Plex Mono;
+
+    --font-size-0: 12px;
+    --font-size-1: 14px;
+    --font-size-2: 16px;
+    --font-size-3: 18px;
+    --font-size-4: 20px;
+    --font-size-5: 24px;
+    --font-size-6: 30px;
+    --font-size-7: 36px;
+    --font-size-8: 48px;
+    --font-size-9: 60px;
+    --font-size-10: 72px;
+
+    --line-height-0: 16px;
+    --line-height-1: 20px;
+    --line-height-2: 24px;
+    --line-height-3: 28px;
+    --line-height-4: 28px;
+    --line-height-5: 32px;
+    --line-height-6: 36px;
+    --line-height-7: 40px;
+    --line-height-8: 48px;
+    --line-height-9: 60px;
+    --line-height-10: 72px;
+    --line-height-11: 96px;
+    --line-height-12: 128px;
+
+    --white: #fff;
+    --black: #101112;
+    --gray-200: #ced2d9;
+    --gray-600: #6e7683;
+    --blue-600: #1e61cd;
+    --magenta-100: #f9d7eb;
+
+    /* Brand tokens */
+    --brand-primary: #9E1703;
+    --text: #666666;
+    --text-strong: #222222;
+    --bg: #ffffff;
+    --border: #e5e7eb;
+
+    --max-width-0: 320px;
+    --max-width-1: 768px;
+  }
+
+  html {
+    background-color: var(--bg);
+    font-family: var(--font-family-sans), var(--font-family-serif), sans-serif;
+    color: var(--text);
+    text-size-adjust: 100%;
+  }
+
+  body { margin: 0; }
+  a { color: var(--brand-primary); }
+  a:hover { opacity: 0.85; }
+  :focus { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+</style>
+</file>
+
+<file path="astro-app/astro.config.mjs">
+// Loading environment variables from .env files
+// https://docs.astro.build/en/guides/configuring-astro/#environment-variables
+import { loadEnv } from "vite";
+const {
+  PUBLIC_SANITY_STUDIO_PROJECT_ID,
+  PUBLIC_SANITY_STUDIO_DATASET,
+  PUBLIC_SANITY_PROJECT_ID,
+  PUBLIC_SANITY_DATASET,
+} = loadEnv(import.meta.env.MODE, process.cwd(), "");
+import { defineConfig } from "astro/config";
+
+// Different environments use different variables
+const projectId = PUBLIC_SANITY_STUDIO_PROJECT_ID || PUBLIC_SANITY_PROJECT_ID;
+const dataset = PUBLIC_SANITY_STUDIO_DATASET || PUBLIC_SANITY_DATASET;
+
+import sanity from "@sanity/astro";
+import react from "@astrojs/react";
+
+// https://astro.build/config
+export default defineConfig({
+  output: "static",
+  integrations: [
+    sanity({
+      projectId,
+      dataset,
+      useCdn: false,
+      apiVersion: "2024-12-08",
+    }),
+    react(),
+  ],
+});
+</file>
+
+</files>

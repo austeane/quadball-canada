@@ -11,6 +11,13 @@
 
 ## 1. Current Site Analysis
 
+> Status Update (2025-10-05)
+> - Applied quick visual wins in Astro app: sticky header with Donate CTA + mobile menu, typography rhythm + corrected IBM Plex Mono, improved link hover affordance, container padding.
+> - Upgraded News cards to fixed aspect ratio with srcset/sizes and width/height to reduce CLS.
+> - Homepage title updated to “Quadball Canada — Official Site”.
+> - Added `preconnect` to `cdn.sanity.io` for image performance.
+> - See `CHECKLIST.md` → “Visual polish updates (completed)” for granular items.
+
 ### Technology Stack
 - **Platform**: WordPress (Elegant Themes/Divi)
 - **Features**: Multi-language (EN/FR), Blog, Events, Teams, Media galleries

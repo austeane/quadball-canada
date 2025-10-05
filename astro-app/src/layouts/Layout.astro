@@ -41,6 +41,8 @@ const { title, alternate } = Astro.props as Props;
       href="https://fonts.gstatic.com"
       crossorigin
     />
+    <!-- Preconnect to Sanity CDN for faster image loads -->
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Inter:wght@500;700;800&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
@@ -72,6 +74,8 @@ const { title, alternate } = Astro.props as Props;
 <style>
   .container {
     margin: 0 auto;
+    padding: 0 16px;
+    max-width: 1200px;
   }
 
   main {
@@ -79,14 +83,8 @@ const { title, alternate } = Astro.props as Props;
   }
 
   @media (min-width: 575px) {
-    .container {
-      max-width: 1200px;
-      padding: 0 var(--space-4);
-    }
-
-    main {
-      margin-top: unset;
-    }
+    .container { padding: 0 var(--space-4); }
+    main { margin-top: unset; }
   }
 </style>
 
@@ -105,7 +103,7 @@ const { title, alternate } = Astro.props as Props;
 
     --font-family-sans: Inter;
     --font-family-serif: PT Serif;
-    --font-family-mono: IMB Plex Mono;
+    --font-family-mono: IBM Plex Mono;
 
     --font-size-0: 12px;
     --font-size-1: 14px;
@@ -159,7 +157,14 @@ const { title, alternate } = Astro.props as Props;
   }
 
   body { margin: 0; }
-  a { color: var(--brand-primary); }
-  a:hover { opacity: 0.85; }
+  a { color: var(--brand-primary); text-decoration: none; }
+  a:hover { text-decoration: underline; opacity: 1; }
   :focus { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+
+  /* Type polish */
+  h1, h2, h3 { color: var(--text-strong); letter-spacing: -0.015em; }
+  h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; }
+  h2 { font-size: clamp(24px, 3.5vw, 36px); line-height: 1.1; }
+  h3 { font-size: clamp(20px, 2.8vw, 30px); line-height: 1.15; }
+  p  { font-size: 1rem; line-height: 1.6; }
 </style>

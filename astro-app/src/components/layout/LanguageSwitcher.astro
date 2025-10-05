@@ -5,6 +5,7 @@ interface Props {
 }
 
 const { currentPath, alternate } = Astro.props as Props;
+const isFr = (currentPath || '/').startsWith('/fr/');
 
 function mapTo(locale: 'en' | 'fr') {
   if (alternate) return alternate[locale];
@@ -25,15 +26,15 @@ function mapTo(locale: 'en' | 'fr') {
 ---
 
 <nav class="lang-switcher" aria-label="Language">
-  <a class="lang" data-language-switch="en" href={mapTo('en')}>EN</a>
+  <a class="lang" data-language-switch="en" href={mapTo('en')} aria-current={!isFr ? 'true' : undefined}>EN</a>
   <span class="sep">/</span>
-  <a class="lang" data-language-switch="fr" href={mapTo('fr')}>FR</a>
+  <a class="lang" data-language-switch="fr" href={mapTo('fr')} aria-current={isFr ? 'true' : undefined}>FR</a>
   
 </nav>
 
 <style>
   .lang-switcher { display: inline-flex; align-items: center; gap: 6px; }
   .lang { color: var(--black); text-decoration: none; font-weight: 600; }
+  .lang[aria-current="true"] { text-decoration: underline; }
   .sep { color: var(--gray-600); }
 </style>
-

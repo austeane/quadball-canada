@@ -169,3 +169,15 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 ## Keep Docs In Sync
 
 - Update `MIGRATION_PLAN.md` and `CHECKLIST.md` when changing structure, naming, or workflows.
+
+## Recent Updates (2025-10-05)
+
+Visual polish applied to Astro app:
+- Header: added Donate CTA, sticky header, mobile menu toggle, aria-current on active links
+- Layout: corrected `IBM Plex Mono`, improved type scale/line-heights, global container padding, link hover underlines, preconnect to `cdn.sanity.io`
+- News cards: fixed aspect ratio, srcset/sizes, width/height to prevent CLS
+- Homepage: title set to "Quadball Canada — Official Site"
+
+Verification:
+- Confirmed local servers with `lsof -iTCP -sTCP:LISTEN -P`
+- Used Playwright MCP to validate UI at `http://localhost:4321/` (mobile menu toggle, language switcher active state, title)

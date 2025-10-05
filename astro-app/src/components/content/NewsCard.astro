@@ -12,17 +12,16 @@ const featuredImage = article.featuredImage;
 ---
 
 <article class="card">
-  {
-    featuredImage ? (
-      <img
-        class="card__cover"
-        src={urlFor(featuredImage).width(600).height(360).url()}
-        alt={featuredImage.alt || ""}
-      />
-    ) : (
-      <div class="card__cover--none" />
-    )
-  }
+  {featuredImage ? (
+    <img
+      class="card__cover"
+      src={urlFor(featuredImage).width(600).height(360).auto('format').url()}
+      srcset={`${urlFor(featuredImage).width(400).height(240).auto('format').url()} 400w,\n               ${urlFor(featuredImage).width(600).height(360).auto('format').url()} 600w,\n               ${urlFor(featuredImage).width(900).height(540).auto('format').url()} 900w`}
+      sizes="(max-width: 800px) 100vw, 366px"
+      width="600" height="360" loading="lazy" decoding="async"
+      alt={featuredImage.alt || ""}
+    />
+  ) : <div class="card__cover--none" aria-hidden="true" />}
   <div class="card__container">
     <h3 class="card__title">
       <a
@@ -51,15 +50,11 @@ const featuredImage = article.featuredImage;
       margin: 0 var(--space-1) 0;
     }
 
-    & .card__cover {
-      width: 100%;
-      height: 231px;
-      object-fit: cover;
-    }
-
+    & .card__cover,
     & .card__cover--none {
       width: 100%;
-      height: 231px;
+      aspect-ratio: 25 / 16;
+      object-fit: cover;
       background: #1b1b1b;
     }
 
@@ -87,21 +82,8 @@ const featuredImage = article.featuredImage;
       color: var(--gray-600);
     }
 
-    & .card__link {
-      color: var(--brand-primary);
-      text-decoration: none;
-
-      &:hover {
-        opacity: 0.85;
-        transition: 0.2s;
-      }
-
-      &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-      }
-    }
+    & .card__link { color: var(--brand-primary); text-decoration: none; }
+    & .card__title a:hover { text-decoration: underline; }
 
     &:first-child {
       border-top-left-radius: 3px;

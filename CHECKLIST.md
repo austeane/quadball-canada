@@ -92,6 +92,14 @@
 - Need to match existing WordPress/Divi design
 - Hero slider using CSS scroll-snap for performance
 
+### Visual polish updates (completed)
+- [x] Header: Donate button + sticky + mobile menu
+- [x] Language switcher: visible active state (aria-current)
+- [x] Home title: “Quadball Canada — Official Site”
+- [x] News cards: aspect-ratio, srcset/sizes, width/height for CLS
+- [x] Global type rhythm + corrected `IBM Plex Mono`
+- [x] Global container padding across breakpoints
+
 ---
 
 ## Phase 4: Events, Search & Feeds (Week 4)
@@ -178,11 +186,11 @@
 
 ### Layout Components
 - [ ] BaseLayout.astro
-- [ ] Header.astro
-- [ ] Navigation.astro (with mobile menu)
-- [ ] Footer.astro
-- [ ] LanguageSwitcher.astro
-- [ ] CookieBanner.astro
+- [x] Header.astro
+- [x] Navigation.astro (with mobile menu)
+- [x] Footer.astro
+- [x] LanguageSwitcher.astro
+- [x] CookieBanner.astro
 
 ### Section Components
 - [ ] HeroSlider.astro (CSS scroll-snap)
@@ -204,7 +212,7 @@
 - [ ] Pagination.astro
 
 ### Content Components
-- [ ] NewsCard.astro *(rename from PostCard to align with schema)*
+- [x] NewsCard.astro *(rename from PostCard to align with schema)*
 - [ ] EventCard.astro
 - [ ] TeamCard.astro
 - [ ] PersonCard.astro
