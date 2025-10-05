@@ -8,16 +8,18 @@ const articles = await getNewsArticles(locale);
 
 <section class="news-grid">
   <h2>Latest News</h2>
-  {articles.length ? (
-    articles.slice(0, 6).map((a) => <NewsCard article={a} />)
-  ) : (
-    <p>No news yet.</p>
-  )}
+  <div class="grid">
+    {articles.length ? (
+      articles.slice(0, 6).map((a) => <NewsCard article={a} />)
+    ) : (
+      <p>No news yet.</p>
+    )}
+  </div>
   <p><a class="btn-secondary" href="/news/">Browse all news</a></p>
 </section>
 
 <style>
   .news-grid { padding: 24px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .btn-secondary { text-decoration: none; color: #1e61cd; font-weight: 700; }
 </style>
-
