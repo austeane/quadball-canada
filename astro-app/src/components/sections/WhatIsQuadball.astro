@@ -1,0 +1,85 @@
+---
+---
+<section class="what-is-quadball">
+  <div class="content">
+    <div class="text">
+      <h2>What is Quadball?</h2>
+      <p>
+        Quadball is a fast-paced, full-contact mixed-gender sport that combines elements of rugby, dodgeball, and tag.
+        Players compete on broomsticks, working together to score points by getting the quaffle through hoops while
+        avoiding bludgers and seeking the snitch. With a required gender maximum rule, quadball is one of the few
+        sports designed to be inclusive from the ground up.
+      </p>
+      <a class="btn-link" href="/about/">Learn more about quadball</a>
+    </div>
+    <div class="image">
+      <img
+        src="/hero-cover.jpg"
+        alt="Quadball players in action"
+        width="600"
+        height="400"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .what-is-quadball {
+    padding: 48px 0;
+    background: var(--bg-secondary, #f8f9fa);
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .text h2 {
+    margin: 0 0 16px;
+    font-size: 2rem;
+    color: var(--text-strong);
+  }
+
+  .text p {
+    margin: 0 0 20px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .btn-link {
+    display: inline-block;
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-weight: 700;
+    padding: 12px 24px;
+    border: 2px solid var(--brand-primary);
+    border-radius: 8px;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .btn-link:hover {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+
+  .image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  @media (max-width: 768px) {
+    .content {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .text h2 {
+      font-size: 1.5rem;
+    }
+  }
+</style>

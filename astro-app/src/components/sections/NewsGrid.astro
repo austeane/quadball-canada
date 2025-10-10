@@ -1,25 +1,52 @@
 ---
-import NewsCard from "../content/NewsCard.astro";
-import { getNewsArticles, type Locale } from "../../utils/sanity";
+import { getEvents, type Locale } from "../../utils/sanity";
 
 const locale: Locale = "en";
-const articles = await getNewsArticles(locale);
+const events = await getEvents(locale);
+
+// Filter for upcoming events (future dates) and sort ascending (soonest first)
+const now = new Date();
+const upcomingEvents = events
+  .filter((e) => new Date(e.startDateTime) >= now)
+  .sort((a, b) => +new Date(a.startDateTime) - +new Date(b.startDateTime))
+  .slice(0, 6);
 ---
 
 <section class="news-grid">
-  <h2>Latest News</h2>
+  <h2>Upcoming Events</h2>
   <div class="grid">
-    {articles.length ? (
-      articles.slice(0, 6).map((a) => <NewsCard article={a} />)
+    {upcomingEvents.length ? (
+      upcomingEvents.map((event) => (
+        <article class="event-card">
+          <h3><a href={`/events/${event.slug}`}>{event.title}</a></h3>
+          <time datetime={event.startDateTime}>
+            {new Date(event.startDateTime).toLocaleDateString('en-CA', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+        </article>
+      ))
     ) : (
-      <p>No news yet.</p>
+      <p>No upcoming events.</p>
     )}
   </div>
-  <p><a class="btn-secondary" href="/news/">Browse all news</a></p>
+  <p><a class="btn-secondary" href="/events/">View all events</a></p>
 </section>
 
 <style>
   .news-grid { padding: 24px 0; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .btn-secondary { text-decoration: none; color: #1e61cd; font-weight: 700; }
+  .event-card {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+  }
+  .event-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+  .event-card h3 a { color: var(--text-strong); text-decoration: none; }
+  .event-card h3 a:hover { color: var(--brand-primary); }
+  .event-card time { color: var(--text); font-size: 0.9rem; }
 </style>

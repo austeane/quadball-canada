@@ -196,3 +196,8 @@ CLI used:
 - Switched to Astro 5 ClientRouter and added `transition:animate="slide"` on `<main>`. Updated header script to rebind on `astro:page-load`.
 - Studio deploys:
 - `cd studio && npm run deploy` (moved CLI `autoUpdates` to `deployment.autoUpdates` and set `deployment.appId`)
+
+## Recent Updates (2025-10-10)
+
+- Fixed dead links to non-existent `/about/what-is-quadball/` by pointing homepage and About page CTAs to `/about/`.
+- Sorted homepage "Upcoming Events" chronologically ascending (soonest first) in `astro-app/src/components/sections/NewsGrid.astro` to avoid reverse-chronological display.
