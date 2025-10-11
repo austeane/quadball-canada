@@ -76,9 +76,11 @@ const { title, alternate } = props;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <UtilityBar locale={locale} />
-    <div class="container">
+    <div class="site-chrome">
+      <UtilityBar locale={locale} />
       <Header currentPath={Astro.url.pathname} alternate={alternate} locale={locale} />
+    </div>
+    <div class="container">
       <main id="main">
         <slot />
       </main>
@@ -88,6 +90,12 @@ const { title, alternate } = props;
 </html>
 
 <style>
+  .site-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
   .container {
     margin: 0 auto;
     padding: 0 16px;
