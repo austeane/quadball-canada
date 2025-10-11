@@ -168,7 +168,7 @@
 - [x] `team.ts` - Team profiles with divisions, roster
 - [x] `player.ts` - Player profiles with stats
 - [x] `author.ts` - Content authors
-- [x] `category.ts` - Article categories
+- [ ] ~~`category.ts` - Article categories~~ *(removed 2025-02-14; map legacy taxonomy to tags)*
 - [x] `siteSettings.ts` - Global site configuration
 
 ### Object Types - Completed

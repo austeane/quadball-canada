@@ -188,7 +188,6 @@ export default {
   slug: localeSlug (unique per locale),
   publishedAt: datetime (required),
   author: reference(author),
-  categories: array(reference(category)),
   tags: array(string),
   excerpt: localeText,
   content: localePortableText (supports image, file, and embed blocks),
@@ -202,8 +201,11 @@ export default {
   seo: {
     metaTitle: localeString,
     metaDescription: localeText,
-    ogImage: image
-  }
+  ogImage: image
+}
+
+// 2025-02-14: Legacy category document deprecated. Map legacy WordPress
+// taxonomies into `tags` until a new taxonomy strategy is defined.
 }
 
 // 2. Event - Production Ready
@@ -500,7 +502,7 @@ import { parseStringPromise } from 'xml2js';
 import { createClient } from '@sanity/client';
 import { htmlToBlocks } from '@sanity/block-tools';
 import { JSDOM } from 'jsdom';
-// Helpers (normalizeSlug, decodeEntities, stripHtml, resolveAuthorReference, resolveCategoryReferences, mapFeaturedImage)
+// Helpers (normalizeSlug, decodeEntities, stripHtml, resolveAuthorReference, mapFeaturedImage, extractTags)
 // live in scripts/wp-to-sanity/utils
 
 const client = createClient({
@@ -529,7 +531,7 @@ const migrateNewsArticle = async (wpPost) => {
   const baseSlug = normalizeSlug(wpPost.slug);
 
   const authorRef = await resolveAuthorReference(wpPost.creator, client);
-  const categoryRefs = await resolveCategoryReferences(wpPost.categories, client);
+  const tags = extractTags(wpPost.categories);
   const featuredImage = await mapFeaturedImage(wpPost.featured_media, client);
 
   const document = {
@@ -545,7 +547,7 @@ const migrateNewsArticle = async (wpPost) => {
     },
     publishedAt: wpPost.date,
     author: authorRef,
-    categories: categoryRefs,
+    tags,
     excerpt: {
       en: stripHtml(wpPost.excerpt),
       fr: '',
@@ -584,7 +586,7 @@ const buildRedirects = async (mappings) => {
   // Add legacy brand redirects
   redirects.push(
     { from: '/quidditch/*', to: '/quadball/$1', status: 301 },
-    { from: '/category/*', to: '/news/category/$1', status: 301 },
+    { from: '/category/*', to: '/news/', status: 301 },
   );
 
   return redirects;

@@ -18,13 +18,6 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'category',
-      title: 'Category',
-      type: 'reference',
-      to: [{type: 'category'}],
-      description: 'Optional category for organizing informational articles.'
-    },
-    {
       name: 'heroImage',
       title: 'Hero Image',
       type: 'image',
@@ -72,12 +65,10 @@ export default defineType({
     select: {
       titleEn: 'title.en',
       titleFr: 'title.fr',
-      category: 'category.title',
     },
-    prepare({titleEn, titleFr, category}) {
+    prepare({titleEn, titleFr}) {
       return {
         title: titleEn || titleFr || 'Untitled',
-        subtitle: category ? `Category: ${category}` : undefined,
       }
     },
   },

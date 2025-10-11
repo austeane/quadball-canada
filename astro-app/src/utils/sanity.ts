@@ -30,11 +30,6 @@ export interface NewsArticleDetail extends NewsArticleSummary {
     name: string;
     slug?: string;
   } | null;
-  categories?: Array<{
-    _id: string;
-    title: string;
-    slug?: string;
-  }>;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -80,10 +75,6 @@ export interface InfoArticleSummary {
 export interface InfoArticleDetail extends InfoArticleSummary {
   content: PortableTextBlock[];
   heroImage?: SanityImageWithAlt | null;
-  category?: {
-    _id: string;
-    title?: string;
-  } | null;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -130,11 +121,6 @@ export async function getNewsArticle(
         _id,
         name,
         "slug": slug.current
-      },
-      "categories": categories[]->{
-        _id,
-        "title": coalesce(title[$locale], title.en),
-        "slug": select(defined(slug[$locale].current) => slug[$locale].current, slug.en.current)
       },
       seo {
         "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
@@ -232,10 +218,6 @@ export async function getInfoArticle(
       heroImage{
         ...,
         "alt": coalesce(alt[$locale], alt.en)
-      },
-      category->{
-        _id,
-        "title": coalesce(title[$locale], title.en)
       },
       seo {
         "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),

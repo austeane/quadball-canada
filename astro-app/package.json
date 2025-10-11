@@ -16,9 +16,9 @@
     "@sanity/astro": "^3.2.10",
     "@sanity/image-url": "1.2.0",
     "@sanity/vision": "4.10.2",
-    "@types/react": "19.2.0",
-    "@types/react-dom": "19.2.0",
-    "astro": "^5.14.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "astro": "^5.14.4",
     "astro-portabletext": "0.11.3",
     "autoprefixer": "10.4.21",
     "groq": "4.10.2",
@@ -26,7 +26,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "sanity": "^4.10.2",
-    "zod": "4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@portabletext/types": "2.0.15",

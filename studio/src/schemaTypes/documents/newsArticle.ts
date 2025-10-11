@@ -30,17 +30,6 @@ export default defineType({
       to: [{ type: 'author' }],
     },
     {
-      name: 'categories',
-      title: 'Categories',
-      type: 'array',
-      of: [
-        {
-          type: 'reference',
-          to: [{ type: 'category' }],
-        },
-      ],
-    },
-    {
       name: 'featuredImage',
       title: 'Featured Image',
       type: 'image',

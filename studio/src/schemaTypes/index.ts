@@ -18,7 +18,6 @@ import event from './documents/event'
 import team from './documents/team'
 import player from './documents/player'
 import author from './documents/author'
-import category from './documents/category'
 import siteSettings from './documents/siteSettings'
 import infoArticle from './documents/infoArticle'
 
@@ -34,7 +33,6 @@ export const schemaTypes = [
   team,
   player,
   author,
-  category,
   siteSettings,
   ctaBlock,
   formEmbed,
