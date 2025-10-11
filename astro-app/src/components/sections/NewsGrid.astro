@@ -1,7 +1,19 @@
 ---
 import { getEvents, type Locale } from "../../utils/sanity";
 
-const locale: Locale = "en";
+interface Props {
+  locale?: Locale;
+  title?: string;
+  viewAllHref?: string;
+  viewAllLabel?: string;
+  detailBasePath?: string;
+  emptyMessage?: string;
+}
+
+const props = Astro.props as Props | undefined;
+const locale: Locale = props?.locale ?? "en";
+const ensureTrailingSlash = (path: string) => (path.endsWith("/") ? path : `${path}/`);
+
 const events = await getEvents(locale);
 
 // Filter for upcoming events (future dates) and sort ascending (soonest first)
@@ -10,17 +22,24 @@ const upcomingEvents = events
   .filter((e) => new Date(e.startDateTime) >= now)
   .sort((a, b) => +new Date(a.startDateTime) - +new Date(b.startDateTime))
   .slice(0, 6);
+
+const heading = props?.title ?? (locale === "fr" ? "Evenements a venir" : "Upcoming Events");
+const detailBasePath = ensureTrailingSlash(props?.detailBasePath ?? (locale === "fr" ? "/fr/evenements/" : "/events/"));
+const viewAllHref = props?.viewAllHref ?? (locale === "fr" ? "/fr/evenements/" : "/events/");
+const viewAllLabel = props?.viewAllLabel ?? (locale === "fr" ? "Voir tous les evenements" : "View all events");
+const emptyMessage = props?.emptyMessage ?? (locale === "fr" ? "Aucun evenement a venir." : "No upcoming events.");
+const dateLocale = locale === "fr" ? "fr-CA" : "en-CA";
 ---
 
 <section class="news-grid">
-  <h2>Upcoming Events</h2>
+  <h2>{heading}</h2>
   <div class="grid">
     {upcomingEvents.length ? (
       upcomingEvents.map((event) => (
         <article class="event-card">
-          <h3><a href={`/events/${event.slug}`}>{event.title}</a></h3>
+          <h3><a href={`${detailBasePath}${event.slug}`}>{event.title}</a></h3>
           <time datetime={event.startDateTime}>
-            {new Date(event.startDateTime).toLocaleDateString('en-CA', {
+            {new Date(event.startDateTime).toLocaleDateString(dateLocale, {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
@@ -29,10 +48,10 @@ const upcomingEvents = events
         </article>
       ))
     ) : (
-      <p>No upcoming events.</p>
+      <p>{emptyMessage}</p>
     )}
   </div>
-  <p><a class="btn-secondary" href="/events/">View all events</a></p>
+  <p><a class="btn-secondary" href={viewAllHref}>{viewAllLabel}</a></p>
 </section>
 
 <style>

@@ -1,20 +1,26 @@
 ---
 import { formatDate } from "../../utils";
 import type { EventSummary } from "../../utils/sanity";
+import type { Locale } from "../../utils/localization";
 
 interface Props {
   event: EventSummary;
+  locale?: Locale;
+  basePath?: string;
 }
 
-const { event } = Astro.props as Props;
+const props = Astro.props as Props;
+const { event } = props;
+const locale: Locale = props.locale ?? "en";
+const basePath = (props.basePath ?? (locale === "fr" ? "/fr/evenements/" : "/events/")).replace(/\/?$/, "/");
 ---
 
 <article class="card">
   <div class="card__container">
     <h3 class="card__title">
-      <a class="card__link" href={`/events/${event.slug}`}>{event.title}</a>
+      <a class="card__link" href={`${basePath}${event.slug}`}>{event.title}</a>
     </h3>
-    <p class="card__date">{formatDate(event.startDateTime)}</p>
+    <p class="card__date">{formatDate(event.startDateTime, locale)}</p>
   </div>
 </article>
 
@@ -24,4 +30,3 @@ const { event } = Astro.props as Props;
   .card__link { color: var(--brand-primary); text-decoration: none; }
   .card__date { color: var(--gray-600); font-size: var(--font-size-1); }
 </style>
-

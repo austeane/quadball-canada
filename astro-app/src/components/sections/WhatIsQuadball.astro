@@ -1,16 +1,30 @@
 ---
+import { getInfoArticle } from "../../utils/sanity";
+import type { Locale } from "../../utils/localization";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props as Props;
+const article = await getInfoArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Information article not found for slug "${slug}" (${locale}).`);
+}
+
+const heading = article.title;
+const summary = article.excerpt ?? "";
+const articleHref = locale === "fr" ? `/fr/info/${article.slug}/` : `/info/${article.slug}/`;
+const linkLabel = locale === "fr" ? "En savoir plus" : "Learn more about quadball";
 ---
 <section class="what-is-quadball">
   <div class="content">
     <div class="text">
-      <h2>What is Quadball?</h2>
-      <p>
-        Quadball is a fast-paced, full-contact mixed-gender sport that combines elements of rugby, dodgeball, and tag.
-        Players compete on broomsticks, working together to score points by getting the quaffle through hoops while
-        avoiding bludgers and seeking the snitch. With a required gender maximum rule, quadball is one of the few
-        sports designed to be inclusive from the ground up.
-      </p>
-      <a class="btn-link" href="/about/">Learn more about quadball</a>
+      <h2>{heading}</h2>
+      <p>{summary}</p>
+      <a class="btn-link" href={articleHref}>{linkLabel}</a>
     </div>
     <div class="image">
       <img

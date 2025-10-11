@@ -1,27 +1,49 @@
 ---
+import type { Locale } from "../../utils/localization";
+
 interface Props {
   currentPath: string;
   alternate?: { en: string; fr: string };
 }
 
 const { currentPath, alternate } = Astro.props as Props;
-const isFr = (currentPath || '/').startsWith('/fr/');
 
-function mapTo(locale: 'en' | 'fr') {
-  if (alternate) return alternate[locale];
+const staticMappings: Array<{ en: string; fr: string }> = [
+  { en: "/", fr: "/fr/" },
+  { en: "/about/", fr: "/fr/a-propos/" },
+  { en: "/contact/", fr: "/fr/contact/" },
+  { en: "/events/", fr: "/fr/evenements/" },
+  { en: "/get-involved/", fr: "/fr/simpliquer/" },
+  { en: "/teams/", fr: "/fr/equipes/" },
+  { en: "/news/", fr: "/fr/nouvelles/" },
+];
 
-  const path = currentPath || '/';
-  const isFr = path.startsWith('/fr/');
-  if (locale === 'fr') {
-    if (isFr) return path; // already fr
-    if (path.startsWith('/news')) return path.replace(/^\/news/, '/fr/nouvelles');
-    return '/fr/nouvelles/';
-  } else {
-    // en
-    if (!isFr) return path; // already en
-    if (path.startsWith('/fr/nouvelles')) return path.replace(/^\/fr\/nouvelles/, '/news');
-    return '/';
+const normalize = (path: string) => (path.endsWith("/") ? path : `${path}/`);
+
+const normalizedPath = normalize(currentPath || "/");
+const isFr = normalizedPath.startsWith("/fr/");
+
+function mapStatic(target: Locale) {
+  if (target === "fr") {
+    const match = staticMappings.find((entry) => normalize(entry.en) === normalizedPath);
+    return match?.fr;
   }
+  const match = staticMappings.find((entry) => normalize(entry.fr) === normalizedPath);
+  return match?.en;
+}
+
+function mapTo(locale: Locale) {
+  if (alternate && alternate[locale]) {
+    return alternate[locale];
+  }
+
+  if (locale === "fr") {
+    if (isFr) return normalizedPath;
+    return mapStatic("fr") ?? "/fr/";
+  }
+
+  if (!isFr) return normalizedPath;
+  return mapStatic("en") ?? "/";
 }
 ---
 

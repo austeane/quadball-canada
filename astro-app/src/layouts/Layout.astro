@@ -4,17 +4,22 @@ import { ClientRouter } from 'astro:transitions';
 import UtilityBar from "../components/layout/UtilityBar.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
+import type { Locale } from "../utils/localization";
 
 interface Props {
   title: string;
   alternate?: { en: string; fr: string };
+  locale?: Locale;
 }
 
-const { title, alternate } = Astro.props as Props;
+const props = Astro.props as Props;
+const localeFromPath: Locale = Astro.url.pathname.startsWith("/fr/") ? "fr" : "en";
+const locale: Locale = props.locale ?? localeFromPath;
+const { title, alternate } = props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -71,13 +76,13 @@ const { title, alternate } = Astro.props as Props;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <UtilityBar />
+    <UtilityBar locale={locale} />
     <div class="container">
-      <Header currentPath={Astro.url.pathname} alternate={alternate} />
+      <Header currentPath={Astro.url.pathname} alternate={alternate} locale={locale} />
       <main id="main">
         <slot />
       </main>
-      <Footer />
+      <Footer locale={locale} />
     </div>
   </body>
 </html>

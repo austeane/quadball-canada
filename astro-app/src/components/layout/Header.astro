@@ -1,40 +1,128 @@
 ---
 import LanguageSwitcher from "./LanguageSwitcher.astro";
+import type { Locale } from "../../utils/localization";
 
 interface Props {
   currentPath: string;
   alternate?: { en: string; fr: string };
+  locale?: Locale;
 }
 
-const { currentPath, alternate } = Astro.props as Props;
+const props = Astro.props as Props;
+const currentPath = props.currentPath ?? Astro.url.pathname;
+const alternate = props.alternate;
+const locale: Locale = props.locale ?? (currentPath.startsWith("/fr/") ? "fr" : "en");
+const isFr = locale === "fr";
 
-const navItems = [
-  { href: "/news/", label: "Announcements" },
+type NavConfig = {
+  label: Record<Locale, string>;
+  href: Record<Locale, string>;
+  dropdown?: Array<{
+    label: Record<Locale, string>;
+    href: Record<Locale, string>;
+    external?: boolean;
+  }>;
+  external?: boolean;
+};
+
+const navConfig: NavConfig[] = [
   {
-    href: "/about/",
-    label: "About Us",
+    label: { en: "About Us", fr: "A propos" },
+    href: { en: "/about/", fr: "/fr/a-propos/" },
     dropdown: [
-      { href: "/about/#mission", label: "Mission & Values" },
-      { href: "/about/#board", label: "Meet the Board" },
-      { href: "/about/#staff", label: "Meet the Staff" },
-      { href: "/about/#teams", label: "Our Teams" },
-      { href: "/about/#policies", label: "Policies" },
-      { href: "/about/#what-is-quadball", label: "What is Quadball?" },
-      { href: "https://iqasport.com/", label: "IQA", external: true },
-    ]
+      {
+        label: { en: "Mission & Values", fr: "Mission et valeurs" },
+        href: { en: "/about/#mission", fr: "/fr/a-propos/#mission" },
+      },
+      {
+        label: { en: "Meet the Board", fr: "Conseil d'administration" },
+        href: { en: "/about/#board", fr: "/fr/a-propos/#board" },
+      },
+      {
+        label: { en: "Meet the Staff", fr: "Equipe" },
+        href: { en: "/about/#staff", fr: "/fr/a-propos/#staff" },
+      },
+      {
+        label: { en: "Our Teams", fr: "Nos equipes" },
+        href: { en: "/about/#teams", fr: "/fr/a-propos/#teams" },
+      },
+      {
+        label: { en: "What is Quadball?", fr: "Qu'est-ce que le quadball?" },
+        href: { en: "/about/#what-is-quadball", fr: "/fr/a-propos/#what-is-quadball" },
+      },
+    ],
   },
-  { href: "/events/", label: "Events" },
-  { href: "/get-involved/", label: "Get Involved" },
+  {
+    label: { en: "Contact Us", fr: "Nous joindre" },
+    href: { en: "/contact/", fr: "/fr/contact/" },
+  },
+  {
+    label: { en: "Events", fr: "Evenements" },
+    href: { en: "/events/", fr: "/fr/evenements/" },
+    dropdown: [
+      {
+        label: { en: "Upcoming Events", fr: "Evenements a venir" },
+        href: { en: "/events/", fr: "/fr/evenements/" },
+      },
+      {
+        label: { en: "Host an Event", fr: "Organiser un evenement" },
+        href: { en: "/get-involved/#host-an-event", fr: "/fr/simpliquer/#host-an-event" },
+      },
+    ],
+  },
+  {
+    label: { en: "Get Involved", fr: "S'impliquer" },
+    href: { en: "/get-involved/", fr: "/fr/simpliquer/" },
+    dropdown: [
+      {
+        label: { en: "Find a Team", fr: "Trouver une equipe" },
+        href: { en: "/teams/", fr: "/fr/equipes/" },
+      },
+      {
+        label: { en: "Volunteer Opportunities", fr: "Benevolat" },
+        href: { en: "/get-involved/#volunteer", fr: "/fr/simpliquer/#volunteer" },
+      },
+      {
+        label: { en: "Host an Event", fr: "Organiser un evenement" },
+        href: { en: "/get-involved/#host-an-event", fr: "/fr/simpliquer/#host-an-event" },
+      },
+    ],
+  },
 ];
 
+const navItems = navConfig.map((item) => ({
+  label: item.label[locale],
+  href: item.href[locale],
+  external: item.external,
+  dropdown: item.dropdown?.map((child) => ({
+    label: child.label[locale],
+    href: child.href[locale],
+    external: child.external,
+  })),
+}));
+
 // Split nav items for desktop centered layout
-const leftNavItems = navItems.slice(0, Math.ceil(navItems.length/2));
-const rightNavItems = navItems.slice(Math.ceil(navItems.length/2));
+const leftNavItems = navItems.slice(0, Math.ceil(navItems.length / 2));
+const rightNavItems = navItems.slice(Math.ceil(navItems.length / 2));
 
 function isActive(href: string) {
   if (!currentPath) return false;
-  return currentPath === href || currentPath.startsWith(href);
+  const normalized = href.endsWith("/") ? href : `${href}/`;
+  const current = currentPath.endsWith("/") ? currentPath : `${currentPath}/`;
+  return current === normalized || current.startsWith(normalized);
 }
+
+const ctaCopy = {
+  contact: isFr ? "Nous joindre" : "Contact",
+  store: isFr ? "Boutique" : "Store",
+  donate: isFr ? "Faire un don" : "Donate",
+};
+
+const ctaLinks = {
+  contact: isFr ? "/fr/contact/" : "/contact/",
+  store: "https://www.vcultimate.com/",
+  donate: "https://www.paypal.me/quidditchcanada",
+};
 ---
 <header class="site-header">
   <div class="site-header__bar">
@@ -48,13 +136,13 @@ function isActive(href: string) {
         </span>
         <span class="sr-only">Menu</span>
       </summary>
-      <nav id="site-nav-mobile" class="drawer__panel" aria-label="Primary">
+      <nav id="site-nav-mobile" class="drawer__panel" aria-label={isFr ? "Navigation principale" : "Primary"}>
         {navItems.map((item) => (
           <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
         ))}
         <div class="drawer__actions">
-          <a class="btn btn--secondary" href="https://www.vcultimate.com/" target="_blank" rel="noopener">Store</a>
-          <a class="btn btn--primary" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
+          <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
+          <a class="btn btn--primary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
         </div>
         <div class="drawer__lang">
           <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
@@ -62,38 +150,43 @@ function isActive(href: string) {
       </nav>
     </details>
 
-    <!-- Desktop left nav -->
-    <nav class="site-header__nav site-header__nav--left" aria-label="Primary left">
-      {leftNavItems.map((item) => (
-        item.dropdown ? (
-          <div class="nav-dropdown">
-            <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined} class="nav-dropdown__trigger">
-              {item.label}
-              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-                <path d="M6 8L2 4h8z" fill="currentColor" />
-              </svg>
-            </a>
-            <div class="nav-dropdown__menu">
-              {item.dropdown.map((subItem) => (
-                <a href={subItem.href} target={subItem.external ? "_blank" : undefined} rel={subItem.external ? "noopener" : undefined}>
-                  {subItem.label}
-                </a>
-              ))}
+    <!-- Desktop left controls -->
+    <div class="site-header__side site-header__side--left">
+      <div class="site-header__lang">
+        <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+      </div>
+      <nav class="site-header__nav site-header__nav--left" aria-label="Primary left">
+        {leftNavItems.map((item) => (
+          item.dropdown ? (
+            <div class="nav-dropdown">
+              <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined} class="nav-dropdown__trigger">
+                {item.label}
+                <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M6 8L2 4h8z" fill="currentColor" />
+                </svg>
+              </a>
+              <div class="nav-dropdown__menu">
+                {item.dropdown.map((subItem) => (
+                  <a href={subItem.href} target={subItem.external ? "_blank" : undefined} rel={subItem.external ? "noopener" : undefined}>
+                    {subItem.label}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
-        )
-      ))}
-    </nav>
+          ) : (
+            <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
+          )
+        ))}
+      </nav>
+    </div>
 
     <!-- Centered logo -->
-    <a class="site-header__title" href="/" aria-label="Quadball Canada — Home">
+    <a class="site-header__title" href={isFr ? "/fr/" : "/"} aria-label={isFr ? "Quadball Canada — Accueil" : "Quadball Canada — Home"}>
       <img src="/quadball-canada-logo.jpg" alt="Quadball Canada" class="logo" />
     </a>
 
     <!-- Desktop right nav -->
-    <nav class="site-header__nav site-header__nav--right" aria-label="Primary right">
+    <nav class="site-header__nav site-header__nav--right" aria-label={isFr ? "Navigation principale droite" : "Primary right"}>
       {rightNavItems.map((item) => (
         item.dropdown ? (
           <div class="nav-dropdown">
@@ -115,10 +208,9 @@ function isActive(href: string) {
           <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
         )
       ))}
-      <a class="btn btn--secondary" href="/contact/">Contact</a>
-      <a class="btn btn--secondary" href="https://www.vcultimate.com/" target="_blank" rel="noopener">Store</a>
-      <a class="btn btn--primary" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
-      <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+      <a class="btn btn--secondary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
+      <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
+      <a class="btn btn--primary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
     </nav>
   </div>
 </header>
@@ -135,10 +227,25 @@ function isActive(href: string) {
 
   .site-header__bar {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 24px;
     padding: 8px 0;
+  }
+
+  .site-header__side {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .site-header__side--left {
+    justify-self: stretch;
+  }
+
+  .site-header__lang {
+    flex-shrink: 0;
   }
 
   .site-header__title {
@@ -163,6 +270,7 @@ function isActive(href: string) {
 
   .site-header__nav--left {
     justify-content: flex-end;
+    margin-left: auto;
   }
 
   .site-header__nav--right {
@@ -393,6 +501,7 @@ function isActive(href: string) {
       grid-template-columns: auto 1fr;
     }
 
+    .site-header__side,
     .site-header__nav--left,
     .site-header__nav--right {
       display: none;

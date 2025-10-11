@@ -20,7 +20,8 @@ if (!event) throw new Error(`Event not found: ${slug}`);
 
 <Layout
   title={event.title}
-  alternate={{ en: `/events/${event.slugEn}`, fr: `/fr/evenements/${event.slugFr}` }}
+  alternate={{ en: `/events/${event.slugEn}`, fr: `/fr/evenements/${event.slugFr ?? event.slugEn}` }}
+  locale="en"
 >
   <section>
     <h1>{event.title}</h1>
@@ -30,4 +31,3 @@ if (!event) throw new Error(`Event not found: ${slug}`);
     {event.content && <PortableText value={event.content} />}
   </section>
 </Layout>
-

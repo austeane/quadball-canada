@@ -1,0 +1,53 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PageHero from "../../../components/sections/PageHero.astro";
+---
+
+<Layout title="A propos de Quadball Canada" alternate={{ en: "/about/", fr: "/fr/a-propos/" }} locale="fr">
+  <PageHero
+    title="A propos"
+    subtitle="Promouvoir et soutenir le quadball a l'echelle du pays depuis 2014."
+    ctaText="S'impliquer"
+    ctaHref="/fr/simpliquer/"
+  />
+  <section style="padding: 3rem 0;">
+    <h2 id="mission">Notre mission</h2>
+    <p>Quadball Canada encourage la croissance et le soutien du quadball partout au pays. Nous mettons l'accent sur l'inclusion, l'excellence sportive et la force de la communaute.</p>
+
+    <h2 id="values" style="margin-top: 3rem;">Nos valeurs</h2>
+    <ul style="line-height: 1.8;">
+      <li>Inclusion et diversite dans le sport</li>
+      <li>Jeu equitable et esprit sportif</li>
+      <li>Renforcement de la communaute</li>
+      <li>Excellence sportive</li>
+    </ul>
+
+    <h2 id="board" style="margin-top: 3rem;">Conseil d'administration</h2>
+    <p>Quadball Canada est dirige par un conseil d'administration benevole qui consacre son temps a faire grandir le sport d'un ocean a l'autre. Plus de details seront disponibles bientot.</p>
+
+    <h2 id="staff" style="margin-top: 3rem;">Equipe</h2>
+    <p>Notre equipe soutient le developpement du quadball, coordonne les evenements nationaux et offre des ressources aux equipes et aux joueur.euse.s du pays. Plus de details seront disponibles bientot.</p>
+
+    <h2 id="teams" style="margin-top: 3rem;">Nos equipes</h2>
+    <div style="margin-top: 1.5rem;">
+      <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Equipes competitives</h3>
+      <p>Les clubs competitifs representent le plus haut niveau de jeu au Canada et participent aux championnats nationaux et aux tournois.</p>
+
+      <h3 style="color: var(--brand-primary); margin-top: 2rem; margin-bottom: 0.5rem;">Equipes recreatives</h3>
+      <p>Les equipes recreatives offrent un environnement accueillant pour apprendre, s'amuser et developper ses competences.</p>
+
+      <h3 style="color: var(--brand-primary); margin-top: 2rem; margin-bottom: 0.5rem;">Programmes jeunesse</h3>
+      <p>Nous appuyons des programmes jeunesse partout au pays afin d'initier la prochaine generation au quadball.</p>
+
+      <h3 style="color: var(--brand-primary); margin-top: 2rem; margin-bottom: 0.5rem;">Equipe nationale</h3>
+      <p>Equipe Canada represente le pays sur la scene internationale et met de l'avant les meilleurs talents canadiens lors des tournois mondiaux.</p>
+    </div>
+
+    <h2 id="what-is-quadball" style="margin-top: 3rem;">Qu'est-ce que le quadball?</h2>
+    <p>Le quadball est un sport mixte rythme qui combine des elements du rugby, du ballon chasseur et du jeu de poursuite. Les joueurs et joueuses evoluent sur des balais pour marquer des buts et defendre leur equipe tout en respectant des regles d'inclusion uniques.</p>
+
+    <h2 style="margin-top: 3rem;">Association internationale de quadball (IQA)</h2>
+    <p>Quadball Canada est membre de l'Association internationale de quadball (IQA), l'organisme responsable de la gouvernance mondiale du sport. L'IQA etablit les reglements internationaux, organise les championnats mondiaux et soutient la croissance du quadball.</p>
+    <a href="https://iqasport.com/" target="_blank" rel="noopener" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; border: 2px solid var(--brand-primary); color: var(--brand-primary); text-decoration: none; border-radius: 8px; font-weight: 700;">Visiter le site de l'IQA</a>
+  </section>
+</Layout>

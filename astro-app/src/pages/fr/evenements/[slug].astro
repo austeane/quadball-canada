@@ -1,0 +1,41 @@
+---
+import type { InferGetStaticParamsType } from "astro";
+import { PortableText } from "astro-portabletext";
+import Layout from "../../../layouts/Layout.astro";
+import { getEvent, getEvents, type Locale } from "../../../utils/sanity";
+
+export async function getStaticPaths() {
+  const locale: Locale = "fr";
+  const events = await getEvents(locale);
+  return events.map((e) => ({ params: { slug: e.slug } }));
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "fr";
+const event = await getEvent(slug, locale);
+
+if (!event) throw new Error(`Evenement introuvable: ${slug}`);
+
+const dateOptions: Intl.DateTimeFormatOptions = {
+  dateStyle: "long",
+  timeStyle: "short",
+};
+
+const startLabel = new Date(event.startDateTime).toLocaleString("fr-CA", dateOptions);
+const endLabel = event.endDateTime ? new Date(event.endDateTime).toLocaleString("fr-CA", dateOptions) : undefined;
+---
+
+<Layout
+  title={event.title}
+  alternate={{ en: `/events/${event.slugEn ?? event.slug}`, fr: `/fr/evenements/${event.slugFr ?? event.slug}` }}
+  locale="fr"
+>
+  <section>
+    <h1>{event.title}</h1>
+    <p>
+      {startLabel}{endLabel ? ` – ${endLabel}` : ''}
+    </p>
+    {event.content && <PortableText value={event.content} />}
+  </section>
+</Layout>

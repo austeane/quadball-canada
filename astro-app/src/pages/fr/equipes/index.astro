@@ -1,19 +1,19 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { getTeams } from "../../utils/sanity";
+import Layout from "../../../layouts/Layout.astro";
+import { getTeams } from "../../../utils/sanity";
 
-const teams = await getTeams('en');
+const teams = await getTeams('fr');
 const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))).sort();
 ---
 
-<Layout title="Teams" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="en">
+<Layout title="Equipes" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="fr">
   <section class="teams">
-    <h1>Teams</h1>
+    <h1>Equipes</h1>
     {provinces.length > 0 && (
       <div class="filters">
         <label for="province">Province</label>
         <select id="province">
-          <option value="">All</option>
+          <option value="">Toutes</option>
           {provinces.map(p => <option value={p!}>{p}</option>)}
         </select>
       </div>
@@ -25,7 +25,7 @@ const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))
         ))}
       </ul>
     ) : (
-      <p>No teams available.</p>
+      <p>Aucune equipe disponible.</p>
     )}
   </section>
 

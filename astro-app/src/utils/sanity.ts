@@ -68,6 +68,29 @@ export interface TeamSummary {
   province?: string;
 }
 
+export interface InfoArticleSummary {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface InfoArticleDetail extends InfoArticleSummary {
+  content: PortableTextBlock[];
+  heroImage?: SanityImageWithAlt | null;
+  category?: {
+    _id: string;
+    title?: string;
+  } | null;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+}
+
 export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "newsArticle" && defined(slug[$locale].current)] | order(publishedAt desc) {
@@ -167,7 +190,7 @@ export async function getEvent(slug: string, locale: Locale = "en"): Promise<Eve
   );
 }
 
-export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
+export async function getTeams(_locale: Locale = "en"): Promise<TeamSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "team" && defined(slug.current)] | order(name asc) {
       _id,
@@ -177,4 +200,61 @@ export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
       province
     }`
   );
+}
+
+export async function getInfoArticles(locale: Locale = "en"): Promise<InfoArticleSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "infoArticle" && defined(slug[$locale].current)] | order(title[$locale] asc) {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en)
+    }`,
+    { locale }
+  );
+}
+
+export async function getInfoArticle(
+  slug: string,
+  locale: Locale = "en"
+): Promise<InfoArticleDetail | null> {
+  const article = await sanityClient.fetch(
+    groq`*[_type == "infoArticle" && slug[$locale].current == $slug][0] {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "content": coalesce(content[$locale], content.en),
+      heroImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      category->{
+        _id,
+        "title": coalesce(title[$locale], title.en)
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { slug, locale }
+  );
+
+  if (!article) {
+    return null;
+  }
+
+  return {
+    ...article,
+    content: article.content ?? [],
+  };
 }

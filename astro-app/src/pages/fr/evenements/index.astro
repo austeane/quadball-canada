@@ -1,10 +1,10 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { getEvents, type Locale } from "../../utils/sanity";
-import { formatDate } from "../../utils";
-import EventCard from "../../components/content/EventCard.astro";
+import Layout from "../../../layouts/Layout.astro";
+import { getEvents, type Locale } from "../../../utils/sanity";
+import { formatDate } from "../../../utils";
+import EventCard from "../../../components/content/EventCard.astro";
 
-const locale: Locale = "en";
+const locale: Locale = "fr";
 const events = await getEvents(locale);
 const now = new Date();
 const upcoming = [...events]
@@ -13,21 +13,21 @@ const upcoming = [...events]
 const featured = upcoming[0];
 ---
 
-<Layout title="Events" alternate={{ en: "/events/", fr: "/fr/evenements/" }} locale="en">
+<Layout title="Evenements" alternate={{ en: "/events/", fr: "/fr/evenements/" }} locale="fr">
   <section class="events">
-    <h1>Events</h1>
-    <p><a class="btn-secondary" href="/events.ics">Add to Calendar (ICS)</a></p>
+    <h1>Evenements</h1>
+    <p><a class="btn-secondary" href="/events.ics">Ajouter au calendrier (ICS)</a></p>
 
     {featured && (
       <div class="featured">
         <div class="datechip">{formatDate(featured.startDateTime, locale)}</div>
-        <h2 class="featured__title"><a href={`/events/${featured.slug}`}>{featured.title}</a></h2>
-        <p><a class="btn btn--primary" href={`/events/${featured.slug}`}>Details</a></p>
+        <h2 class="featured__title"><a href={`/fr/evenements/${featured.slug}`}>{featured.title}</a></h2>
+        <p><a class="btn btn--primary" href={`/fr/evenements/${featured.slug}`}>Details</a></p>
       </div>
     )}
 
     <div class="list">
-      {events.length ? events.map((e) => <EventCard event={e} locale={locale} basePath="/events/" />) : <p>No events yet.</p>}
+      {events.length ? events.map((e) => <EventCard event={e} locale={locale} basePath="/fr/evenements/" />) : <p>Aucun evenement pour le moment.</p>}
     </div>
   </section>
 

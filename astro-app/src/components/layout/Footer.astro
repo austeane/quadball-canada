@@ -1,4 +1,41 @@
 ---
+import type { Locale } from "../../utils/localization";
+
+const props = Astro.props as { locale?: Locale } | undefined;
+const locale: Locale = props?.locale ?? (Astro.url.pathname.startsWith("/fr/") ? "fr" : "en");
+
+const copy = locale === "fr"
+  ? {
+      getInvolved: "S'impliquer",
+      findTeam: "Trouver une equipe",
+      hostEvent: "Organiser un evenement",
+      volunteer: "Benevolat",
+      followUs: "Nous suivre",
+      contact: "Nous joindre",
+      about: "A propos",
+      news: "Nouvelles",
+      rules: "Regles",
+    }
+  : {
+      getInvolved: "Get Involved",
+      findTeam: "Find a Team",
+      hostEvent: "Host an Event",
+      volunteer: "Volunteer",
+      followUs: "Follow Us",
+      contact: "Contact",
+      about: "About",
+      news: "Latest News",
+      rules: "Rules",
+    };
+
+const routes = {
+  teams: locale === "fr" ? "/fr/equipes/" : "/teams/",
+  hostEvent: locale === "fr" ? "/fr/simpliquer/#host-an-event" : "/get-involved/#host-an-event",
+  volunteer: locale === "fr" ? "/fr/simpliquer/#volunteer" : "/get-involved/#volunteer",
+  about: locale === "fr" ? "/fr/a-propos/" : "/about/",
+  news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
+  rules: "/play/",
+};
 ---
 <footer class="site-footer">
   <div class="cols">
@@ -8,15 +45,15 @@
       <p>Charitable Registration Number: 820553188RR0001</p>
     </div>
     <div>
-      <h4>Get Involved</h4>
+      <h4>{copy.getInvolved}</h4>
       <ul>
-        <li><a href="/teams/">Join a Team</a></li>
-        <li><a href="/events/">Host an Event</a></li>
-        <li><a href="/news/">Volunteer</a></li>
+        <li><a href={routes.teams}>{copy.findTeam}</a></li>
+        <li><a href={routes.hostEvent}>{copy.hostEvent}</a></li>
+        <li><a href={routes.volunteer}>{copy.volunteer}</a></li>
       </ul>
     </div>
     <div>
-      <h4>Follow Us</h4>
+      <h4>{copy.followUs}</h4>
       <ul>
         <li><a target="_blank" rel="noopener" href="https://www.instagram.com/quadballcanada/?hl=en">Instagram</a></li>
         <li><a target="_blank" rel="noopener" href="https://www.youtube.com/@QuadballCanada">YouTube</a></li>
@@ -24,11 +61,11 @@
       </ul>
     </div>
     <div>
-      <h4>Contact</h4>
+      <h4>{copy.contact}</h4>
       <ul>
-        <li><a href="/about/">About</a></li>
-        <li><a href="/news/">Latest News</a></li>
-        <li><a href="/play/">Rules</a></li>
+        <li><a href={routes.about}>{copy.about}</a></li>
+        <li><a href={routes.news}>{copy.news}</a></li>
+        <li><a href={routes.rules}>{copy.rules}</a></li>
       </ul>
     </div>
   </div>

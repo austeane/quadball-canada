@@ -1,11 +1,28 @@
 ---
+interface Props {
+  title?: string;
+  description?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+}
+
+const {
+  title = "Support Quadball Canada",
+  description = "Your donation helps grow quadball nationwide and supports inclusive programs.",
+  primaryCtaLabel = "Donate",
+  primaryCtaHref = "https://www.paypal.me/quidditchcanada",
+  secondaryCtaLabel = "Sponsorship",
+  secondaryCtaHref = "/support/",
+} = Astro.props as Props;
 ---
 <section class="support">
-  <h2>Support Quadball Canada</h2>
-  <p>Your donation helps grow quadball nationwide and supports inclusive programs.</p>
+  <h2>{title}</h2>
+  <p>{description}</p>
   <div class="actions">
-    <a class="btn" href="https://www.paypal.me/quidditchcanada" target="_blank" rel="noopener">Donate</a>
-    <a class="btn-secondary" href="/support/">Sponsorship</a>
+    <a class="btn" href={primaryCtaHref} target="_blank" rel="noopener">{primaryCtaLabel}</a>
+    <a class="btn-secondary" href={secondaryCtaHref}>{secondaryCtaLabel}</a>
   </div>
 </section>
 
@@ -15,4 +32,3 @@
   .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; }
   .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
 </style>
-

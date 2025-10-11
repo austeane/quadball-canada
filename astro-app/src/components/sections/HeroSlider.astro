@@ -1,4 +1,17 @@
 ---
+interface Props {
+  title?: string;
+  subtitle?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+
+const {
+  title = "Quadball Canada",
+  subtitle = "Building community through sport across Canada.",
+  ctaHref = "/get-involved/",
+  ctaLabel = "Get Involved",
+} = Astro.props as Props;
 ---
 <section class="hero">
   <picture>
@@ -24,9 +37,9 @@
   </picture>
   <div class="hero__overlay">
     <div class="hero__content">
-      <h1 class="hero__title">Quadball Canada</h1>
-      <p class="hero__subtitle">Building community through sport across Canada.</p>
-      <a class="btn btn--hero" href="/get-involved/">Get Involved</a>
+      <h1 class="hero__title">{title}</h1>
+      <p class="hero__subtitle">{subtitle}</p>
+      <a class="btn btn--hero" href={ctaHref}>{ctaLabel}</a>
     </div>
   </div>
 </section>

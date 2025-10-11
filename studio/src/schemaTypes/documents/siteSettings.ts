@@ -1,5 +1,128 @@
 import {defineType} from 'sanity'
 
+const defaultNavigation = {
+  items: [
+    {
+      label: {
+        en: 'About Us',
+        fr: 'A propos',
+      },
+      url: '/about/',
+      targetBlank: false,
+      children: [
+        {
+          label: {
+            en: 'Mission & Values',
+            fr: 'Mission et valeurs',
+          },
+          url: '/about/#mission',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Meet the Board',
+            fr: "Conseil d'administration",
+          },
+          url: '/about/#board',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Meet the Staff',
+            fr: 'Equipe',
+          },
+          url: '/about/#staff',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Our Teams',
+            fr: 'Nos equipes',
+          },
+          url: '/about/#teams',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'What is Quadball?',
+            fr: "Qu'est-ce que le quadball?",
+          },
+          url: '/about/#what-is-quadball',
+          targetBlank: false,
+        },
+      ],
+    },
+    {
+      label: {
+        en: 'Contact Us',
+        fr: 'Nous joindre',
+      },
+      url: '/contact/',
+      targetBlank: false,
+    },
+    {
+      label: {
+        en: 'Events',
+        fr: 'Evenements',
+      },
+      url: '/events/',
+      targetBlank: false,
+      children: [
+        {
+          label: {
+            en: 'Upcoming Events',
+            fr: 'Evenements a venir',
+          },
+          url: '/events/',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Host an Event',
+            fr: 'Organiser un evenement',
+          },
+          url: '/get-involved/#host-an-event',
+          targetBlank: false,
+        },
+      ],
+    },
+    {
+      label: {
+        en: 'Get Involved',
+        fr: "S'impliquer",
+      },
+      url: '/get-involved/',
+      targetBlank: false,
+      children: [
+        {
+          label: {
+            en: 'Find a Team',
+            fr: 'Trouver une equipe',
+          },
+          url: '/teams/',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Volunteer Opportunities',
+            fr: 'Benevolat',
+          },
+          url: '/get-involved/#volunteer',
+          targetBlank: false,
+        },
+        {
+          label: {
+            en: 'Host an Event',
+            fr: 'Organiser un evenement',
+          },
+          url: '/get-involved/#host-an-event',
+          targetBlank: false,
+        },
+      ],
+    },
+  ],
+} as const
+
 export default defineType({
   name: 'siteSettings',
   title: 'Site Settings',
@@ -49,6 +172,7 @@ export default defineType({
       name: 'navigation',
       title: 'Main Navigation',
       type: 'object',
+      initialValue: defaultNavigation,
       fields: [
         {
           name: 'items',
@@ -69,6 +193,7 @@ export default defineType({
                   title: 'URL',
                   type: 'string',
                   description: 'Internal path or external URL',
+                  validation: (Rule) => Rule.required().error('URL is required for navigation items'),
                 },
                 {
                   name: 'targetBlank',

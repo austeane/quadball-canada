@@ -201,3 +201,6 @@ CLI used:
 
 - Fixed dead links to non-existent `/about/what-is-quadball/` by pointing homepage and About page CTAs to `/about/`.
 - Sorted homepage "Upcoming Events" chronologically ascending (soonest first) in `astro-app/src/components/sections/NewsGrid.astro` to avoid reverse-chronological display.
+- Header navigation now highlights About Us, Contact Us, Events, and Get Involved (with updated dropdown anchors and language toggle on the left). Sanity `siteSettings.navigation` initial value mirrors this structure to avoid dead links.
+- Added French routes for home, About, Contact, Events (and detail pages), Get Involved, and Teams with locale-aware header/footer + language toggle that keeps users on the same page.
+- Introduced `infoArticle` Sanity document for evergreen content (e.g., “What is Quadball?”) with new `/info/[slug]` and `/fr/info/[slug]` Astro routes feeding homepage content dynamically.
