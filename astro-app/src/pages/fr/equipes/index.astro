@@ -8,7 +8,36 @@ const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))
 
 <Layout title="Equipes" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="fr">
   <section class="teams">
-    <h1>Equipes</h1>
+    <h1>Équipes</h1>
+
+    <div style="margin-top: 2rem; margin-bottom: 3rem; padding: 2rem; background: var(--bg-secondary, #f8f9fa); border-radius: 12px;">
+      <h2 style="margin-top: 0;">Niveaux de jeu</h2>
+      <p style="margin-bottom: 2rem;">Le quadball au Canada comprend plusieurs niveaux de participation:</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Jeunesse</h3>
+          <p style="margin: 0;">Programmes adaptés aux jeunes pour développer leurs compétences, le travail d'équipe et l'amour du sport.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Récréatif</h3>
+          <p style="margin: 0;">Jeu amical axé sur le plaisir, l'apprentissage et la communauté. Idéal pour les personnes qui découvrent le sport.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Compétitif</h3>
+          <p style="margin: 0;">Niveau de jeu élevé pour les équipes qui participent aux championnats régionaux et nationaux avec un accent sur la performance.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Équipe nationale</h3>
+          <p style="margin: 0;">Représente le Canada sur la scène internationale et regroupe les meilleurs talents du pays.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Trouver une équipe près de chez vous</h2>
     {provinces.length > 0 && (
       <div class="filters">
         <label for="province">Province</label>
@@ -25,7 +54,7 @@ const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))
         ))}
       </ul>
     ) : (
-      <p>Aucune equipe disponible.</p>
+      <p>Aucune équipe disponible.</p>
     )}
   </section>
 

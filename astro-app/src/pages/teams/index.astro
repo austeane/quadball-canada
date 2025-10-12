@@ -9,6 +9,35 @@ const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))
 <Layout title="Teams" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="en">
   <section class="teams">
     <h1>Teams</h1>
+
+    <div style="margin-top: 2rem; margin-bottom: 3rem; padding: 2rem; background: var(--bg-secondary, #f8f9fa); border-radius: 12px;">
+      <h2 style="margin-top: 0;">Levels of Play</h2>
+      <p style="margin-bottom: 2rem;">Quadball in Canada encompasses various levels of competition and participation:</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Youth</h3>
+          <p style="margin: 0;">Programs designed for younger players to develop skills, teamwork, and a love for the sport in an age-appropriate setting.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Recreational</h3>
+          <p style="margin: 0;">Casual play focused on fun, learning, and community building. Perfect for newcomers and those looking to enjoy the sport in a relaxed environment.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Competitive</h3>
+          <p style="margin: 0;">High-level play for teams competing in regional and national championships, with a focus on athletic excellence and strategic gameplay.</p>
+        </div>
+
+        <div>
+          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">National Team</h3>
+          <p style="margin: 0;">Representing Canada on the international stage. Our national teams compete against the best in the world at global tournaments.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>Find a Team Near You</h2>
     {provinces.length > 0 && (
       <div class="filters">
         <label for="province">Province</label>
