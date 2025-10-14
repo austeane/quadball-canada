@@ -31,7 +31,7 @@ const defaultNavigation = {
             en: 'Meet the Staff',
             fr: 'Equipe',
           },
-          url: '/about/#staff',
+          url: '/about/meet-the-staff/',
           targetBlank: false,
         },
         {

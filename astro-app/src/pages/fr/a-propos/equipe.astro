@@ -1,0 +1,57 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PageHero from "../../../components/sections/PageHero.astro";
+import DirectorProfile from "../../../components/staff/DirectorProfile.astro";
+import { getStaff } from "../../../utils/sanity";
+
+const locale = "fr";
+const staff = await getStaff(locale);
+const coordinatorHeading = "Coordonnateurs et coordonnatrices";
+---
+
+<Layout
+  title="Equipe - Quadball Canada"
+  alternate={{ en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" }}
+  locale="fr"
+>
+  <PageHero
+    title="Rencontrez l'equipe"
+    subtitle="Les benevoles de Quadball Canada soutiennent les services aux membres, les evenements et les programmes d'un ocean a l'autre."
+    image="/hero-cover.jpg"
+  />
+  <section class="staff">
+    {staff.length === 0 ? (
+      <p class="empty-state">
+        Revenez bientot - les profils de notre equipe seront publies sous peu.
+      </p>
+    ) : (
+      staff.map((director) => (
+        <DirectorProfile director={director} coordinatorHeading={coordinatorHeading} />
+      ))
+    )}
+  </section>
+</Layout>
+
+<style>
+  .staff {
+    display: grid;
+    gap: 2rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    color: var(--brand-ink);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (min-width: 992px) {
+    .staff {
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+  }
+</style>

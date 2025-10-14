@@ -98,6 +98,7 @@
 - [ ] Homepage sections (hero, news grid, sponsor, CTAs)
 - [ ] News listing/detail pages with pagination
 - [ ] About/Play static pages
+- [x] Meet the Staff page (directors + coordinators from Sanity)
 - [ ] Team directory with filters (province, level, status)
 - [ ] Bilingual navigation + breadcrumbs + 404 page
 - [ ] Basic search functionality
@@ -379,6 +380,12 @@ export default {
   }
 }
 ```
+
+### Staff Directory Notes
+- New `staffMember` document type stores directors and coordinators with localized role, bio, headshot, order, and reporting relationships.
+- Coordinators reference directors via `reportsTo` for grouping on the Meet the Staff page.
+- Astro query helper `getStaff` (astro-app/src/utils/sanity.ts) delivers directors with nested coordinators.
+- Pages: `/about/meet-the-staff/` (EN) and `/fr/a-propos/equipe/` (FR) render the content via `DirectorProfile` and `CoordinatorList` components.
 
 ---
 

@@ -20,6 +20,7 @@ import player from './documents/player'
 import author from './documents/author'
 import siteSettings from './documents/siteSettings'
 import infoArticle from './documents/infoArticle'
+import staffMember from './documents/staffMember'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -29,6 +30,7 @@ export const schemaTypes = [
   page,
   newsArticle,
   infoArticle,
+  staffMember,
   event,
   team,
   player,

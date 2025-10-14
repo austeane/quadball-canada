@@ -86,6 +86,7 @@
 - [x] About/Play static pages (placeholder content)
 - [x] Team directory (basic list; filters pending)
 - [x] Bilingual navigation + language switcher + hreflang
+- [x] Meet the Staff page with directors and coordinators (Sanity-driven)
 - [ ] Basic search functionality
 
 ### Notes
@@ -168,6 +169,7 @@
 - [x] `team.ts` - Team profiles with divisions, roster
 - [x] `player.ts` - Player profiles with stats
 - [x] `author.ts` - Content authors
+- [x] `staffMember.ts` - Directors and coordinators for Meet the Staff page
 - [ ] ~~`category.ts` - Article categories~~ *(removed 2025-02-14; map legacy taxonomy to tags)*
 - [x] `siteSettings.ts` - Global site configuration
 
@@ -220,7 +222,7 @@
 - [x] NewsCard.astro *(rename from PostCard to align with schema)*
 - [ ] EventCard.astro
 - [ ] TeamCard.astro
-- [ ] PersonCard.astro
+- [x] Staff profile components (DirectorProfile.astro, CoordinatorList.astro)
 - [ ] PortableText.astro
 - [ ] TableOfContents.astro
 
@@ -295,6 +297,11 @@
   - Event recurrence with RRULE support
   - Timezone-aware event scheduling
 
+### 2025-10-13
+- **Added**: `staffMember` Sanity schema for directors and coordinators feeding the Meet the Staff page
+  - Rationale: Centralize volunteer leadership content with bios and reporting structure editable in Sanity
+  - Impact: Astro page and navigation now pull dynamic staff profiles with localized fields
+
 ### Next Steps
 1. Update Astro utilities/components to use `newsArticle` schema + locale helpers
 2. Set up WordPress data export pipeline
@@ -313,4 +320,4 @@
 
 ---
 
-*Last Updated: 2025-10-05 00:39 PDT*
+*Last Updated: 2025-10-13 21:30 PDT*

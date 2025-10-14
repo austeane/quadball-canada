@@ -82,6 +82,30 @@ export interface InfoArticleDetail extends InfoArticleSummary {
   } | null;
 }
 
+export interface StaffCoordinator {
+  _id: string;
+  slug: string;
+  name: string;
+  role: string;
+  headshot?: SanityImageWithAlt | null;
+  orderRank?: number | null;
+}
+
+export interface StaffDirector {
+  _id: string;
+  slug: string;
+  name: string;
+  role: string;
+  bio?: string | null;
+  headshot?: SanityImageWithAlt | null;
+  orderRank?: number | null;
+  coordinators: StaffCoordinator[];
+}
+
+type StaffDirectorQueryResult = Omit<StaffDirector, "coordinators"> & {
+  coordinators?: StaffCoordinator[] | null;
+};
+
 export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "newsArticle" && defined(slug[$locale].current)] | order(publishedAt desc) {
@@ -200,6 +224,42 @@ export async function getInfoArticles(locale: Locale = "en"): Promise<InfoArticl
     }`,
     { locale }
   );
+}
+
+export async function getStaff(locale: Locale = "en"): Promise<StaffDirector[]> {
+  const directors = await sanityClient.fetch<StaffDirectorQueryResult[]>(
+    groq`*[_type == "staffMember" && memberType == "director" && defined(slug.current)] 
+        | order(coalesce(orderRank, 9999) asc, name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      "role": coalesce(role[$locale], role.en),
+      "bio": coalesce(bio[$locale], bio.en),
+      "headshot": headshot{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      orderRank,
+      "coordinators": *[_type == "staffMember" && memberType == "coordinator" && defined(slug.current) && references(^._id)]
+        | order(coalesce(orderRank, 9999) asc, name asc) {
+          _id,
+          name,
+          "slug": slug.current,
+          "role": coalesce(role[$locale], role.en),
+          "headshot": headshot{
+            ...,
+            "alt": coalesce(alt[$locale], alt.en)
+          },
+          orderRank
+        }
+    }`,
+    { locale }
+  );
+
+  return directors.map((director) => ({
+    ...director,
+    coordinators: director.coordinators ?? [],
+  }));
 }
 
 export async function getInfoArticle(

@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/sections/PageHero.astro";
+import DirectorProfile from "../../components/staff/DirectorProfile.astro";
+import { getStaff } from "../../utils/sanity";
+
+const locale = "en";
+const staff = await getStaff(locale);
+const coordinatorHeading = "Coordinators";
+---
+
+<Layout
+  title="Meet the Staff - Quadball Canada"
+  alternate={{ en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" }}
+  locale="en"
+>
+  <PageHero
+    title="Meet the Staff"
+    subtitle="Quadball Canada's volunteer leadership team drives member services, events, and programs nationwide."
+    image="/hero-cover.jpg"
+  />
+  <section class="staff">
+    {staff.length === 0 ? (
+      <p class="empty-state">
+        Check back soon - our staff profiles are being finalized.
+      </p>
+    ) : (
+      staff.map((director) => (
+        <DirectorProfile director={director} coordinatorHeading={coordinatorHeading} />
+      ))
+    )}
+  </section>
+</Layout>
+
+<style>
+  .staff {
+    display: grid;
+    gap: 2rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    color: var(--brand-ink);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (min-width: 992px) {
+    .staff {
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+  }
+</style>
