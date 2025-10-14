@@ -13,6 +13,7 @@ import {
 // Document types
 import post from './documents/post'
 import page from './documents/page'
+import aboutPage from './documents/aboutPage'
 import newsArticle from './documents/newsArticle'
 import event from './documents/event'
 import team from './documents/team'
@@ -28,6 +29,7 @@ export const schemaTypes = [
   // Documents
   post,
   page,
+  aboutPage,
   newsArticle,
   infoArticle,
   staffMember,

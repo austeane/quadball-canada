@@ -106,6 +106,20 @@ type StaffDirectorQueryResult = Omit<StaffDirector, "coordinators"> & {
   coordinators?: StaffCoordinator[] | null;
 };
 
+export interface AboutPageData {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  heroCtaText?: string;
+  heroCtaHref?: string;
+  content: PortableTextBlock[];
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+}
+
 export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "newsArticle" && defined(slug[$locale].current)] | order(publishedAt desc) {
@@ -298,5 +312,36 @@ export async function getInfoArticle(
   return {
     ...article,
     content: article.content ?? [],
+  };
+}
+
+export async function getAboutPage(locale: Locale = "en"): Promise<AboutPageData | null> {
+  const page = await sanityClient.fetch(
+    groq`*[_type == "aboutPage"][0] {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "subtitle": coalesce(subtitle[$locale], subtitle.en),
+      "heroCtaText": coalesce(heroCtaText[$locale], heroCtaText.en),
+      heroCtaHref,
+      "content": coalesce(content[$locale], content.en),
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { locale }
+  );
+
+  if (!page) {
+    return null;
+  }
+
+  return {
+    ...page,
+    content: page.content ?? [],
   };
 }
