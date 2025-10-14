@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/sections/PageHero.astro";
+import BoardMemberProfile from "../../components/board/BoardMemberProfile.astro";
+import { getBoardMembers } from "../../utils/sanity";
+
+const locale = "en";
+const boardMembers = await getBoardMembers(locale);
+---
+
+<Layout
+  title="Meet the Board - Quadball Canada"
+  alternate={{ en: "/about/meet-the-board/", fr: "/fr/a-propos/conseil/" }}
+  locale="en"
+>
+  <PageHero
+    title="Meet the Board"
+    subtitle="Quadball Canada's volunteer board of directors provides strategic leadership and governance for the organization."
+    image="/hero-cover.jpg"
+  />
+  <section class="board">
+    {boardMembers.length === 0 ? (
+      <p class="empty-state">
+        Check back soon - our board member profiles are being finalized.
+      </p>
+    ) : (
+      boardMembers.map((member) => (
+        <BoardMemberProfile member={member} />
+      ))
+    )}
+  </section>
+</Layout>
+
+<style>
+  .board {
+    display: grid;
+    gap: 2rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    color: var(--brand-ink);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (min-width: 992px) {
+    .board {
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+  }
+</style>

@@ -102,6 +102,16 @@ export interface StaffDirector {
   coordinators: StaffCoordinator[];
 }
 
+export interface BoardMember {
+  _id: string;
+  slug: string;
+  name: string;
+  role: string;
+  bio: string;
+  headshot?: SanityImageWithAlt | null;
+  orderRank?: number | null;
+}
+
 type StaffDirectorQueryResult = Omit<StaffDirector, "coordinators"> & {
   coordinators?: StaffCoordinator[] | null;
 };
@@ -344,4 +354,23 @@ export async function getAboutPage(locale: Locale = "en"): Promise<AboutPageData
     ...page,
     content: page.content ?? [],
   };
+}
+
+export async function getBoardMembers(locale: Locale = "en"): Promise<BoardMember[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "boardMember" && defined(slug.current)]
+        | order(coalesce(orderRank, 9999) asc, name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      "role": coalesce(role[$locale], role.en),
+      "bio": coalesce(bio[$locale], bio.en),
+      "headshot": headshot{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      orderRank
+    }`,
+    { locale }
+  );
 }

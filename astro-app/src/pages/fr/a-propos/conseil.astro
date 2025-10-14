@@ -1,0 +1,56 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PageHero from "../../../components/sections/PageHero.astro";
+import BoardMemberProfile from "../../../components/board/BoardMemberProfile.astro";
+import { getBoardMembers } from "../../../utils/sanity";
+
+const locale = "fr";
+const boardMembers = await getBoardMembers(locale);
+---
+
+<Layout
+  title="Conseil d'administration - Quadball Canada"
+  alternate={{ en: "/about/meet-the-board/", fr: "/fr/a-propos/conseil/" }}
+  locale="fr"
+>
+  <PageHero
+    title="Conseil d'administration"
+    subtitle="Le conseil d'administration bénévole de Quadball Canada assure la direction stratégique et la gouvernance de l'organisation."
+    image="/hero-cover.jpg"
+  />
+  <section class="board">
+    {boardMembers.length === 0 ? (
+      <p class="empty-state">
+        Revenez bientôt - les profils des membres du conseil sont en cours de finalisation.
+      </p>
+    ) : (
+      boardMembers.map((member) => (
+        <BoardMemberProfile member={member} />
+      ))
+    )}
+  </section>
+</Layout>
+
+<style>
+  .board {
+    display: grid;
+    gap: 2rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    color: var(--brand-ink);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (min-width: 992px) {
+    .board {
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+  }
+</style>
