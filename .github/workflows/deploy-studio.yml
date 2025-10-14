@@ -1,0 +1,36 @@
+name: Deploy Sanity Studio
+
+on:
+  # Trigger on push to main (when schema changes are merged)
+  push:
+    branches:
+      - main
+    paths:
+      - 'studio/**'
+      - '.github/workflows/deploy-studio.yml'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  deploy-studio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Sanity Studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        working-directory: studio
+        run: npm run deploy
