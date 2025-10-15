@@ -5,22 +5,28 @@ import { PortableText } from "astro-portabletext";
 import { getAboutPage } from "../../../utils/sanity";
 
 const aboutPage = await getAboutPage("fr");
-
-if (!aboutPage) {
-  return new Response("Page à propos introuvable", { status: 404 });
-}
-
-const pageTitle = aboutPage.seo?.metaTitle || aboutPage.title || "A propos de Quadball Canada";
+const pageTitle = aboutPage?.seo?.metaTitle || aboutPage?.title || "À propos de Quadball Canada";
 ---
 
 <Layout title={pageTitle} alternate={{ en: "/about/", fr: "/fr/a-propos/" }} locale="fr">
-  <PageHero
-    title={aboutPage.title}
-    subtitle={aboutPage.subtitle}
-    ctaText={aboutPage.heroCtaText}
-    ctaHref={aboutPage.heroCtaHref}
-  />
-  <section style="padding: 3rem 0;">
-    <PortableText value={aboutPage.content} />
-  </section>
+  {aboutPage ? (
+    <>
+      <PageHero
+        title={aboutPage.title}
+        subtitle={aboutPage.subtitle}
+        ctaText={aboutPage.heroCtaText}
+        ctaHref={aboutPage.heroCtaHref}
+      />
+      <section style="padding: 3rem 0;">
+        <PortableText value={aboutPage.content} />
+      </section>
+    </>
+  ) : (
+    <section style="padding: 3rem 0;">
+      <h1>À propos de Quadball Canada</h1>
+      <p>
+        Le contenu de la page À propos n'a pas encore été publié. Ajoutez un document <strong>About Page</strong> dans Sanity Studio pour remplir cette page avec du contenu.
+      </p>
+    </section>
+  )}
 </Layout>
