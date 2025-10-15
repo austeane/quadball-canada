@@ -71,6 +71,7 @@ export interface TeamSummary {
     facebook?: string | null;
     instagram?: string | null;
     twitter?: string | null;
+    tiktok?: string | null;
   } | null;
   active?: boolean;
 }

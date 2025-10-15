@@ -27,6 +27,7 @@ const copy =
           facebook: "Facebook",
           instagram: "Instagram",
           twitter: "X / Twitter",
+          tiktok: "TikTok",
         },
       }
     : {
@@ -46,6 +47,7 @@ const copy =
           facebook: "Facebook",
           instagram: "Instagram",
           twitter: "Twitter",
+          tiktok: "TikTok",
         },
       };
 
@@ -127,6 +129,9 @@ function getSocialLinks(team: TeamSummary) {
   }
   if (team.socialMedia.twitter) {
     entries.push({ key: "twitter", url: team.socialMedia.twitter });
+  }
+  if (team.socialMedia.tiktok) {
+    entries.push({ key: "tiktok", url: team.socialMedia.tiktok });
   }
 
   return entries;

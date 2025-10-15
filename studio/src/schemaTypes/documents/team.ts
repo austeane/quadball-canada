@@ -158,6 +158,11 @@ export default defineType({
           title: 'Twitter/X',
           type: 'url',
         },
+        {
+          name: 'tiktok',
+          title: 'TikTok',
+          type: 'url',
+        },
       ],
     },
     {
