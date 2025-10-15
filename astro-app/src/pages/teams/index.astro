@@ -1,79 +1,127 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { getTeams } from "../../utils/sanity";
+import TeamSections from "../../components/team/TeamSections.astro";
 
 const teams = await getTeams('en');
-const provinces = Array.from(new Set(teams.map(t => t.province).filter(Boolean))).sort();
 ---
 
 <Layout title="Teams" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="en">
   <section class="teams">
-    <h1>Teams</h1>
+    <header class="teams__intro">
+      <h1>Teams</h1>
+      <p>
+        Quadball communities across Canada offer both full contact and recreational experiences.
+        Explore the teams below to find the right fit and get connected with captains, organizers,
+        and socials in your area.
+      </p>
+    </header>
 
-    <div style="margin-top: 2rem; margin-bottom: 3rem; padding: 2rem; background: var(--bg-secondary, #f8f9fa); border-radius: 12px;">
-      <h2 style="margin-top: 0;">Levels of Play</h2>
-      <p style="margin-bottom: 2rem;">Quadball in Canada encompasses various levels of competition and participation:</p>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-        <div>
-          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Youth</h3>
-          <p style="margin: 0;">Programs designed for younger players to develop skills, teamwork, and a love for the sport in an age-appropriate setting.</p>
+    <div class="teams__levels">
+      <h2>Levels of Play</h2>
+      <p>
+        Quadball in Canada encompasses multiple pathways for players, volunteers, and supporters.
+      </p>
+      <div class="teams__levels-grid">
+        <div class="teams__levels-card">
+          <h3>Youth</h3>
+          <p>
+            Programs designed for younger players to develop skills, teamwork, and a love for the
+            sport in an age-appropriate setting.
+          </p>
         </div>
-
-        <div>
-          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Recreational</h3>
-          <p style="margin: 0;">Casual play focused on fun, learning, and community building. Perfect for newcomers and those looking to enjoy the sport in a relaxed environment.</p>
+        <div class="teams__levels-card">
+          <h3>Recreational</h3>
+          <p>
+            Casual play focused on fun, learning, and community building. Perfect for newcomers and
+            those looking to enjoy the sport in a relaxed environment.
+          </p>
         </div>
-
-        <div>
-          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Competitive</h3>
-          <p style="margin: 0;">High-level play for teams competing in regional and national championships, with a focus on athletic excellence and strategic gameplay.</p>
+        <div class="teams__levels-card">
+          <h3>Competitive</h3>
+          <p>
+            High-level play for teams competing in regional and national championships, with a focus
+            on athletic excellence and strategic gameplay.
+          </p>
         </div>
-
-        <div>
-          <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">National Team</h3>
-          <p style="margin: 0;">Representing Canada on the international stage. Our national teams compete against the best in the world at global tournaments.</p>
+        <div class="teams__levels-card">
+          <h3>National Team</h3>
+          <p>
+            Representing Canada on the international stage. Our national teams compete against the
+            best in the world at global tournaments.
+          </p>
         </div>
       </div>
     </div>
 
-    <h2>Find a Team Near You</h2>
-    {provinces.length > 0 && (
-      <div class="filters">
-        <label for="province">Province</label>
-        <select id="province">
-          <option value="">All</option>
-          {provinces.map(p => <option value={p!}>{p}</option>)}
-        </select>
-      </div>
-    )}
-    {teams.length ? (
-      <ul id="team-list">
-        {teams.map((t) => (
-          <li data-province={t.province || ''}>{t.name} — {t.city}{t.province ? `, ${t.province}` : ''}</li>
-        ))}
-      </ul>
-    ) : (
-      <p>No teams available.</p>
-    )}
+    <TeamSections teams={teams} locale="en" />
   </section>
-
-  <script>
-    const select = document.getElementById('province');
-    const list = document.getElementById('team-list');
-    if (select && list) {
-      select.addEventListener('change', () => {
-        const value = (select as HTMLSelectElement).value;
-        list.querySelectorAll('li').forEach((li) => {
-          const prov = (li as HTMLElement).dataset.province || '';
-          (li as HTMLElement).style.display = !value || prov === value ? '' : 'none';
-        });
-      });
-    }
-  </script>
-  <style>
-    .filters { margin: 8px 0 12px; display:flex; align-items:center; gap: 8px; }
-    label { font-weight: 600; }
-    select { padding: 6px 8px; }
-  </style>
 </Layout>
+
+<style>
+  .teams {
+    padding: 3rem 0;
+    display: grid;
+    gap: 3rem;
+  }
+
+  .teams__intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 720px;
+  }
+
+  .teams__intro h1 {
+    margin: 0;
+  }
+
+  .teams__levels {
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, rgba(228, 31, 122, 0.12), rgba(32, 75, 165, 0.12));
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .teams__levels h2 {
+    margin: 0;
+  }
+
+  .teams__levels-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .teams__levels-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 960px) {
+    .teams__levels-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .teams__levels-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .teams__levels-card h3 {
+    margin: 0;
+    color: var(--brand-primary);
+  }
+
+  .teams__levels-card p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(15, 23, 42, 0.75);
+  }
+</style>

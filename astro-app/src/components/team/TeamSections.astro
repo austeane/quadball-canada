@@ -1,0 +1,431 @@
+---
+import type { Locale, TeamSummary } from "../../utils/sanity";
+import { urlFor } from "../../utils/image";
+
+interface Props {
+  teams: TeamSummary[];
+  locale: Locale;
+}
+
+const { teams = [], locale }: Props = Astro.props;
+const copy =
+  locale === "fr"
+    ? {
+        filterLabel: "Province",
+        filterAll: "Toutes",
+        fullHeading: "Équipes de contact complet",
+        recHeading: "Équipes récréatives",
+        otherHeading: "Autres programmes",
+        noTeams: "Aucune équipe n'est disponible pour le moment.",
+        noTeamsFiltered: "Aucune équipe ne correspond aux filtres sélectionnés.",
+        contactCta: "Contacter l'équipe",
+        visitWebsiteCta: "Visiter le site",
+        locationLabel: "Localisation",
+        locationFallback: "Lieu à confirmer",
+        socialLabel: "Réseaux sociaux",
+        socials: {
+          facebook: "Facebook",
+          instagram: "Instagram",
+          twitter: "X / Twitter",
+        },
+      }
+    : {
+        filterLabel: "Province",
+        filterAll: "All",
+        fullHeading: "Full Contact Teams",
+        recHeading: "Recreational Teams",
+        otherHeading: "Other Programs",
+        noTeams: "No teams are available right now.",
+        noTeamsFiltered: "No teams match the selected filters.",
+        contactCta: "Contact Team",
+        visitWebsiteCta: "Visit Website",
+        locationLabel: "Location",
+        locationFallback: "Location to be confirmed",
+        socialLabel: "Social Links",
+        socials: {
+          facebook: "Facebook",
+          instagram: "Instagram",
+          twitter: "Twitter",
+        },
+      };
+
+type ContactLevel = "full-contact" | "recreational";
+
+function resolveContactLevel(team: TeamSummary): ContactLevel | undefined {
+  if (team.contactLevel === "full-contact" || team.contactLevel === "recreational") {
+    return team.contactLevel;
+  }
+  switch (team.division) {
+    case "community":
+      return "recreational";
+    case "elite":
+      return "full-contact";
+    default:
+      return undefined;
+  }
+}
+
+const activeTeams = teams.filter((team) => team.active !== false);
+const teamsWithLevel = activeTeams.map((team) => ({
+  ...team,
+  resolvedLevel: resolveContactLevel(team),
+}));
+
+const provinces = Array.from(
+  new Set(teamsWithLevel.map((team) => team.province).filter((value): value is string => Boolean(value)))
+).sort((a, b) => a.localeCompare(b));
+
+const fullContactTeams = teamsWithLevel.filter((team) => team.resolvedLevel === "full-contact");
+const recreationalTeams = teamsWithLevel.filter((team) => team.resolvedLevel === "recreational");
+const otherTeams = teamsWithLevel.filter(
+  (team) => team.resolvedLevel !== "full-contact" && team.resolvedLevel !== "recreational"
+);
+
+function getLocation(team: TeamSummary) {
+  const parts = [team.city, team.province].filter(Boolean);
+  return parts.length ? parts.join(", ") : copy.locationFallback;
+}
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function getContact(team: TeamSummary) {
+  if (team.email) {
+    return {
+      href: `mailto:${team.email}`,
+      label: copy.contactCta,
+      external: false,
+    };
+  }
+
+  if (team.website) {
+    return {
+      href: team.website,
+      label: copy.visitWebsiteCta,
+      external: true,
+    };
+  }
+
+  return null;
+}
+
+function getSocialLinks(team: TeamSummary) {
+  if (!team.socialMedia) return [];
+  const entries: Array<{ key: keyof typeof copy.socials; url: string }> = [];
+
+  if (team.socialMedia.facebook) {
+    entries.push({ key: "facebook", url: team.socialMedia.facebook });
+  }
+  if (team.socialMedia.instagram) {
+    entries.push({ key: "instagram", url: team.socialMedia.instagram });
+  }
+  if (team.socialMedia.twitter) {
+    entries.push({ key: "twitter", url: team.socialMedia.twitter });
+  }
+
+  return entries;
+}
+
+const hasAnyTeams = teamsWithLevel.length > 0;
+
+const groups = [
+  {
+    key: "full-contact",
+    heading: copy.fullHeading,
+    teams: fullContactTeams,
+  },
+  {
+    key: "recreational",
+    heading: copy.recHeading,
+    teams: recreationalTeams,
+  },
+  {
+    key: "other",
+    heading: copy.otherHeading,
+    teams: otherTeams,
+  },
+].filter((group) => group.teams.length > 0);
+---
+{hasAnyTeams ? (
+  <>
+    {provinces.length > 0 && (
+      <div class="team-filters">
+        <label class="team-filters__label" for="team-province-filter">
+          {copy.filterLabel}
+        </label>
+        <select id="team-province-filter" class="team-filters__select" data-team-filter="province">
+          <option value="">{copy.filterAll}</option>
+          {provinces.map((province) => (
+            <option value={province}>{province}</option>
+          ))}
+        </select>
+      </div>
+    )}
+
+    <div class="team-groups">
+      {groups.map((group) => (
+        <section class="team-group" data-team-group={group.key}>
+          <h2>{group.heading}</h2>
+          <div class="team-group__grid">
+            {group.teams.map((team) => {
+              const contact = getContact(team);
+              const socialLinks = getSocialLinks(team);
+              const location = getLocation(team);
+              const logoUrl = team.logo ? urlFor(team.logo).width(160).height(160).fit("max").url() : undefined;
+              return (
+                <article class="team-card" data-team-card data-province={team.province ?? ""} data-contact-level={group.key}>
+                  <div class="team-card__media">
+                    {logoUrl ? (
+                      <img
+                        src={logoUrl}
+                        alt={team.logo?.alt ?? ""}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div class="team-card__placeholder" aria-hidden="true">
+                        {getInitials(team.name)}
+                      </div>
+                    )}
+                  </div>
+                  <div class="team-card__content">
+                    <header class="team-card__header">
+                      <h3>{team.name}</h3>
+                    </header>
+                    <p class="team-card__location">
+                      <strong>{copy.locationLabel}:</strong> {location}
+                    </p>
+                    <div class="team-card__actions">
+                      {contact && (
+                        <a
+                          class="team-card__contact"
+                          href={contact.href}
+                          target={contact.external ? "_blank" : undefined}
+                          rel={contact.external ? "noopener" : undefined}
+                        >
+                          {contact.label}
+                        </a>
+                      )}
+                      {socialLinks.length > 0 && (
+                        <div class="team-card__socials" aria-label={copy.socialLabel}>
+                          {socialLinks.map((link) => (
+                            <a href={link.url} target="_blank" rel="noopener" class="team-card__social-link">
+                              {copy.socials[link.key]}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <p class="team-group__empty" data-empty-message>
+            {copy.noTeamsFiltered}
+          </p>
+        </section>
+      ))}
+    </div>
+  </>
+) : (
+  <p>{copy.noTeams}</p>
+)}
+
+<script>
+  const provinceFilter = document.querySelector('[data-team-filter="province"]') as HTMLSelectElement | null;
+  const groups = Array.from(document.querySelectorAll("[data-team-group]")) as HTMLElement[];
+
+  function updateGroups() {
+    groups.forEach((group) => {
+    const cards = Array.from(group.querySelectorAll("[data-team-card]")) as HTMLElement[];
+      const hasVisible = cards.some((card) => !card.classList.contains("is-hidden"));
+      const emptyMessage = group.querySelector<HTMLElement>("[data-empty-message]");
+
+      if (emptyMessage) {
+        emptyMessage.style.display = hasVisible ? "none" : "block";
+      }
+
+      group.style.display = cards.length === 0 || hasVisible ? "" : "none";
+    });
+  }
+
+  function applyFilters() {
+    const selectedProvince = provinceFilter?.value ?? "";
+    const cards = Array.from(document.querySelectorAll("[data-team-card]")) as HTMLElement[];
+
+    cards.forEach((card) => {
+      const province = card.dataset.province ?? "";
+      if (!selectedProvince || province === selectedProvince) {
+        card.classList.remove("is-hidden");
+      } else {
+        card.classList.add("is-hidden");
+      }
+    });
+
+    updateGroups();
+  }
+
+  if (provinceFilter) {
+    provinceFilter.addEventListener("change", applyFilters);
+  }
+
+  updateGroups();
+</script>
+
+<style>
+  .team-filters {
+    margin: 1.5rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .team-filters__label {
+    font-weight: 600;
+  }
+
+  .team-filters__select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    font-size: 0.95rem;
+  }
+
+  .team-groups {
+    margin-top: 2rem;
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .team-group__grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 720px) {
+    .team-group__grid {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+  }
+
+  .team-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .team-card:hover,
+  .team-card:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  }
+
+  .team-card.is-hidden {
+    display: none;
+  }
+
+  .team-card__media {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+  }
+
+  .team-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .team-card__placeholder {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--brand-primary);
+  }
+
+  .team-card__content {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .team-card__header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .team-card__location {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.7);
+    font-size: 0.95rem;
+  }
+
+  .team-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .team-card__contact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+
+  .team-card__contact:hover,
+  .team-card__contact:focus-visible {
+    background: var(--brand-primary-dark, #e41f7a);
+    transform: translateY(-1px);
+  }
+
+  .team-card__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .team-card__social-link {
+    color: var(--brand-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .team-card__social-link:hover,
+  .team-card__social-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .team-group__empty {
+    display: none;
+    margin-top: 1rem;
+    color: rgba(15, 23, 42, 0.65);
+    font-style: italic;
+  }
+</style>

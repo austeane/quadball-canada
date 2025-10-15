@@ -61,6 +61,35 @@ export interface TeamSummary {
   name: string;
   city?: string;
   province?: string;
+  contactLevel?: "full-contact" | "recreational";
+  division?: string;
+  email?: string;
+  website?: string;
+  description?: string | null;
+  logo?: SanityImageWithAlt | null;
+  socialMedia?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    twitter?: string | null;
+  } | null;
+  active?: boolean;
+}
+
+export interface VolunteerOpportunitySummary {
+  _id: string;
+  slug: string;
+  title: string;
+  summary?: string | null;
+  roleType?: string;
+  timeCommitment?: string;
+  location?: string | null;
+  province?: string | null;
+  isRemote?: boolean;
+  deadline?: string | null;
+  applicationUrl: string;
+  contactEmail?: string | null;
+  orderRank?: number | null;
+  publishedAt?: string | null;
 }
 
 export interface InfoArticleSummary {
@@ -224,15 +253,52 @@ export async function getEvent(slug: string, locale: Locale = "en"): Promise<Eve
   );
 }
 
-export async function getTeams(_locale: Locale = "en"): Promise<TeamSummary[]> {
+export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "team" && defined(slug.current)] | order(name asc) {
       _id,
       name,
       "slug": slug.current,
       city,
-      province
-    }`
+      province,
+      contactLevel,
+      division,
+      email,
+      website,
+      active,
+      "description": coalesce(description[$locale], description.en),
+      logo{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      socialMedia
+    }`,
+    { locale }
+  );
+}
+
+export async function getVolunteerOpportunities(
+  locale: Locale = "en"
+): Promise<VolunteerOpportunitySummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "volunteerOpportunity" && defined(slug.current)] 
+        | order(coalesce(deadline, "9999-12-31") asc, coalesce(orderRank, 9999) asc, coalesce(publishedAt, _createdAt) desc) {
+      _id,
+      "slug": slug.current,
+      "title": coalesce(title[$locale], title.en),
+      "summary": coalesce(summary[$locale], summary.en),
+      roleType,
+      timeCommitment,
+      location,
+      province,
+      isRemote,
+      deadline,
+      applicationUrl,
+      contactEmail,
+      orderRank,
+      publishedAt
+    }`,
+    { locale }
   );
 }
 

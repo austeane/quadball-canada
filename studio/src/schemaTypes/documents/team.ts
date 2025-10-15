@@ -51,15 +51,30 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'contactLevel',
+      title: 'Contact Level',
+      type: 'string',
+      description: 'Primary style of play for this team.',
+      options: {
+        list: [
+          { title: 'Full Contact', value: 'full-contact' },
+          { title: 'Recreational', value: 'recreational' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'full-contact',
+      validation: (Rule) => Rule.required(),
+    },
+    {
       name: 'division',
-      title: 'Division',
+      title: 'Program Type',
       type: 'string',
       options: {
         list: [
-          { title: 'Community', value: 'community' },
+          { title: 'Club', value: 'club' },
           { title: 'University', value: 'university' },
           { title: 'Youth', value: 'youth' },
-          { title: 'Elite', value: 'elite' },
+          { title: 'Development', value: 'development' },
         ],
       },
     },
@@ -83,6 +98,14 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        {
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'localeString',
+          description: 'Describe the logo for accessibility.',
+        },
+      ],
     },
     {
       name: 'primaryColor',
@@ -240,11 +263,16 @@ export default defineType({
       province: 'province',
       media: 'logo',
       active: 'active',
+      contactLevel: 'contactLevel',
     },
-    prepare({ title, city, province, media, active }) {
+    prepare({ title, city, province, media, active, contactLevel }) {
+      const location = [city, province].filter(Boolean).join(', ');
+      const status = active === false ? ' (Inactive)' : '';
+      const contact = contactLevel === 'recreational' ? 'Recreational' : contactLevel === 'full-contact' ? 'Full Contact' : undefined;
+      const subtitleParts = [contact, location].filter(Boolean);
       return {
         title,
-        subtitle: `${city}, ${province} ${active ? '' : '(Inactive)'}`,
+        subtitle: `${subtitleParts.join(' — ') || 'Location TBD'}${status}`,
         media,
       }
     },

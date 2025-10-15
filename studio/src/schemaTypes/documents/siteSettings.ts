@@ -15,7 +15,7 @@ const defaultNavigation = {
             en: 'Mission & Values',
             fr: 'Mission et valeurs',
           },
-          url: '/about/#mission',
+          url: '/about/mission-and-values/',
           targetBlank: false,
         },
         {
@@ -107,7 +107,7 @@ const defaultNavigation = {
             en: 'Volunteer Opportunities',
             fr: 'Benevolat',
           },
-          url: '/get-involved/#volunteer',
+          url: '/volunteer-opportunities/',
           targetBlank: false,
         },
         {

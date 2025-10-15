@@ -1,0 +1,558 @@
+---
+import type { Locale, VolunteerOpportunitySummary } from "../../utils/sanity";
+
+interface Props {
+  opportunities: VolunteerOpportunitySummary[];
+  locale: Locale;
+}
+
+const { opportunities = [], locale }: Props = Astro.props;
+
+const copy =
+  locale === "fr"
+    ? {
+        heading: "Occasions de bénévolat",
+        intro:
+          "Quadball Canada offre des occasions de bénévolat pour soutenir des événements, des programmes locaux et des initiatives nationales. Utilisez les filtres pour trouver un rôle qui correspond à vos intérêts et à votre disponibilité.",
+        filterAll: "Toutes",
+        filterRoleLabel: "Type de rôle",
+        filterProvinceLabel: "Province / territoire",
+        filterTimeLabel: "Engagement",
+        filterRemoteToggle: "Télétravail uniquement",
+        filterRemoteOption: "À distance",
+        sortLabel: "Trier par",
+        sortOptions: {
+          deadline: "Échéance la plus proche",
+          recent: "Plus récentes",
+          title: "Nom (A-Z)",
+        },
+        deadlineLabel: "Date limite",
+        deadlineNone: "En continu",
+        deadlineInvalid: "À confirmer",
+        locationLabel: "Localisation",
+        remoteOnly: "À distance",
+        remoteFriendly: "À distance possible",
+        timeLabel: "Temps requis",
+        contactLabel: "Contacter la personne responsable",
+        applyNow: "Postuler maintenant",
+        noResults: "Aucune occasion ne correspond actuellement aux filtres sélectionnés.",
+        noItems: "Aucune occasion de bénévolat n'est publiée pour le moment.",
+      }
+    : {
+        heading: "Volunteer Opportunities",
+        intro:
+          "Quadball Canada relies on volunteers to power events, local programs, and national initiatives. Use the filters to find a role that matches your interests and availability.",
+        filterAll: "All",
+        filterRoleLabel: "Role type",
+        filterProvinceLabel: "Province / Territory",
+        filterTimeLabel: "Time commitment",
+        filterRemoteToggle: "Remote only",
+        filterRemoteOption: "Remote",
+        sortLabel: "Sort by",
+        sortOptions: {
+          deadline: "Closest deadline",
+          recent: "Recently added",
+          title: "Title (A-Z)",
+        },
+        deadlineLabel: "Deadline",
+        deadlineNone: "Ongoing",
+        deadlineInvalid: "To be announced",
+        locationLabel: "Location",
+        remoteOnly: "Remote",
+        remoteFriendly: "Remote friendly",
+        timeLabel: "Time commitment",
+        contactLabel: "Email the coordinator",
+        applyNow: "Apply now",
+        noResults: "No opportunities match the selected filters right now.",
+        noItems: "Volunteer opportunities will be posted soon.",
+      };
+
+const roleLabels: Record<string, Record<Locale, string>> = {
+  "event-support": { en: "Event Support", fr: "Soutien aux événements" },
+  administration: { en: "Administration", fr: "Administration" },
+  coaching: { en: "Coaching & Development", fr: "Entraînement et développement" },
+  communications: { en: "Communications & Marketing", fr: "Communications et marketing" },
+  governance: { en: "Governance", fr: "Gouvernance" },
+  other: { en: "Other", fr: "Autre" },
+};
+
+const timeLabels: Record<string, Record<Locale, string>> = {
+  "one-time": { en: "One-time", fr: "Une seule fois" },
+  "short-term": { en: "Short-term (1-3 months)", fr: "Court terme (1 à 3 mois)" },
+  ongoing: { en: "Ongoing", fr: "Continu" },
+};
+
+const formatter = new Intl.DateTimeFormat(locale === "fr" ? "fr-CA" : "en-CA", {
+  dateStyle: "long",
+});
+
+function translateRole(value?: string | null) {
+  if (!value) return undefined;
+  return roleLabels[value]?.[locale] ?? value;
+}
+
+function translateTime(value?: string | null) {
+  if (!value) return undefined;
+  return timeLabels[value]?.[locale] ?? value;
+}
+
+function formatDeadline(value?: string | null) {
+  if (!value) return { label: copy.deadlineNone, sortable: "" };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return { label: copy.deadlineInvalid, sortable: "" };
+  }
+  return {
+    label: formatter.format(date),
+    sortable: date.toISOString(),
+  };
+}
+
+const opportunitiesWithMeta = opportunities.map((opportunity) => {
+  const deadline = formatDeadline(opportunity.deadline);
+  return {
+    ...opportunity,
+    roleLabel: translateRole(opportunity.roleType),
+    timeLabel: translateTime(opportunity.timeCommitment),
+    deadlineLabel: deadline.label,
+    deadlineSortable: deadline.sortable,
+    provinceValue: opportunity.province ?? (opportunity.isRemote ? "remote" : ""),
+    hasRemote: Boolean(opportunity.isRemote),
+  };
+});
+
+const uniqueRoles = Array.from(
+  new Set(
+    opportunitiesWithMeta
+      .map((opportunity) => opportunity.roleType)
+      .filter((value): value is string => Boolean(value))
+  )
+).sort((a, b) => (translateRole(a) ?? "").localeCompare(translateRole(b) ?? "", locale));
+
+const uniqueProvinces = Array.from(
+  new Set(
+    opportunitiesWithMeta
+      .map((opportunity) => opportunity.provinceValue)
+      .filter((value): value is string => Boolean(value))
+  )
+).sort();
+
+const uniqueTimes = Array.from(
+  new Set(
+    opportunitiesWithMeta
+      .map((opportunity) => opportunity.timeCommitment)
+      .filter((value): value is string => Boolean(value))
+  )
+).sort((a, b) => (translateTime(a) ?? "").localeCompare(translateTime(b) ?? "", locale));
+
+const remoteAvailable = opportunitiesWithMeta.some((opportunity) => opportunity.hasRemote);
+const hasOpportunities = opportunitiesWithMeta.length > 0;
+---
+
+{hasOpportunities ? (
+  <div class="volunteer">
+    <header class="volunteer__intro">
+      <h1>{copy.heading}</h1>
+      <p>{copy.intro}</p>
+    </header>
+
+    <div class="volunteer__filters">
+      {uniqueRoles.length > 1 && (
+        <label class="volunteer__filter">
+          <span>{copy.filterRoleLabel}</span>
+          <select data-opportunity-filter="role">
+            <option value="">{copy.filterAll}</option>
+            {uniqueRoles.map((role) => (
+              <option value={role}>{translateRole(role)}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {uniqueProvinces.length > 1 && (
+        <label class="volunteer__filter">
+          <span>{copy.filterProvinceLabel}</span>
+          <select data-opportunity-filter="province">
+            <option value="">{copy.filterAll}</option>
+            {uniqueProvinces.map((province) => (
+              <option value={province}>
+                {province === "remote" ? copy.filterRemoteOption : province}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {uniqueTimes.length > 1 && (
+        <label class="volunteer__filter">
+          <span>{copy.filterTimeLabel}</span>
+          <select data-opportunity-filter="time">
+            <option value="">{copy.filterAll}</option>
+            {uniqueTimes.map((time) => (
+              <option value={time}>{translateTime(time)}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {remoteAvailable && (
+        <label class="volunteer__filter volunteer__filter--checkbox">
+          <input type="checkbox" data-opportunity-filter="remote" />
+          <span>{copy.filterRemoteToggle}</span>
+        </label>
+      )}
+
+      <label class="volunteer__filter volunteer__filter--sort">
+        <span>{copy.sortLabel}</span>
+        <select data-opportunity-sort>
+          <option value="deadline">{copy.sortOptions.deadline}</option>
+          <option value="recent">{copy.sortOptions.recent}</option>
+          <option value="title">{copy.sortOptions.title}</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="volunteer__list" data-opportunity-list>
+      {opportunitiesWithMeta.map((opportunity) => (
+        <article
+          class="volunteer-card"
+          data-opportunity
+          data-role={opportunity.roleType ?? ""}
+          data-province={opportunity.provinceValue ?? ""}
+          data-time={opportunity.timeCommitment ?? ""}
+          data-remote={opportunity.isRemote ? "true" : "false"}
+          data-deadline={opportunity.deadlineSortable ?? ""}
+          data-published={opportunity.publishedAt ?? ""}
+          data-title={opportunity.title.toLowerCase()}
+        >
+          <header class="volunteer-card__header">
+            <h2>{opportunity.title}</h2>
+            {opportunity.roleLabel && <span class="volunteer-card__tag">{opportunity.roleLabel}</span>}
+          </header>
+          {opportunity.summary && <p class="volunteer-card__summary">{opportunity.summary}</p>}
+
+          <dl class="volunteer-card__meta">
+            <div>
+              <dt>{copy.locationLabel}</dt>
+              <dd>
+                {[
+                  opportunity.location,
+                  opportunity.province ? opportunity.province : undefined,
+                  opportunity.isRemote ? copy.remoteFriendly : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" • ") || copy.remoteOnly}
+              </dd>
+            </div>
+            {opportunity.timeLabel && (
+              <div>
+                <dt>{copy.timeLabel}</dt>
+                <dd>{opportunity.timeLabel}</dd>
+              </div>
+            )}
+            <div>
+              <dt>{copy.deadlineLabel}</dt>
+              <dd>{opportunity.deadlineLabel}</dd>
+            </div>
+          </dl>
+
+          <footer class="volunteer-card__actions">
+            <a
+              class="volunteer-card__apply"
+              href={opportunity.applicationUrl}
+              target="_blank"
+              rel="noopener"
+            >
+              {copy.applyNow}
+            </a>
+            {opportunity.contactEmail && (
+              <a class="volunteer-card__contact" href={`mailto:${opportunity.contactEmail}`}>
+                {copy.contactLabel}
+              </a>
+            )}
+          </footer>
+        </article>
+      ))}
+    </div>
+
+    <p class="volunteer__empty" data-empty-message>
+      {copy.noResults}
+    </p>
+  </div>
+) : (
+  <div class="volunteer volunteer--empty">
+    <header class="volunteer__intro">
+      <h1>{copy.heading}</h1>
+      <p>{copy.intro}</p>
+    </header>
+    <p>{copy.noItems}</p>
+  </div>
+)}
+
+<script>
+  const filterElements = {
+    role: document.querySelector('[data-opportunity-filter="role"]') as HTMLSelectElement | null,
+    province: document.querySelector('[data-opportunity-filter="province"]') as HTMLSelectElement | null,
+    time: document.querySelector('[data-opportunity-filter="time"]') as HTMLSelectElement | null,
+    remote: document.querySelector('[data-opportunity-filter="remote"]') as HTMLInputElement | null,
+  };
+
+  const sortSelect = document.querySelector('[data-opportunity-sort]') as HTMLSelectElement | null;
+  const list = document.querySelector("[data-opportunity-list]") as HTMLElement | null;
+  const cards = Array.from(document.querySelectorAll("[data-opportunity]")) as HTMLElement[];
+  const emptyMessage = document.querySelector("[data-empty-message]") as HTMLElement | null;
+
+  function applyFilters() {
+    const role = filterElements.role?.value ?? "";
+    const province = filterElements.province?.value ?? "";
+    const time = filterElements.time?.value ?? "";
+    const remoteOnly = filterElements.remote?.checked ?? false;
+
+    cards.forEach((card) => {
+      const roleMatch = !role || card.dataset.role === role;
+      const provinceMatch = !province || card.dataset.province === province;
+      const timeMatch = !time || card.dataset.time === time;
+      const remoteMatch = !remoteOnly || card.dataset.remote === "true";
+
+      if (roleMatch && provinceMatch && timeMatch && remoteMatch) {
+        card.classList.remove("is-hidden");
+      } else {
+        card.classList.add("is-hidden");
+      }
+    });
+  }
+
+  function applySort() {
+    if (!list) return;
+    const mode = sortSelect?.value ?? "deadline";
+    const visibleCards = cards.filter((card) => !card.classList.contains("is-hidden"));
+
+    const sorted = visibleCards.sort((a, b) => {
+      switch (mode) {
+        case "recent": {
+          const aPublished = Date.parse(a.dataset.published || "");
+          const bPublished = Date.parse(b.dataset.published || "");
+          return (bPublished || 0) - (aPublished || 0);
+        }
+        case "title": {
+          const aTitle = a.dataset.title || "";
+          const bTitle = b.dataset.title || "";
+          return aTitle.localeCompare(bTitle);
+        }
+        case "deadline":
+        default: {
+          const aDeadline = Date.parse(a.dataset.deadline || "");
+          const bDeadline = Date.parse(b.dataset.deadline || "");
+
+          const aValue = Number.isNaN(aDeadline) ? Number.POSITIVE_INFINITY : aDeadline;
+          const bValue = Number.isNaN(bDeadline) ? Number.POSITIVE_INFINITY : bDeadline;
+          return aValue - bValue;
+        }
+      }
+    });
+
+    sorted.forEach((card) => list.appendChild(card));
+  }
+
+  function updateEmptyState() {
+    const hasVisible = cards.some((card) => !card.classList.contains("is-hidden"));
+    if (emptyMessage) {
+      emptyMessage.style.display = hasVisible ? "none" : "block";
+    }
+  }
+
+  function update() {
+    applyFilters();
+    applySort();
+    updateEmptyState();
+  }
+
+  Object.values(filterElements).forEach((element) => {
+    element?.addEventListener("change", update);
+  });
+
+  sortSelect?.addEventListener("change", update);
+
+  update();
+</script>
+
+<style>
+  .volunteer {
+    display: grid;
+    gap: 2.5rem;
+    padding: 3rem 0;
+  }
+
+  .volunteer__intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 720px;
+  }
+
+  .volunteer__intro h1 {
+    margin: 0;
+  }
+
+  .volunteer__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .volunteer__filter {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .volunteer__filter select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    min-width: 200px;
+    font-weight: 500;
+  }
+
+  .volunteer__filter--checkbox {
+    align-items: center;
+    font-weight: 500;
+    gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 999px;
+    display: inline-flex;
+  }
+
+  .volunteer__filter--checkbox input {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .volunteer__filter--sort select {
+    min-width: 180px;
+  }
+
+  .volunteer__list {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .volunteer-card {
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+  }
+
+  .volunteer-card.is-hidden {
+    display: none;
+  }
+
+  .volunteer-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .volunteer-card__header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .volunteer-card__tag {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(32, 75, 165, 0.12);
+    color: var(--brand-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .volunteer-card__summary {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.75);
+    line-height: 1.6;
+  }
+
+  .volunteer-card__meta {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  .volunteer-card__meta div {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .volunteer-card__meta dt {
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(15, 23, 42, 0.6);
+  }
+
+  .volunteer-card__meta dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(15, 23, 42, 0.9);
+  }
+
+  .volunteer-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .volunteer-card__apply,
+  .volunteer-card__contact {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .volunteer-card__apply {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+
+  .volunteer-card__apply:hover,
+  .volunteer-card__apply:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(228, 31, 122, 0.3);
+  }
+
+  .volunteer-card__contact {
+    background: rgba(32, 75, 165, 0.12);
+    color: var(--brand-primary);
+  }
+
+  .volunteer-card__contact:hover,
+  .volunteer-card__contact:focus-visible {
+    transform: translateY(-1px);
+  }
+
+  .volunteer__empty {
+    display: none;
+    font-style: italic;
+    color: rgba(15, 23, 42, 0.65);
+  }
+
+  .volunteer--empty {
+    padding: 3rem 0;
+  }
+</style>

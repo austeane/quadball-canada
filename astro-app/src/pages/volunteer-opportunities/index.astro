@@ -1,0 +1,15 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import VolunteerList from "../../components/volunteer/VolunteerList.astro";
+import { getVolunteerOpportunities } from "../../utils/sanity";
+
+const opportunities = await getVolunteerOpportunities("en");
+---
+
+<Layout
+  title="Volunteer Opportunities — Quadball Canada"
+  alternate={{ en: "/volunteer-opportunities/", fr: "/fr/benevolat/" }}
+  locale="en"
+>
+  <VolunteerList opportunities={opportunities} locale="en" />
+</Layout>

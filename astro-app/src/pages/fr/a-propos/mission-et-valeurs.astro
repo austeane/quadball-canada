@@ -1,0 +1,110 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { PortableText } from "astro-portabletext";
+import { getInfoArticle, type Locale } from "../../../utils/sanity";
+import { urlFor } from "../../../utils/image";
+
+const locale: Locale = "fr";
+const slug = "mission-et-valeurs";
+const article = await getInfoArticle(slug, locale);
+const title = article?.title ?? "Mission et valeurs";
+const alternate = {
+  en: "/about/mission-and-values/",
+  fr: `/fr/a-propos/mission-et-valeurs/`,
+};
+
+const heroImage = article?.heroImage ? urlFor(article.heroImage).width(1600).height(900).fit("max").url() : undefined;
+const description =
+  article?.seo?.metaDescription ?? article?.excerpt ?? "Découvrez la mission et les valeurs de Quadball Canada.";
+---
+
+<Layout title={article?.seo?.metaTitle ?? title} alternate={alternate} locale="fr">
+  <meta slot="head" name="description" content={description} />
+  <section class="info-article">
+    <header class="info-article__header">
+      <h1>{title}</h1>
+      {article?.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
+      {!article && (
+        <div class="info-article__placeholder">
+          <p>
+            Le contenu « Mission et valeurs » n'est pas encore publié. Ajoutez un article
+            d'information dans Sanity avec le slug <code>mission-et-valeurs</code> pour alimenter
+            cette page.
+          </p>
+        </div>
+      )}
+      {article && heroImage && (
+        <figure class="info-article__hero">
+          <img src={heroImage} alt={article.heroImage?.alt ?? ""} loading="lazy" decoding="async" />
+        </figure>
+      )}
+    </header>
+    {article && <PortableText value={article.content} />}
+  </section>
+</Layout>
+
+<style>
+  .info-article {
+    padding: 48px 0;
+    display: grid;
+    gap: 32px;
+  }
+
+  .info-article__header {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .info-article__header h1 {
+    margin: 0;
+  }
+
+  .info-article__excerpt {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--gray-600);
+    margin: 0;
+  }
+
+  .info-article__placeholder {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(32, 75, 165, 0.12);
+    color: rgba(15, 23, 42, 0.75);
+  }
+
+  .info-article__placeholder code {
+    font-family: var(--font-mono, "IBM Plex Mono", monospace);
+    font-weight: 600;
+  }
+
+  .info-article__hero {
+    margin: 0;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  .info-article__hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  .info-article :global(h2) {
+    margin-top: 2.5rem;
+  }
+
+  .info-article :global(p + ul),
+  .info-article :global(p + ol) {
+    margin-top: 1rem;
+  }
+
+  .info-article :global(blockquote) {
+    border-left: 4px solid var(--brand-primary);
+    padding-left: 1rem;
+    font-style: italic;
+    color: rgba(15, 23, 42, 0.75);
+  }
+</style>
