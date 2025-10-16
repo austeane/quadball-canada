@@ -1,0 +1,175 @@
+---
+import { urlFor } from "../../utils/image";
+import type { ResourceArticleSummary } from "../../utils/sanity";
+
+interface Props {
+  resource: ResourceArticleSummary;
+}
+
+const { resource } = Astro.props;
+const heroImage = resource.heroImage;
+const isExternal = !!resource.externalUrl;
+const href = isExternal ? resource.externalUrl : `/resources/${resource.slug}`;
+const categoryLabel = resource.category.charAt(0).toUpperCase() + resource.category.slice(1);
+---
+
+<article class="card" class:list={{ 'card--featured': resource.featured }}>
+  {heroImage ? (
+    <img
+      class="card__cover"
+      src={urlFor(heroImage).width(600).height(360).auto('format').url()}
+      srcset={`${urlFor(heroImage).width(400).height(240).auto('format').url()} 400w,
+               ${urlFor(heroImage).width(600).height(360).auto('format').url()} 600w,
+               ${urlFor(heroImage).width(900).height(540).auto('format').url()} 900w`}
+      sizes="(max-width: 800px) 100vw, 366px"
+      width="600" height="360" loading="lazy" decoding="async"
+      alt={heroImage.alt || ""}
+    />
+  ) : <div class="card__cover--none" aria-hidden="true" />}
+  <div class="card__container">
+    <div class="card__meta">
+      <span class="card__category">{categoryLabel}</span>
+      {resource.featured && <span class="card__badge">Featured</span>}
+    </div>
+    <h3 class="card__title">
+      <a
+        class="card__link"
+        href={href}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
+      >
+        {resource.title}
+        {isExternal && <span class="card__external-icon" aria-label="Opens in new window">↗</span>}
+      </a>
+    </h3>
+    {resource.excerpt && <p class="card__excerpt">{resource.excerpt}</p>}
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    position: relative;
+    border-bottom: 1px solid #ced2d9;
+
+    & .card__container {
+      margin: 0 var(--space-1) 0;
+    }
+
+    & .card__cover,
+    & .card__cover--none {
+      width: 100%;
+      aspect-ratio: 25 / 16;
+      object-fit: cover;
+      background: #1b1b1b;
+    }
+
+    & .card__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    & .card__category {
+      font-family: var(--font-family-sans);
+      font-weight: 700;
+      font-size: var(--font-size-0);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-600);
+    }
+
+    & .card__badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--brand-primary);
+      color: white;
+      border-radius: 4px;
+      font-family: var(--font-family-sans);
+      font-weight: 700;
+      font-size: var(--font-size-0);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    & .card__title {
+      font-family: var(--font-family-sans);
+      font-weight: 800;
+      font-size: var(--font-size-6);
+      line-height: var(--line-height-5);
+      margin: var(--space-2) 0;
+    }
+
+    & .card__excerpt {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-3);
+      line-height: var(--line-height-3);
+      margin-top: 0;
+    }
+
+    & .card__link {
+      color: var(--brand-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    & .card__external-icon {
+      font-size: 1.2em;
+      opacity: 0.7;
+    }
+
+    & .card__title a:hover { text-decoration: underline; }
+
+    &.card--featured {
+      background: color-mix(in oklab, var(--brand-tint) 30%, white 70%);
+    }
+
+    &:first-child {
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+
+  @media (min-width: 575px) {
+    .card {
+      border: 1px solid #ced2d9;
+      border-bottom: none;
+
+      & .card__title {
+        margin-top: var(--space-3);
+      }
+
+      &:last-child {
+        border-bottom: 1px solid #ced2d9;
+      }
+    }
+  }
+
+  @media (min-width: 800px) {
+    .card {
+      flex-direction: row;
+
+      & .card__container {
+        margin: 0 var(--space-4) 0;
+      }
+
+      & .card__cover,
+      & .card__cover--none {
+        min-width: 366.5px;
+        max-width: 366.5px;
+        max-height: 231px;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,215 @@
+---
+import type { InferGetStaticParamsType } from "astro";
+import { PortableText } from "astro-portabletext";
+import Layout from "../../layouts/Layout.astro";
+import { urlFor } from "../../utils/image";
+import { getResourceArticle, getResourceArticles, type Locale } from "../../utils/sanity";
+
+export async function getStaticPaths() {
+  const locale: Locale = "en";
+  const resources = await getResourceArticles(locale);
+  return resources.map((resource) => ({ params: { slug: resource.slug } }));
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "en";
+const resource = await getResourceArticle(slug, locale);
+
+if (!resource) {
+  throw new Error(`Resource not found: ${slug}`);
+}
+
+const categoryLabel = resource.category.charAt(0).toUpperCase() + resource.category.slice(1);
+---
+
+<Layout
+  title={resource.title}
+  alternate={{
+    en: `/resources/${resource.slugEn}`,
+    fr: `/fr/ressources/${resource.slugFr}`,
+  }}
+>
+  <Fragment slot="head">
+    <meta name="description" content={resource.seo?.metaDescription ?? resource.excerpt ?? ''} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={resource.seo?.metaTitle ?? resource.title} />
+    <meta property="og:description" content={resource.seo?.metaDescription ?? resource.excerpt ?? ''} />
+    {resource.heroImage && (
+      <meta property="og:image" content={urlFor(resource.heroImage).width(1200).height(630).url()} />
+    )}
+  </Fragment>
+  <section class="resource">
+    {
+      resource.heroImage ? (
+        <img
+          class="resource__cover"
+          src={urlFor(resource.heroImage).url()}
+          alt={resource.heroImage.alt || ""}
+        />
+      ) : (
+        <div class="resource__cover--none" />
+      )
+    }
+    <div class="resource__container">
+      <div class="resource__meta">
+        <span class="resource__category">{categoryLabel}</span>
+        {resource.featured && <span class="resource__badge">Featured</span>}
+      </div>
+      <h1 class="resource__title">{resource.title}</h1>
+      {resource.excerpt && <p class="resource__excerpt">{resource.excerpt}</p>}
+      {resource.externalUrl && (
+        <a href={resource.externalUrl} target="_blank" rel="noopener noreferrer" class="resource__external-link">
+          Visit Resource ↗
+        </a>
+      )}
+      {resource.content && resource.content.length > 0 && (
+        <div class="resource__content">
+          <PortableText value={resource.content} />
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .resource {
+    width: 100%;
+    margin: var(--space-1) 0 var(--space-4);
+
+    & .resource__cover,
+    & .resource__cover--none {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    & .resource__cover--none {
+      background: var(--black);
+    }
+
+    & .resource__container {
+      padding: 0 var(--space-3);
+    }
+
+    & .resource__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    & .resource__category {
+      font-family: var(--font-family-sans);
+      font-weight: 700;
+      font-size: var(--font-size-1);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-600);
+    }
+
+    & .resource__badge {
+      display: inline-block;
+      padding: 3px 10px;
+      background: var(--brand-primary);
+      color: white;
+      border-radius: 4px;
+      font-family: var(--font-family-sans);
+      font-weight: 700;
+      font-size: var(--font-size-0);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    & .resource__content {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-5);
+      letter-spacing: -0.02em;
+      margin-top: var(--space-6);
+
+      & blockquote {
+        border-left: 5px solid var(--black);
+        padding-left: var(--space-3);
+        margin-left: var(--space-4);
+      }
+
+      & a {
+        color: var(--blue-600);
+        text-decoration: none;
+      }
+    }
+
+    & .resource__title {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-7);
+      line-height: var(--line-height-6);
+      margin: var(--space-3) 0;
+      font-weight: 800;
+    }
+
+    & .resource__excerpt {
+      font-family: var(--font-family-serif);
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-4);
+      margin-top: 0;
+      font-weight: 400;
+      color: var(--gray-700);
+    }
+
+    & .resource__external-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: var(--space-4);
+      padding: 0.8rem 1.4rem;
+      background: var(--brand-primary);
+      color: white;
+      text-decoration: none;
+      font-family: var(--font-family-sans);
+      font-weight: 700;
+      font-size: var(--font-size-3);
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    }
+
+    & .resource__external-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,.16);
+    }
+  }
+
+  @media (min-width: 800px) {
+    .resource {
+      & .resource__cover,
+      & .resource__cover--none {
+        width: 750px;
+        height: 380px;
+      }
+
+      & .resource__title {
+        font-size: var(--font-size-10);
+        line-height: var(--line-height-10);
+        margin: var(--space-4) 0 0;
+        letter-spacing: -0.025em;
+      }
+
+      & .resource__excerpt {
+        font-size: var(--font-size-5);
+        line-height: var(--line-height-5);
+        margin-top: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      & .resource__content {
+        margin-top: var(--space-7);
+      }
+
+      & .resource__external-link {
+        font-size: var(--font-size-4);
+      }
+    }
+  }
+</style>

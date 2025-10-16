@@ -57,8 +57,8 @@ const navConfig: NavConfig[] = [
     ],
   },
   {
-    label: { en: "Contact Us", fr: "Nous joindre" },
-    href: { en: "/contact/", fr: "/fr/contact/" },
+    label: { en: "Resources", fr: "Ressources" },
+    href: { en: "/resources/", fr: "/fr/ressources/" },
   },
   {
     label: { en: "Events", fr: "Evenements" },
@@ -146,7 +146,8 @@ const ctaLinks = {
         ))}
         <div class="drawer__actions">
           <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
-          <a class="btn btn--primary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+          <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+          <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
         </div>
         <div class="drawer__lang">
           <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
@@ -212,9 +213,9 @@ const ctaLinks = {
           <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
         )
       ))}
-      <a class="btn btn--secondary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
       <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
-      <a class="btn btn--primary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+      <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+      <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
     </nav>
   </div>
 </header>
@@ -410,13 +411,19 @@ const ctaLinks = {
 
   .drawer__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 20px;
   }
 
   .drawer__actions .btn {
-    flex: 1;
+    flex: 1 1 calc(50% - 6px);
     text-align: center;
+    min-width: 120px;
+  }
+
+  .drawer__actions .btn--primary {
+    flex: 1 1 100%;
   }
 
   .drawer__lang {

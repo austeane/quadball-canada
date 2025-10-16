@@ -112,6 +112,28 @@ export interface InfoArticleDetail extends InfoArticleSummary {
   } | null;
 }
 
+export interface ResourceArticleSummary {
+  _id: string;
+  title: string;
+  slug: string;
+  category: string;
+  excerpt?: string;
+  externalUrl?: string | null;
+  heroImage?: SanityImageWithAlt | null;
+  featured?: boolean;
+  slugEn?: string;
+  slugFr?: string;
+}
+
+export interface ResourceArticleDetail extends ResourceArticleSummary {
+  content?: PortableTextBlock[];
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+}
+
 export interface StaffCoordinator {
   _id: string;
   slug: string;
@@ -440,4 +462,68 @@ export async function getBoardMembers(locale: Locale = "en"): Promise<BoardMembe
     }`,
     { locale }
   );
+}
+
+export async function getResourceArticles(locale: Locale = "en"): Promise<ResourceArticleSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "resourceArticle" && defined(slug[$locale].current)]
+        | order(featured desc, title[$locale] asc) {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      category,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      externalUrl,
+      featured,
+      "heroImage": heroImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      }
+    }`,
+    { locale }
+  );
+}
+
+export async function getResourceArticle(
+  slug: string,
+  locale: Locale = "en"
+): Promise<ResourceArticleDetail | null> {
+  const article = await sanityClient.fetch(
+    groq`*[_type == "resourceArticle" && slug[$locale].current == $slug][0] {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      category,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      externalUrl,
+      featured,
+      "content": coalesce(content[$locale], content.en),
+      "heroImage": heroImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { slug, locale }
+  );
+
+  if (!article) {
+    return null;
+  }
+
+  return {
+    ...article,
+    content: article.content ?? [],
+  };
 }

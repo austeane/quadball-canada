@@ -21,6 +21,7 @@ import player from './documents/player'
 import author from './documents/author'
 import siteSettings from './documents/siteSettings'
 import infoArticle from './documents/infoArticle'
+import resourceArticle from './documents/resourceArticle'
 import staffMember from './documents/staffMember'
 import boardMember from './documents/boardMember'
 import volunteerOpportunity from './documents/volunteerOpportunity'
@@ -34,6 +35,7 @@ export const schemaTypes = [
   aboutPage,
   newsArticle,
   infoArticle,
+  resourceArticle,
   volunteerOpportunity,
   staffMember,
   boardMember,

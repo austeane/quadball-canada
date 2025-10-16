@@ -54,10 +54,10 @@ const defaultNavigation = {
     },
     {
       label: {
-        en: 'Contact Us',
-        fr: 'Nous joindre',
+        en: 'Resources',
+        fr: 'Ressources',
       },
-      url: '/contact/',
+      url: '/resources/',
       targetBlank: false,
     },
     {
