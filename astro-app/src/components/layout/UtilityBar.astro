@@ -66,15 +66,18 @@ const socials = [
     background: var(--brand-primary);
     color: #fff;
     font-size: 0.875rem;
+    overflow-x: hidden;
   }
   .utility__inner {
     width: 100%;
+    max-width: 100%;
     padding: 8px clamp(16px, 4vw, 40px);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    box-sizing: border-box;
   }
   .utility a {
     color: #fff;
@@ -93,6 +96,7 @@ const socials = [
     margin: 0 0 0 auto;
     padding: 0;
     list-style: none;
+    flex-shrink: 0;
   }
   .utility__right svg {
     display: block;
