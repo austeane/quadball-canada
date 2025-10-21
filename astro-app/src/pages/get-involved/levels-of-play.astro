@@ -1,0 +1,119 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout
+  title="Levels of Play — Quadball Canada"
+  alternate={{ en: "/get-involved/levels-of-play/", fr: "/fr/simpliquer/niveaux-de-jeu/" }}
+  locale="en"
+>
+  <section class="section">
+    <h1>Levels of Play</h1>
+    <p>
+      Quadball programs across Canada welcome players at every stage. Explore the pathways below to
+      find the right environment and learn how to get connected.
+    </p>
+
+    <article class="card">
+      <h2>Youth</h2>
+      <p>
+        Introductory programming for ages 8 to 15 focuses on movement, teamwork, and inclusive play.
+        Sessions are typically run through camps, community centres, and school partnerships.
+      </p>
+      <ul>
+        <li>Look for youth specific postings on the <a href="/teams/">team directory</a>.</li>
+        <li>Contact <a href="/contact/">Junior Development</a> to bring a clinic to your school or club.</li>
+        <li>Access lesson plans, equipment lists, and safety briefs in the organizer toolkit.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Recreational</h2>
+      <p>
+        Recreational leagues prioritize accessibility and social connection. These programs often run
+        as mixed skill scrimmages or short seasonal leagues.
+      </p>
+      <ul>
+        <li>Join a local club via the <a href="/teams/">Find a Team</a> page.</li>
+        <li>Attend open practices or drop in sessions promoted on regional social channels.</li>
+        <li>Volunteer as a coach or organizer to help new players learn the basics.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>Competitive</h2>
+      <p>
+        Competitive programs train for regional and national championships. Teams practice multiple
+        times per week, travel for tournaments, and follow strength and conditioning plans.
+      </p>
+      <ul>
+        <li>Review ranking events on the <a href="/events/">events calendar</a>.</li>
+        <li>Connect with club leadership through their team listing to learn about tryouts.</li>
+        <li>Officials and coaches can pursue certification through Quadball Canada clinics.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h2>National Team</h2>
+      <p>
+        The Team Canada program unites high performance athletes from coast to coast for
+        international competition. Training pools are selected every two seasons.
+      </p>
+      <ul>
+        <li>Watch for national team identification camps each fall.</li>
+        <li>Ensure you are registered with a competitive club and in good standing with Quadball Canada.</li>
+        <li>Reach out to <a href="/contact/">High Performance staff</a> for eligibility details and support.</li>
+      </ul>
+    </article>
+
+    <section class="cta">
+      <h2>Still unsure where to start?</h2>
+      <p>
+        Tell us about your goals and location and we will match you with the closest program or
+        help you launch something new.
+      </p>
+      <a class="btn" href="/contact/">Connect with Quadball Canada</a>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .card {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .card + .card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  ul {
+    margin: 1rem 0 0;
+    padding-left: 1.25rem;
+  }
+  li {
+    margin: 0.75rem 0;
+  }
+  .cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+  }
+  .cta .btn {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .cta .btn:hover { background: var(--brand-ink); }
+</style>

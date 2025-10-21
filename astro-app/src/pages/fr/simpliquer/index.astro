@@ -3,57 +3,102 @@ import Layout from "../../../layouts/Layout.astro";
 ---
 
 <Layout title="S'impliquer — Quadball Canada" alternate={{ en: "/get-involved/", fr: "/fr/simpliquer/" }} locale="fr">
-  <section style="padding: 3rem 0;">
-    <h1>S'impliquer</h1>
-    <p>Rejoignez la communaute de quadball au Canada! Que vous souhaitiez jouer, benevoler, arbitrer ou organiser un evenement, il existe de nombreuses facons de participer.</p>
+  <section class="section">
+    <header class="intro">
+      <h1>S'impliquer</h1>
+      <p>
+        Rejoignez la communaute de quadball au Canada. Que vous souhaitiez jouer, benevoler,
+        arbitrer ou organiser des activites, un parcours est pret pour vous.
+      </p>
+    </header>
 
-    <div style="margin-top: 3rem;">
-      <h2>Trouver une equipe</h2>
-      <p>Decouvrez les equipes de quadball pres de chez vous et joignez-vous a une communaute ouverte a tous les niveaux.</p>
-      <a href="/fr/equipes/" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--brand-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 700;">Parcourir les equipes</a>
+    <div class="grid">
+      <article>
+        <h2>Trouver une equipe</h2>
+        <p>Decouvrez les clubs de quadball partout au pays et connectez-vous avec des passionne.e.s.</p>
+        <a class="btn" href="/fr/equipes/">Parcourir les equipes</a>
+      </article>
+
+      <article>
+        <h2>Benevolat</h2>
+        <p>Soutenez les ligues locales et les initiatives nationales en offrant vos competences sur le terrain ou en coulisse.</p>
+        <a class="btn" href="/fr/benevolat/">Voir les occasions</a>
+      </article>
+
+      <article>
+        <h2>Arbitrage</h2>
+        <p>Les officiel.le.s assurent un jeu equitable. Informez-vous sur les formations et la certification.</p>
+        <a class="btn" href="/fr/contact/">En savoir plus</a>
+      </article>
+
+      <article>
+        <h2>Organiser un evenement</h2>
+        <p>Accueillez le quadball dans votre communaute avec notre soutien en planification et promotion.</p>
+        <a class="btn" href="/fr/simpliquer/organiser-un-evenement/">Guide d'organisation</a>
+      </article>
     </div>
 
-    <div style="margin-top: 3rem;">
-      <h2 id="volunteer">Benevolat</h2>
-      <p>Aidez a faire grandir le sport en appuyant les evenements, en soutenant une equipe locale ou en contribuant aux initiatives nationales. Les benevoles sont essentiels a notre succes.</p>
-      <a href="/fr/benevolat/" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--brand-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 700;">Voir les occasions de benevolat</a>
-    </div>
-
-    <div style="margin-top: 3rem;">
-      <h2>Devenir arbitre</h2>
-      <p>Les arbitres garantissent le jeu equitable et la securite. Nous offrons une formation et une certification pour les officiel.le.s interesse.e.s.</p>
-      <a href="/fr/contact/" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--brand-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 700;">En savoir plus sur la formation</a>
-    </div>
-
-    <div style="margin-top: 3rem;">
-      <h2 id="host-an-event">Organiser un evenement</h2>
-      <p>Envie d'accueillir du quadball dans votre communaute? Nous appuyons les organisateur.rice.s qui souhaitent lancer des tournois, des cliniques ou d'autres activites.</p>
-      <a href="/fr/contact/" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--brand-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 700;">Obtenir de l'information</a>
-    </div>
-
-    <div style="margin-top: 4rem; padding: 2rem; background: var(--bg-secondary, #f8f9fa); border-radius: 12px;">
+    <section class="panel">
       <h2>Niveaux de jeu</h2>
-      <p style="margin-bottom: 2rem;">Le quadball au Canada comprend plusieurs niveaux de participation:</p>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Jeunesse</h3>
-        <p>Programmes adaptes aux jeunes pour developper leurs competences, le travail d'equipe et l'amour du sport.</p>
-      </div>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Recreatif</h3>
-        <p>Jeu amical axe sur le plaisir, l'apprentissage et la communaute. Ideal pour les personnes qui decouvrent le sport.</p>
-      </div>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Competitif</h3>
-        <p>Niveau de jeu eleve pour les equipes qui participent aux championnats regionaux et nationaux avec un accent sur la performance.</p>
-      </div>
-
-      <div>
-        <h3 style="color: var(--brand-primary); margin-bottom: 0.5rem;">Equipe nationale</h3>
-        <p>Represente le Canada sur la scene internationale et regroupe les meilleurs talents du pays.</p>
-      </div>
-    </div>
+      <p>Découvrez comment le quadball s'adapte pour la jeunesse, le recreatif, la competition et l'equipe nationale.</p>
+      <a class="btn-secondary" href="/fr/simpliquer/niveaux-de-jeu/">Explorer les niveaux</a>
+    </section>
   </section>
 </Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .intro {
+    max-width: 720px;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  article {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .panel {
+    padding: 2.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    text-align: center;
+  }
+  .btn,
+  .btn-secondary {
+    display: inline-block;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.8rem 1.6rem;
+    text-decoration: none;
+  }
+  .btn {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  .btn:hover { background: var(--brand-ink); }
+  .btn-secondary {
+    background: #fff;
+    border: 1px solid var(--brand-primary);
+    color: var(--brand-primary);
+  }
+  .btn-secondary:hover {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

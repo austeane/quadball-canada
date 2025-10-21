@@ -1,0 +1,109 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout
+  title="Host a Quadball Event — Quadball Canada"
+  alternate={{ en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" }}
+  locale="en"
+>
+  <section class="section">
+    <h1>Host a Quadball Event</h1>
+    <p>
+      Bring quadball to your community with support from Quadball Canada. We help organizers deliver
+      high quality tournaments, clinics, camps, and exhibition games that are safe, inclusive, and fun.
+    </p>
+
+    <div class="grid">
+      <section>
+        <h2>Plan your event</h2>
+        <ul>
+          <li><strong>Select a format</strong> — single day mixer, multi day tournament, youth clinic, or exhibition showcase.</li>
+          <li><strong>Choose a venue</strong> — level grass or turf field (60m x 40m minimum) with access to washrooms and parking.</li>
+          <li><strong>Set a timeline</strong> — allow 8 to 12 weeks for promotion, registration, and volunteer recruitment.</li>
+          <li><strong>Build a team</strong> — identify a tournament director, head official, medical lead, and volunteer captain.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>What we provide</h2>
+        <ul>
+          <li>Event sanctioning, insurance guidance, and risk management templates.</li>
+          <li>Scheduling support and score keeping tools tailored for quadball.</li>
+          <li>Connections to certified referees, volunteers, and regional teams.</li>
+          <li>Marketing amplification through Quadball Canada channels.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Facilities and equipment checklist</h2>
+      <ul>
+        <li>Regulation hoops, balls, boundary marker set, and scoreboard.</li>
+        <li>On site medical space with first aid kit and emergency action plan.</li>
+        <li>Weather contingency plan (indoor backup or reschedule policy).</li>
+        <li>Accessibility considerations for athletes, officials, and spectators.</li>
+      </ul>
+    </section>
+
+    <section class="cta">
+      <h2>Ready to get started?</h2>
+      <p>
+        Share your concept with us and we will follow up with next steps, sanctioning requirements,
+        and a tailored resource kit.
+      </p>
+      <a class="btn" href="/contact/">Request Hosting Support</a>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .grid section {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 1.75rem;
+  }
+  .panel {
+    background: var(--bg-secondary, #f1f5f9);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+  }
+  .cta .btn {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .cta .btn:hover { background: var(--brand-ink); }
+  ul {
+    margin: 1rem 0 0;
+    padding-left: 1.25rem;
+  }
+  li {
+    margin: 0.75rem 0;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

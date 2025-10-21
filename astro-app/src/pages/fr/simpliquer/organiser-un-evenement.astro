@@ -1,0 +1,109 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+---
+
+<Layout
+  title="Organiser un evenement — Quadball Canada"
+  alternate={{ en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" }}
+  locale="fr"
+>
+  <section class="section">
+    <h1>Organiser un evenement de quadball</h1>
+    <p>
+      Faites decouvrir le quadball a votre communaute avec l'appui de Quadball Canada. Nous aidons
+      les organisateur.rice.s a proposer des tournois, des cliniques et des vitrines inclusives et bien planifiees.
+    </p>
+
+    <div class="grid">
+      <section>
+        <h2>Planifier votre evenement</h2>
+        <ul>
+          <li><strong>Choisir un format</strong> — tournoi d'une journee, fin de semaine, clinique jeunesse ou match amical.</li>
+          <li><strong>Trouver un site</strong> — terrain plat (60 m x 40 m minimum) avec acces a des toilettes et du stationnement.</li>
+          <li><strong>Etablir un calendrier</strong> — prevoir 8 a 12 semaines pour la promotion, les inscriptions et le recrutement de benevoles.</li>
+          <li><strong>Former une equipe</strong> — directeur ou directrice de tournoi, responsable des officiels, responsable medical et chef des benevoles.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Ce que nous offrons</h2>
+        <ul>
+          <li>Homologation de l'evenement, conseils sur l'assurance et gabarits de gestion des risques.</li>
+          <li>Soutien a l'horaire et outils de tenue de scores adaptes au quadball.</li>
+          <li>Liens avec des arbitres certifies, des benevoles et des equipes regionales.</li>
+          <li>Promotion sur les plateformes de Quadball Canada.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>Installation et equipement</h2>
+      <ul>
+        <li>Anneaux reglementaires, ballons, marqueurs de limites et tableau indicateur.</li>
+        <li>Espace medical sur place avec trousse de premiers soins et plan d'intervention.</li>
+        <li>Plan de contingence meteo (option interieur ou strategie de report).</li>
+        <li>Mesures d'accessibilite pour les athlete.s, officiels et spectateur.rice.s.</li>
+      </ul>
+    </section>
+
+    <section class="cta">
+      <h2>Pret.e a commencer?</h2>
+      <p>
+        Transmettez-nous votre idee et nous vous enverrons les prochaines etapes, les exigences
+        d'homologation et une trousse de ressources personnalisee.
+      </p>
+      <a class="btn" href="/fr/contact/">Demander de l'aide pour l'organisation</a>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .grid section {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 1.75rem;
+  }
+  .panel {
+    background: var(--bg-secondary, #f1f5f9);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+  }
+  .cta .btn {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .cta .btn:hover { background: var(--brand-ink); }
+  ul {
+    margin: 1rem 0 0;
+    padding-left: 1.25rem;
+  }
+  li {
+    margin: 0.75rem 0;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

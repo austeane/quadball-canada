@@ -9,32 +9,41 @@ const copy = locale === "fr"
       getInvolved: "S'impliquer",
       findTeam: "Trouver une equipe",
       hostEvent: "Organiser un evenement",
+      levels: "Niveaux de jeu",
       volunteer: "Benevolat",
-      followUs: "Nous suivre",
-      contact: "Nous joindre",
+      explore: "Explorer",
       about: "A propos",
       news: "Nouvelles",
+      events: "Evenements",
       rules: "Regles",
+      followUs: "Nous suivre",
+      contactUs: "Nous joindre",
     }
   : {
       getInvolved: "Get Involved",
       findTeam: "Find a Team",
       hostEvent: "Host an Event",
+      levels: "Levels of Play",
       volunteer: "Volunteer",
-      followUs: "Follow Us",
-      contact: "Contact",
+      explore: "Explore",
       about: "About",
       news: "Latest News",
+      events: "Events",
       rules: "Rules",
+      followUs: "Follow Us",
+      contactUs: "Contact Us",
     };
 
 const routes = {
   teams: locale === "fr" ? "/fr/equipes/" : "/teams/",
-  hostEvent: locale === "fr" ? "/fr/simpliquer/#host-an-event" : "/get-involved/#host-an-event",
+  hostEvent: locale === "fr" ? "/fr/simpliquer/organiser-un-evenement/" : "/get-involved/host-an-event/",
+  levels: locale === "fr" ? "/fr/simpliquer/niveaux-de-jeu/" : "/get-involved/levels-of-play/",
   volunteer: locale === "fr" ? "/fr/benevolat/" : "/volunteer-opportunities/",
   about: locale === "fr" ? "/fr/a-propos/" : "/about/",
   news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
+  events: locale === "fr" ? "/fr/evenements/" : "/events/",
   rules: "/play/",
+  contact: locale === "fr" ? "/fr/contact/" : "/contact/",
 };
 ---
 <footer class="site-footer">
@@ -43,13 +52,24 @@ const routes = {
       <h4>Quadball Canada</h4>
       <p>© {new Date().getFullYear()} Quadball Canada</p>
       <p>Charitable Registration Number: 820553188RR0001</p>
+      <p><a href={routes.contact}>{copy.contactUs}</a></p>
     </div>
     <div>
       <h4>{copy.getInvolved}</h4>
       <ul>
         <li><a href={routes.teams}>{copy.findTeam}</a></li>
         <li><a href={routes.hostEvent}>{copy.hostEvent}</a></li>
+        <li><a href={routes.levels}>{copy.levels}</a></li>
         <li><a href={routes.volunteer}>{copy.volunteer}</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>{copy.explore}</h4>
+      <ul>
+        <li><a href={routes.about}>{copy.about}</a></li>
+        <li><a href={routes.news}>{copy.news}</a></li>
+        <li><a href={routes.events}>{copy.events}</a></li>
+        <li><a href={routes.rules}>{copy.rules}</a></li>
       </ul>
     </div>
     <div>
@@ -60,14 +80,6 @@ const routes = {
         <li><a target="_blank" rel="noopener" href="https://www.youtube.com/@QuadballCanada">YouTube</a></li>
         <li><a target="_blank" rel="noopener" href="https://www.facebook.com/QuadballCanada/">Facebook</a></li>
         <li><a target="_blank" rel="noopener" href="https://discord.gg/qK2cnSWmvF">Discord</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>{copy.contact}</h4>
-      <ul>
-        <li><a href={routes.about}>{copy.about}</a></li>
-        <li><a href={routes.news}>{copy.news}</a></li>
-        <li><a href={routes.rules}>{copy.rules}</a></li>
       </ul>
     </div>
   </div>

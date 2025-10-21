@@ -24,7 +24,7 @@ const { title, alternate } = props;
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width"
+      content="width=device-width, initial-scale=1"
     />
     <link
       rel="icon"
@@ -204,7 +204,10 @@ const { title, alternate } = props;
     text-size-adjust: 100%;
   }
 
-  body { margin: 0; }
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
   a { color: var(--brand-primary); text-decoration: none; }
   a:hover { text-decoration: underline; opacity: 1; }
   :focus { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
