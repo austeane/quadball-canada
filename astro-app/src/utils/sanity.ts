@@ -61,7 +61,7 @@ export interface TeamSummary {
   name: string;
   city?: string;
   province?: string;
-  contactLevel?: "full-contact" | "recreational";
+  levelOfPlay?: "youth" | "recreational" | "competitive" | "national-team";
   division?: string;
   email?: string;
   website?: string;
@@ -91,6 +91,31 @@ export interface VolunteerOpportunitySummary {
   contactEmail?: string | null;
   orderRank?: number | null;
   publishedAt?: string | null;
+}
+
+export type TeamLevelIdentifier = "youth" | "recreational" | "competitive" | "national-team";
+
+export interface TeamLevelSection {
+  identifier: TeamLevelIdentifier;
+  title: string;
+  summary?: string | null;
+  details?: PortableTextBlock[];
+  cta?: {
+    label?: string;
+    href?: string;
+  } | null;
+}
+
+export interface TeamsPageData {
+  title: string;
+  intro: PortableTextBlock[];
+  levels: TeamLevelSection[];
+  cta?: {
+    heading?: string;
+    body?: string | null;
+    buttonLabel?: string;
+    buttonHref?: string;
+  } | null;
 }
 
 export interface InfoArticleSummary {
@@ -244,6 +269,22 @@ export async function getNewsArticle(
   };
 }
 
+export interface NationalTeamPage {
+  title: string;
+  subtitle?: string;
+  heroImage?: SanityImageWithAlt | null;
+  content: PortableTextBlock[];
+  cta?: {
+    label?: string;
+    href?: string;
+  } | null;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+}
+
 export async function getEvents(locale: Locale = "en"): Promise<EventSummary[]> {
   return await sanityClient.fetch(
     groq`*[_type == "event" && defined(slug[$locale].current)] | order(startDateTime desc) {
@@ -284,7 +325,14 @@ export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
       "slug": slug.current,
       city,
       province,
-      contactLevel,
+      "levelOfPlay": coalesce(
+        levelOfPlay,
+        select(
+          contactLevel == "full-contact" => "competitive",
+          contactLevel == "recreational" => "recreational",
+          contactLevel
+        )
+      ),
       division,
       email,
       website,
@@ -323,6 +371,46 @@ export async function getVolunteerOpportunities(
     }`,
     { locale }
   );
+}
+
+export async function getTeamsPage(locale: Locale = "en"): Promise<TeamsPageData | null> {
+  const page = await sanityClient.fetch(
+    groq`*[_type == "teamsPage"][0] {
+      "title": coalesce(title[$locale], title.en),
+      "intro": coalesce(intro[$locale], intro.en),
+      levels[]{
+        "identifier": identifier,
+        "title": coalesce(title[$locale], title.en),
+        "summary": coalesce(summary[$locale], summary.en),
+        "details": coalesce(details[$locale], details.en),
+        cta{
+          "label": coalesce(label[$locale], label.en),
+          href
+        }
+      },
+      cta{
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en),
+        "buttonLabel": coalesce(buttonLabel[$locale], buttonLabel.en),
+        buttonHref
+      }
+    }`,
+    { locale }
+  );
+
+  if (!page) {
+    return null;
+  }
+
+  return {
+    ...page,
+    intro: page.intro ?? [],
+    levels:
+      page.levels?.map((level) => ({
+        ...level,
+        details: level.details ?? [],
+      })) ?? [],
+  };
 }
 
 export async function getInfoArticles(locale: Locale = "en"): Promise<InfoArticleSummary[]> {
@@ -525,5 +613,47 @@ export async function getResourceArticle(
   return {
     ...article,
     content: article.content ?? [],
+  };
+}
+
+export async function getNationalTeamPage(locale: Locale = "en"): Promise<NationalTeamPage | null> {
+  const page = await sanityClient.fetch(
+    groq`*[_type == "nationalTeamPage"][0] {
+      "title": coalesce(title[$locale], title.en),
+      hero{
+        "subtitle": coalesce(subtitle[$locale], subtitle.en),
+        image{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      },
+      "content": coalesce(content[$locale], content.en),
+      cta{
+        "label": coalesce(label[$locale], label.en),
+        href
+      },
+      seo{
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { locale }
+  );
+
+  if (!page) {
+    return null;
+  }
+
+  return {
+    title: page.title,
+    subtitle: page.hero?.subtitle,
+    heroImage: page.hero?.image ?? null,
+    content: page.content ?? [],
+    cta: page.cta ?? null,
+    seo: page.seo ?? null,
   };
 }

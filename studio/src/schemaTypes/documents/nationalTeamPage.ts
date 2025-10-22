@@ -1,8 +1,8 @@
 import {defineType} from 'sanity'
 
 export default defineType({
-  name: 'infoArticle',
-  title: 'About Us Article',
+  name: 'nationalTeamPage',
+  title: 'National Team Page',
   type: 'document',
   fields: [
     {
@@ -12,30 +12,45 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'slug',
-      title: 'Slug',
-      type: 'localeSlug',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'heroImage',
-      title: 'Hero Image',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-    },
-    {
-      name: 'excerpt',
-      title: 'Excerpt',
-      type: 'localeText',
-      description: 'Short summary used on preview cards.',
+      name: 'hero',
+      title: 'Hero',
+      type: 'object',
+      fields: [
+        {
+          name: 'subtitle',
+          title: 'Subtitle',
+          type: 'localeString',
+        },
+        {
+          name: 'image',
+          title: 'Hero Image',
+          type: 'image',
+          options: {hotspot: true},
+        },
+      ],
     },
     {
       name: 'content',
       title: 'Content',
       type: 'localePortableText',
       validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'cta',
+      title: 'Call to Action',
+      type: 'object',
+      fields: [
+        {
+          name: 'label',
+          title: 'Label',
+          type: 'localeString',
+        },
+        {
+          name: 'href',
+          title: 'Link',
+          type: 'string',
+        },
+      ],
     },
     {
       name: 'seo',
@@ -56,7 +71,7 @@ export default defineType({
           name: 'ogImage',
           title: 'Open Graph Image',
           type: 'image',
-          options: { hotspot: true },
+          options: {hotspot: true},
         },
       ],
     },
@@ -66,9 +81,9 @@ export default defineType({
       titleEn: 'title.en',
       titleFr: 'title.fr',
     },
-    prepare({titleEn, titleFr}) {
+    prepare({ titleEn, titleFr }) {
       return {
-        title: titleEn || titleFr || 'Untitled',
+        title: titleEn || titleFr || 'National Team Page',
       }
     },
   },

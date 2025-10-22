@@ -120,10 +120,10 @@ const defaultNavigation = {
         },
         {
           label: {
-            en: 'Levels of Play',
-            fr: 'Niveaux de jeu',
+            en: 'Team Canada',
+            fr: 'Equipe Canada',
           },
-          url: '/get-involved/levels-of-play/',
+          url: '/teams/national-team/',
           targetBlank: false,
         },
       ],

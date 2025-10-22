@@ -51,18 +51,20 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'contactLevel',
-      title: 'Contact Level',
+      name: 'levelOfPlay',
+      title: 'Level of Play',
       type: 'string',
-      description: 'Primary style of play for this team.',
+      description: 'Select the best fit for this program.',
       options: {
         list: [
-          { title: 'Full Contact', value: 'full-contact' },
+          { title: 'Youth', value: 'youth' },
           { title: 'Recreational', value: 'recreational' },
+          { title: 'Competitive', value: 'competitive' },
+          { title: 'National Team', value: 'national-team' },
         ],
         layout: 'radio',
       },
-      initialValue: 'full-contact',
+      initialValue: 'recreational',
       validation: (Rule) => Rule.required(),
     },
     {
@@ -268,13 +270,20 @@ export default defineType({
       province: 'province',
       media: 'logo',
       active: 'active',
-      contactLevel: 'contactLevel',
+      levelOfPlay: 'levelOfPlay',
     },
-    prepare({ title, city, province, media, active, contactLevel }) {
+    prepare({ title, city, province, media, active, levelOfPlay }) {
       const location = [city, province].filter(Boolean).join(', ');
       const status = active === false ? ' (Inactive)' : '';
-      const contact = contactLevel === 'recreational' ? 'Recreational' : contactLevel === 'full-contact' ? 'Full Contact' : undefined;
-      const subtitleParts = [contact, location].filter(Boolean);
+      const levelLabels: Record<string, string> = {
+        youth: 'Youth',
+        recreational: 'Recreational',
+        competitive: 'Competitive',
+        'national-team': 'National Team',
+        'full-contact': 'Competitive',
+      };
+      const level = levelLabels[levelOfPlay as keyof typeof levelLabels] || undefined;
+      const subtitleParts = [level, location].filter(Boolean);
       return {
         title,
         subtitle: `${subtitleParts.join(' — ') || 'Location TBD'}${status}`,

@@ -1,20 +1,46 @@
 ---
-import type { Locale, TeamSummary } from "../../utils/sanity";
+import type {
+  Locale,
+  TeamLevelIdentifier,
+  TeamLevelSection,
+  TeamSummary,
+} from "../../utils/sanity";
 import { urlFor } from "../../utils/image";
 
 interface Props {
   teams: TeamSummary[];
   locale: Locale;
+  levels?: TeamLevelSection[];
 }
 
-const { teams = [], locale }: Props = Astro.props;
+const defaultLevelOrder: TeamLevelIdentifier[] = ["youth", "recreational", "competitive", "national-team"];
+
+const {
+  teams = [],
+  locale,
+  levels = [],
+}: Props = Astro.props as Props;
+
+const fallbackLevelLabels: Record<TeamLevelIdentifier, string> =
+  locale === "fr"
+    ? {
+        youth: "Jeunesse",
+        recreational: "Récréatif",
+        competitive: "Compétitif",
+        "national-team": "Équipe nationale",
+      }
+    : {
+        youth: "Youth",
+        recreational: "Recreational",
+        competitive: "Competitive",
+        "national-team": "National Team",
+      };
+
 const copy =
   locale === "fr"
     ? {
         filterLabel: "Province",
         filterAll: "Toutes",
-        fullHeading: "Équipes de contact complet",
-        recHeading: "Équipes récréatives",
         otherHeading: "Autres programmes",
         noTeams: "Aucune équipe n'est disponible pour le moment.",
         noTeamsFiltered: "Aucune équipe ne correspond aux filtres sélectionnés.",
@@ -33,8 +59,6 @@ const copy =
     : {
         filterLabel: "Province",
         filterAll: "All",
-        fullHeading: "Full Contact Teams",
-        recHeading: "Recreational Teams",
         otherHeading: "Other Programs",
         noTeams: "No teams are available right now.",
         noTeamsFiltered: "No teams match the selected filters.",
@@ -46,22 +70,31 @@ const copy =
         socials: {
           facebook: "Facebook",
           instagram: "Instagram",
-          twitter: "Twitter",
+          twitter: "X / Twitter",
           tiktok: "TikTok",
         },
       };
 
-type ContactLevel = "full-contact" | "recreational";
+type SocialLinkKey = keyof typeof copy.socials;
+type SocialLink = { key: SocialLinkKey; url: string };
 
-function resolveContactLevel(team: TeamSummary): ContactLevel | undefined {
-  if (team.contactLevel === "full-contact" || team.contactLevel === "recreational") {
-    return team.contactLevel;
+function resolveLevelOfPlay(team: TeamSummary): TeamLevelIdentifier | undefined {
+  if (
+    team.levelOfPlay === "youth" ||
+    team.levelOfPlay === "recreational" ||
+    team.levelOfPlay === "competitive" ||
+    team.levelOfPlay === "national-team"
+  ) {
+    return team.levelOfPlay;
   }
+
   switch (team.division) {
     case "community":
       return "recreational";
     case "elite":
-      return "full-contact";
+      return "competitive";
+    case "youth":
+      return "youth";
     default:
       return undefined;
   }
@@ -70,17 +103,35 @@ function resolveContactLevel(team: TeamSummary): ContactLevel | undefined {
 const activeTeams = teams.filter((team) => team.active !== false);
 const teamsWithLevel = activeTeams.map((team) => ({
   ...team,
-  resolvedLevel: resolveContactLevel(team),
+  resolvedLevel: resolveLevelOfPlay(team),
 }));
 
 const provinces = Array.from(
   new Set(teamsWithLevel.map((team) => team.province).filter((value): value is string => Boolean(value)))
 ).sort((a, b) => a.localeCompare(b));
 
-const fullContactTeams = teamsWithLevel.filter((team) => team.resolvedLevel === "full-contact");
-const recreationalTeams = teamsWithLevel.filter((team) => team.resolvedLevel === "recreational");
-const otherTeams = teamsWithLevel.filter(
-  (team) => team.resolvedLevel !== "full-contact" && team.resolvedLevel !== "recreational"
+const levelOrder = levels.length
+  ? levels
+      .map((level) => level.identifier)
+      .filter((identifier): identifier is TeamLevelIdentifier =>
+        ["youth", "recreational", "competitive", "national-team"].includes(identifier)
+      )
+  : defaultLevelOrder;
+
+const levelLabelsFromSanity = Object.fromEntries(
+  levels
+    .filter((level) =>
+      ["youth", "recreational", "competitive", "national-team"].includes(level.identifier)
+    )
+    .map((level) => [level.identifier, level.title ?? fallbackLevelLabels[level.identifier as TeamLevelIdentifier]])
+);
+
+const levelLabels: Record<TeamLevelIdentifier, string> = levelOrder.reduce(
+  (acc, key) => ({
+    ...acc,
+    [key]: levelLabelsFromSanity[key] ?? fallbackLevelLabels[key],
+  }),
+  {} as Record<TeamLevelIdentifier, string>
 );
 
 function getLocation(team: TeamSummary) {
@@ -119,7 +170,7 @@ function getContact(team: TeamSummary) {
 
 function getSocialLinks(team: TeamSummary) {
   if (!team.socialMedia) return [];
-  const entries: Array<{ key: keyof typeof copy.socials; url: string }> = [];
+  const entries: SocialLink[] = [];
 
   if (team.socialMedia.facebook) {
     entries.push({ key: "facebook", url: team.socialMedia.facebook });
@@ -139,23 +190,25 @@ function getSocialLinks(team: TeamSummary) {
 
 const hasAnyTeams = teamsWithLevel.length > 0;
 
-const groups = [
-  {
-    key: "full-contact",
-    heading: copy.fullHeading,
-    teams: fullContactTeams,
-  },
-  {
-    key: "recreational",
-    heading: copy.recHeading,
-    teams: recreationalTeams,
-  },
-  {
+const initialGroups = levelOrder.map((key) => ({
+  key,
+  heading: levelLabels[key],
+  teams: teamsWithLevel.filter((team) => team.resolvedLevel === key),
+}));
+
+const groups = initialGroups.filter((group) => group.teams.length > 0);
+
+const uncategorizedTeams = teamsWithLevel.filter(
+  (team) => !team.resolvedLevel || !levelOrder.includes(team.resolvedLevel)
+);
+
+if (uncategorizedTeams.length > 0) {
+  groups.push({
     key: "other",
     heading: copy.otherHeading,
-    teams: otherTeams,
-  },
-].filter((group) => group.teams.length > 0);
+    teams: uncategorizedTeams,
+  });
+}
 ---
 {hasAnyTeams ? (
   <>
@@ -184,7 +237,7 @@ const groups = [
               const location = getLocation(team);
               const logoUrl = team.logo ? urlFor(team.logo).width(160).height(160).fit("max").url() : undefined;
               return (
-                <article class="team-card" data-team-card data-province={team.province ?? ""} data-contact-level={group.key}>
+                <article class="team-card" data-team-card data-province={team.province ?? ""} data-level={group.key}>
                   <div class="team-card__media">
                     {logoUrl ? (
                       <img

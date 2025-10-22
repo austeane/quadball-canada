@@ -1,0 +1,134 @@
+---
+import { PortableText } from "astro-portabletext";
+import Layout from "../../layouts/Layout.astro";
+import { getNationalTeamPage } from "../../utils/sanity";
+import { urlFor } from "../../utils/image";
+
+const locale = "en";
+const page = await getNationalTeamPage(locale);
+
+const fallback = {
+  title: "Team Canada",
+  subtitle: "Representing Canada on the world quadball stage.",
+  content: [
+    {
+      _type: "block",
+      style: "normal",
+      children: [
+        {
+          _key: "fallback-1",
+          _type: "span",
+          text: "Team Canada brings together elite athletes from across the country to compete at international tournaments. Training pools are selected every two seasons with identification camps held in the fall.",
+        },
+      ],
+    },
+  ],
+  cta: {
+    label: "Contact High Performance",
+    href: "/contact/",
+  },
+};
+
+const title = page?.seo?.metaTitle ?? page?.title ?? fallback.title;
+const subtitle = page?.subtitle ?? fallback.subtitle;
+const content = page?.content?.length ? page.content : fallback.content;
+const heroImage = page?.heroImage;
+const cta = page?.cta ?? fallback.cta;
+---
+
+<Layout title={title} alternate={{ en: "/teams/national-team/", fr: "/fr/equipes/equipe-nationale/" }} locale={locale} seo={page?.seo}>
+  <section class="national-team">
+    <header class="national-team__hero">
+      <div class="national-team__header">
+        <h1>{page?.title ?? fallback.title}</h1>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+      {heroImage && (
+        <figure class="national-team__media">
+          <img
+            src={urlFor(heroImage).width(1440).height(600).fit("crop").url()}
+            alt={heroImage.alt ?? ""}
+            loading="eager"
+            decoding="async"
+          />
+        </figure>
+      )}
+    </header>
+
+    <article class="national-team__content">
+      <PortableText value={content} />
+    </article>
+
+    {cta?.href && cta?.label && (
+      <p class="national-team__cta">
+        <a class="national-team__cta-btn" href={cta.href}>{cta.label}</a>
+      </p>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .national-team {
+    padding: 3rem 0;
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .national-team__hero {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .national-team__header h1 {
+    margin: 0;
+  }
+
+  .national-team__header p {
+    margin: 0.5rem 0 0;
+    color: rgba(15, 23, 42, 0.75);
+  }
+
+  .national-team__media {
+    margin: 0;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    max-height: 420px;
+  }
+
+  .national-team__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .national-team__content {
+    display: grid;
+    gap: 1rem;
+    font-size: 1rem;
+  }
+
+  .national-team__content :global(p) {
+    margin: 0;
+  }
+
+  .national-team__cta {
+    text-align: center;
+    margin: 0;
+  }
+
+  .national-team__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .national-team__cta-btn:hover {
+    background: var(--brand-ink);
+  }
+</style>

@@ -1,0 +1,328 @@
+---
+import { PortableText } from "astro-portabletext";
+import type {
+  Locale,
+  TeamLevelIdentifier,
+  TeamLevelSection,
+} from "../../utils/sanity";
+
+interface Props {
+  levels?: TeamLevelSection[];
+  locale: Locale;
+  heading?: string;
+}
+
+const defaultOrder: TeamLevelIdentifier[] = ["youth", "recreational", "competitive", "national-team"];
+
+const { levels = [], locale, heading }: Props = Astro.props as Props;
+
+const fallbackSummaries: Record<TeamLevelIdentifier, string> =
+  locale === "fr"
+    ? {
+        youth: "Programmes conçus pour développer les habiletés, le travail d'équipe et le plaisir chez les jeunes joueurs.",
+        recreational: "Ligues conviviales axées sur l'apprentissage, la communauté et l'accessibilité.",
+        competitive: "Programmes d'entraînement intensif visant les championnats régionaux et nationaux.",
+        "national-team": "Athlètes représentant le Canada lors de compétitions internationales de haut niveau.",
+      }
+    : {
+        youth: "Programs focused on developing skills, teamwork, and a love of quadball for younger players.",
+        recreational: "Community leagues that emphasize learning, connection, and inclusive play.",
+        competitive: "High-performance environments preparing athletes for regional and national championships.",
+        "national-team": "Athletes representing Canada on the world stage through the Team Canada program.",
+      };
+
+const fallbackTitles: Record<TeamLevelIdentifier, string> =
+  locale === "fr"
+    ? {
+        youth: "Jeunesse",
+        recreational: "Récréatif",
+        competitive: "Compétitif",
+        "national-team": "Équipe nationale",
+      }
+    : {
+        youth: "Youth",
+        recreational: "Recreational",
+        competitive: "Competitive",
+        "national-team": "National Team",
+      };
+
+const fallbackCtas: Partial<Record<TeamLevelIdentifier, { label: string; href: string }>> =
+  locale === "fr"
+    ? {
+        "national-team": {
+          label: "En savoir plus sur Équipe Canada",
+          href: "/fr/equipes/equipe-nationale/",
+        },
+      }
+    : {
+        "national-team": {
+          label: "Learn about Team Canada",
+          href: "/teams/national-team/",
+        },
+      };
+
+function isTeamLevelIdentifier(value: string): value is TeamLevelIdentifier {
+  return ["youth", "recreational", "competitive", "national-team"].includes(value);
+}
+
+const fallbackLevels: Record<TeamLevelIdentifier, TeamLevelSection> = defaultOrder.reduce(
+  (acc, key) => {
+    acc[key] = {
+      identifier: key,
+      title: fallbackTitles[key],
+      summary: fallbackSummaries[key],
+      details: [],
+      cta: fallbackCtas[key],
+    };
+    return acc;
+  },
+  {} as Record<TeamLevelIdentifier, TeamLevelSection>
+);
+
+const overrides = levels.filter((level) => isTeamLevelIdentifier(level.identifier));
+
+const orderFromSanity = overrides.length
+  ? Array.from(new Set(overrides.map((level) => level.identifier).filter(isTeamLevelIdentifier)))
+  : [];
+
+const mergedLevels = overrides.reduce((acc, level) => {
+  const key = level.identifier as TeamLevelIdentifier;
+  acc[key] = {
+    ...acc[key],
+    ...level,
+    details: level.details ?? [],
+    cta: level.cta ?? acc[key]?.cta ?? null,
+    summary: level.summary ?? acc[key]?.summary,
+    title: level.title ?? acc[key]?.title ?? fallbackTitles[key],
+  };
+  return acc;
+}, { ...fallbackLevels });
+
+const displayOrder = (orderFromSanity.length ? orderFromSanity : defaultOrder).reduce(
+  (acc, key) => {
+    if (!acc.includes(key)) {
+      acc.push(key);
+    }
+    return acc;
+  },
+  [] as TeamLevelIdentifier[]
+);
+
+defaultOrder.forEach((key) => {
+  if (!displayOrder.includes(key)) {
+    displayOrder.push(key);
+  }
+});
+
+const displayLevels = displayOrder.map((identifier) => {
+  const level = mergedLevels[identifier];
+  const details = level.details ?? [];
+  const hasDetails = Array.isArray(details) && details.length > 0;
+  const hasCta = Boolean(level.cta?.href && level.cta?.label);
+  return {
+    ...level,
+    details,
+    hasDetails,
+    hasCta,
+    hasExtras: hasDetails || hasCta,
+  };
+});
+
+const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels of Play");
+---
+<section class="team-levels">
+  <header class="team-levels__intro">
+    <h2>{sectionHeading}</h2>
+    <p>{locale === "fr" ? "Sélectionnez un niveau pour obtenir des détails et des ressources." : "Select a level to see more details and resources."}</p>
+  </header>
+  <div class="team-levels__grid">
+    {displayLevels.map((level) => (
+      <div class="team-levels__item" data-team-level={level.identifier}>
+        <button
+          class="team-levels__summary"
+          type="button"
+          data-accordion-trigger
+          aria-expanded={level.hasExtras ? "false" : undefined}
+          disabled={!level.hasExtras}
+        >
+          <span class="team-levels__text">
+            <span class="team-levels__title" role="heading" aria-level="3">
+              {level.title ?? fallbackTitles[level.identifier as TeamLevelIdentifier]}
+            </span>
+            {level.summary && <span class="team-levels__excerpt">{level.summary}</span>}
+          </span>
+          <span class="team-levels__icon" aria-hidden="true"></span>
+        </button>
+        {level.hasExtras ? (
+          <div class="team-levels__details" data-accordion-panel hidden>
+            {level.hasDetails && <PortableText value={level.details} />}
+            {level.hasCta && level.cta?.href && level.cta.label && (
+              <p class="team-levels__cta">
+                <a href={level.cta.href}>{level.cta.label}</a>
+              </p>
+            )}
+          </div>
+        ) : null}
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  const triggers = Array.from(document.querySelectorAll("[data-accordion-trigger]")) as HTMLButtonElement[];
+
+  triggers.forEach((trigger) => {
+    if (trigger.disabled) return;
+    const panel = trigger.nextElementSibling as HTMLElement | null;
+
+    trigger.addEventListener("click", () => {
+      const expanded = trigger.getAttribute("aria-expanded") === "true";
+      trigger.setAttribute("aria-expanded", expanded ? "false" : "true");
+
+      if (!panel) return;
+
+      if (expanded) {
+        panel.setAttribute("hidden", "");
+      } else {
+        panel.removeAttribute("hidden");
+      }
+    });
+  });
+</script>
+
+<style>
+  .team-levels {
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, rgba(228, 31, 122, 0.12), rgba(32, 75, 165, 0.12));
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .team-levels__intro {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .team-levels__grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .team-levels__item {
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    padding: 1.25rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .team-levels__summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    cursor: pointer;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+  }
+
+  .team-levels__summary[disabled] {
+    cursor: default;
+  }
+
+  .team-levels__summary:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 4px;
+  }
+
+  .team-levels__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .team-levels__title {
+    font-weight: 700;
+    color: var(--brand-primary);
+    font-size: 1.05rem;
+  }
+
+  .team-levels__excerpt {
+    color: rgba(15, 23, 42, 0.75);
+    font-size: 0.95rem;
+  }
+
+  .team-levels__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: rgba(32, 75, 165, 0.15);
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+
+  .team-levels__icon::before {
+    content: "+";
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .team-levels__summary[aria-expanded="true"] .team-levels__icon::before {
+    content: "−";
+  }
+
+  .team-levels__summary[disabled] .team-levels__icon {
+    display: none;
+  }
+
+  .team-levels__details {
+    margin-top: 1.25rem;
+    display: grid;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .team-levels__details :global(p) {
+    margin: 0;
+  }
+
+  .team-levels__cta a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    text-decoration: none;
+  }
+
+  .team-levels__cta a:hover {
+    background: var(--brand-ink);
+  }
+
+  @media (min-width: 640px) {
+    .team-levels__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 960px) {
+    .team-levels__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

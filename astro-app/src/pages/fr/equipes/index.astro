@@ -1,60 +1,60 @@
 ---
+import { PortableText } from "astro-portabletext";
 import Layout from "../../../layouts/Layout.astro";
-import { getTeams } from "../../../utils/sanity";
+import { getTeams, getTeamsPage } from "../../../utils/sanity";
+import TeamLevels from "../../../components/team/TeamLevels.astro";
 import TeamSections from "../../../components/team/TeamSections.astro";
 
-const teams = await getTeams('fr');
+const locale = "fr";
+const [teams, teamsPage] = await Promise.all([getTeams(locale), getTeamsPage(locale)]);
+
+const levelSections = teamsPage?.levels ?? [];
+const introBlocks = teamsPage?.intro ?? [];
+const pageTitle = teamsPage?.title ?? "Équipes";
+const cta = teamsPage?.cta ?? null;
+
+const fallbackIntro =
+  "Les communautés de quadball au Canada offrent des options récréatives, compétitives, jeunesse et nationales. Parcourez le répertoire ci-dessous pour trouver le programme qui vous convient.";
+
+const fallbackCta = {
+  heading: "Parlez-nous de vos objectifs et de votre localisation",
+  body: "Dites-nous ce que vous recherchez et nous vous aiderons à rejoindre le programme le plus proche ou à en démarrer un nouveau.",
+  buttonLabel: "Communiquer avec Quadball Canada",
+  buttonHref: "/fr/contact/",
+};
+
+const ctaHeading = cta?.heading ?? fallbackCta.heading;
+const ctaBody = cta?.body ?? fallbackCta.body;
+const ctaLabel = cta?.buttonLabel ?? fallbackCta.buttonLabel;
+const ctaHref = cta?.buttonHref ?? fallbackCta.buttonHref;
 ---
 
-<Layout title="Equipes" alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale="fr">
+<Layout title={pageTitle} alternate={{ en: "/teams/", fr: "/fr/equipes/" }} locale={locale}>
   <section class="teams">
     <header class="teams__intro">
-      <h1>Équipes</h1>
-      <p>
-        Les communautés de quadball à travers le Canada proposent des expériences à la fois en
-        contact complet et récréatives. Parcourez les équipes ci-dessous pour trouver celle qui vous
-        convient et rejoignez les responsables ou les réseaux sociaux de votre région.
-      </p>
+      <h1>{pageTitle}</h1>
+      {introBlocks.length ? (
+        <div class="teams__intro-content">
+          <PortableText value={introBlocks} />
+        </div>
+      ) : (
+        <p>{fallbackIntro}</p>
+      )}
     </header>
 
-    <div class="teams__levels">
-      <h2>Niveaux de jeu</h2>
-      <p>
-        Le quadball au Canada comprend plusieurs parcours pour les joueurs, les bénévoles et les
-        partisans.
-      </p>
-      <div class="teams__levels-grid">
-        <div class="teams__levels-card">
-          <h3>Jeunesse</h3>
-          <p>
-            Programmes adaptés aux jeunes pour développer leurs compétences, le travail d'équipe et
-            l'amour du sport.
-          </p>
-        </div>
-        <div class="teams__levels-card">
-          <h3>Récréatif</h3>
-          <p>
-            Jeu amical axé sur le plaisir, l'apprentissage et la communauté. Idéal pour les personnes
-            qui découvrent le sport.
-          </p>
-        </div>
-        <div class="teams__levels-card">
-          <h3>Compétitif</h3>
-          <p>
-            Niveau de jeu élevé pour les équipes qui participent aux championnats régionaux et
-            nationaux avec un accent sur la performance.
-          </p>
-        </div>
-        <div class="teams__levels-card">
-          <h3>Équipe nationale</h3>
-          <p>
-            Représente le Canada sur la scène internationale et réunit les meilleurs talents du pays.
-          </p>
-        </div>
-      </div>
-    </div>
+    <TeamLevels levels={levelSections} locale={locale} />
 
-    <TeamSections teams={teams} locale="fr" />
+    <TeamSections teams={teams} locale={locale} levels={levelSections} />
+
+    {ctaHeading || ctaBody ? (
+      <section class="teams__cta">
+        {ctaHeading && <h2>{ctaHeading}</h2>}
+        {ctaBody && <p>{ctaBody}</p>}
+        {ctaHref && ctaLabel && (
+          <a class="teams__cta-btn" href={ctaHref}>{ctaLabel}</a>
+        )}
+      </section>
+    ) : null}
   </section>
 </Layout>
 
@@ -75,53 +75,43 @@ const teams = await getTeams('fr');
     margin: 0;
   }
 
-  .teams__levels {
-    padding: 2.5rem;
-    border-radius: 1.5rem;
-    background: linear-gradient(135deg, rgba(228, 31, 122, 0.12), rgba(32, 75, 165, 0.12));
-    display: grid;
-    gap: 1.5rem;
-  }
-
-  .teams__levels h2 {
+  .teams__intro-content :global(p) {
     margin: 0;
   }
 
-  .teams__levels-grid {
+  .teams__cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 1.25rem;
+    background: var(--brand-tint);
     display: grid;
     gap: 1rem;
+    max-width: 720px;
+    margin: 0 auto;
   }
 
-  @media (min-width: 640px) {
-    .teams__levels-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 960px) {
-    .teams__levels-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  .teams__levels-card {
-    padding: 1.25rem;
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .teams__levels-card h3 {
+  .teams__cta h2 {
     margin: 0;
-    color: var(--brand-primary);
   }
 
-  .teams__levels-card p {
-    margin: 0;
-    font-size: 0.95rem;
-    color: rgba(15, 23, 42, 0.75);
+  .teams__cta p {
+    margin: 0 auto;
+    max-width: 48ch;
+  }
+
+  .teams__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    background: var(--brand-primary);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .teams__cta-btn:hover {
+    background: var(--brand-ink);
   }
 </style>

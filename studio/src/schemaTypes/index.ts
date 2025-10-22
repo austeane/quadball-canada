@@ -3,6 +3,7 @@ import blockContent from './objects/blockContent'
 import color from './objects/color'
 import ctaBlock from './objects/ctaBlock'
 import formEmbed from './objects/formEmbed'
+import teamLevelSection from './objects/teamLevelSection'
 import {
   localeString,
   localeText,
@@ -25,6 +26,8 @@ import resourceArticle from './documents/resourceArticle'
 import staffMember from './documents/staffMember'
 import boardMember from './documents/boardMember'
 import volunteerOpportunity from './documents/volunteerOpportunity'
+import teamsPage from './documents/teamsPage'
+import nationalTeamPage from './documents/nationalTeamPage'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -33,6 +36,8 @@ export const schemaTypes = [
   post,
   page,
   aboutPage,
+  teamsPage,
+  nationalTeamPage,
   newsArticle,
   infoArticle,
   resourceArticle,
@@ -46,6 +51,7 @@ export const schemaTypes = [
   siteSettings,
   ctaBlock,
   formEmbed,
+  teamLevelSection,
 
   // Objects
   blockContent,

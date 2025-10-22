@@ -9,7 +9,7 @@ const copy = locale === "fr"
       getInvolved: "S'impliquer",
       findTeam: "Trouver une equipe",
       hostEvent: "Organiser un evenement",
-      levels: "Niveaux de jeu",
+      teamCanada: "Equipe Canada",
       volunteer: "Benevolat",
       explore: "Explorer",
       about: "A propos",
@@ -23,7 +23,7 @@ const copy = locale === "fr"
       getInvolved: "Get Involved",
       findTeam: "Find a Team",
       hostEvent: "Host an Event",
-      levels: "Levels of Play",
+      teamCanada: "Team Canada",
       volunteer: "Volunteer",
       explore: "Explore",
       about: "About",
@@ -37,7 +37,7 @@ const copy = locale === "fr"
 const routes = {
   teams: locale === "fr" ? "/fr/equipes/" : "/teams/",
   hostEvent: locale === "fr" ? "/fr/simpliquer/organiser-un-evenement/" : "/get-involved/host-an-event/",
-  levels: locale === "fr" ? "/fr/simpliquer/niveaux-de-jeu/" : "/get-involved/levels-of-play/",
+  teamCanada: locale === "fr" ? "/fr/equipes/equipe-nationale/" : "/teams/national-team/",
   volunteer: locale === "fr" ? "/fr/benevolat/" : "/volunteer-opportunities/",
   about: locale === "fr" ? "/fr/a-propos/" : "/about/",
   news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
@@ -59,7 +59,7 @@ const routes = {
       <ul>
         <li><a href={routes.teams}>{copy.findTeam}</a></li>
         <li><a href={routes.hostEvent}>{copy.hostEvent}</a></li>
-        <li><a href={routes.levels}>{copy.levels}</a></li>
+        <li><a href={routes.teamCanada}>{copy.teamCanada}</a></li>
         <li><a href={routes.volunteer}>{copy.volunteer}</a></li>
       </ul>
     </div>
