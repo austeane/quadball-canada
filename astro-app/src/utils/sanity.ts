@@ -406,7 +406,7 @@ export async function getTeamsPage(locale: Locale = "en"): Promise<TeamsPageData
     ...page,
     intro: page.intro ?? [],
     levels:
-      page.levels?.map((level) => ({
+      page.levels?.map((level: TeamLevelSection) => ({
         ...level,
         details: level.details ?? [],
       })) ?? [],

@@ -191,7 +191,7 @@ function getSocialLinks(team: TeamSummary) {
 const hasAnyTeams = teamsWithLevel.length > 0;
 
 const initialGroups = levelOrder.map((key) => ({
-  key,
+  key: key as TeamLevelIdentifier | "other",
   heading: levelLabels[key],
   teams: teamsWithLevel.filter((team) => team.resolvedLevel === key),
 }));
