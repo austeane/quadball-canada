@@ -2,10 +2,11 @@
 import Layout from "../../../layouts/Layout.astro";
 import PageHero from "../../../components/sections/PageHero.astro";
 import DirectorProfile from "../../../components/staff/DirectorProfile.astro";
-import { getStaff } from "../../../utils/sanity";
+import { getStaff, getPageSettings } from "../../../utils/sanity";
 
 const locale = "fr";
 const staff = await getStaff(locale);
+const pageSettings = await getPageSettings();
 const coordinatorHeading = "Coordonnateurs et coordonnatrices";
 ---
 
@@ -17,7 +18,7 @@ const coordinatorHeading = "Coordonnateurs et coordonnatrices";
   <PageHero
     title="Rencontrez l'equipe"
     subtitle="Les benevoles de Quadball Canada soutiennent les services aux membres, les evenements et les programmes d'un ocean a l'autre."
-    image="/hero-cover.jpg"
+    image={pageSettings?.staffHeroImage ?? pageSettings?.defaultHeroImage}
   />
   <section class="staff">
     {staff.length === 0 ? (

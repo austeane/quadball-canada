@@ -2,8 +2,17 @@ import { sanityClient } from "sanity:client";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { ImageAsset } from "@sanity/types";
 import groq from "groq";
+import imageUrlBuilder from "@sanity/image-url";
 
 export type Locale = "en" | "fr";
+
+// Image URL builder
+const builder = imageUrlBuilder(sanityClient);
+
+export function urlForImage(source: SanityImageWithAlt | null | undefined) {
+  if (!source?.asset) return null;
+  return builder.image(source);
+}
 
 export interface SanityImageWithAlt {
   _type: "image";
@@ -656,4 +665,32 @@ export async function getNationalTeamPage(locale: Locale = "en"): Promise<Nation
     cta: page.cta ?? null,
     seo: page.seo ?? null,
   };
+}
+
+export interface PageSettings {
+  aboutHeroImage?: SanityImageWithAlt | null;
+  contactHeroImage?: SanityImageWithAlt | null;
+  eventsHeroImage?: SanityImageWithAlt | null;
+  getInvolvedHeroImage?: SanityImageWithAlt | null;
+  teamsHeroImage?: SanityImageWithAlt | null;
+  newsHeroImage?: SanityImageWithAlt | null;
+  boardHeroImage?: SanityImageWithAlt | null;
+  staffHeroImage?: SanityImageWithAlt | null;
+  defaultHeroImage?: SanityImageWithAlt | null;
+}
+
+export async function getPageSettings(): Promise<PageSettings | null> {
+  return await sanityClient.fetch(
+    groq`*[_type == "pageSettings"][0] {
+      aboutHeroImage,
+      contactHeroImage,
+      eventsHeroImage,
+      getInvolvedHeroImage,
+      teamsHeroImage,
+      newsHeroImage,
+      boardHeroImage,
+      staffHeroImage,
+      defaultHeroImage
+    }`
+  );
 }

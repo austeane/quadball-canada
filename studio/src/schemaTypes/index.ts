@@ -28,6 +28,7 @@ import boardMember from './documents/boardMember'
 import volunteerOpportunity from './documents/volunteerOpportunity'
 import teamsPage from './documents/teamsPage'
 import nationalTeamPage from './documents/nationalTeamPage'
+import pageSettings from './documents/pageSettings'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -49,6 +50,7 @@ export const schemaTypes = [
   player,
   author,
   siteSettings,
+  pageSettings,
   ctaBlock,
   formEmbed,
   teamLevelSection,

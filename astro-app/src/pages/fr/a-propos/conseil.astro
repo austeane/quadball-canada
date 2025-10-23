@@ -2,10 +2,11 @@
 import Layout from "../../../layouts/Layout.astro";
 import PageHero from "../../../components/sections/PageHero.astro";
 import BoardMemberProfile from "../../../components/board/BoardMemberProfile.astro";
-import { getBoardMembers } from "../../../utils/sanity";
+import { getBoardMembers, getPageSettings } from "../../../utils/sanity";
 
 const locale = "fr";
 const boardMembers = await getBoardMembers(locale);
+const pageSettings = await getPageSettings();
 ---
 
 <Layout
@@ -16,7 +17,7 @@ const boardMembers = await getBoardMembers(locale);
   <PageHero
     title="Conseil d'administration"
     subtitle="Le conseil d'administration bénévole de Quadball Canada assure la direction stratégique et la gouvernance de l'organisation."
-    image="/hero-cover.jpg"
+    image={pageSettings?.boardHeroImage ?? pageSettings?.defaultHeroImage}
   />
   <section class="board">
     {boardMembers.length === 0 ? (

@@ -132,27 +132,31 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
 ---
 <section class="team-levels">
   <header class="team-levels__intro">
-    <h2>{sectionHeading}</h2>
-    <p>{locale === "fr" ? "Sélectionnez un niveau pour obtenir des détails et des ressources." : "Select a level to see more details and resources."}</p>
+    <div class="team-levels__header">
+      <h2>{sectionHeading}</h2>
+      <button
+        type="button"
+        class="team-levels__toggle"
+        data-toggle-all
+        aria-expanded="false"
+      >
+        <span data-show-text>{locale === "fr" ? "Afficher les détails" : "Show details"}</span>
+        <span data-hide-text hidden>{locale === "fr" ? "Masquer les détails" : "Hide details"}</span>
+      </button>
+    </div>
+    <p>{locale === "fr" ? "Explorez les différents niveaux de jeu disponibles au Canada." : "Explore the different levels of play available across Canada."}</p>
   </header>
   <div class="team-levels__grid">
     {displayLevels.map((level) => (
       <div class="team-levels__item" data-team-level={level.identifier}>
-        <button
-          class="team-levels__summary"
-          type="button"
-          data-accordion-trigger
-          aria-expanded={level.hasExtras ? "false" : undefined}
-          disabled={!level.hasExtras}
-        >
+        <div class="team-levels__summary">
           <span class="team-levels__text">
             <span class="team-levels__title" role="heading" aria-level="3">
               {level.title ?? fallbackTitles[level.identifier as TeamLevelIdentifier]}
             </span>
             {level.summary && <span class="team-levels__excerpt">{level.summary}</span>}
           </span>
-          <span class="team-levels__icon" aria-hidden="true"></span>
-        </button>
+        </div>
         {level.hasExtras ? (
           <div class="team-levels__details" data-accordion-panel hidden>
             {level.hasDetails && <PortableText value={level.details} />}
@@ -168,26 +172,52 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
   </div>
 </section>
 
-<script>
-  const triggers = Array.from(document.querySelectorAll("[data-accordion-trigger]")) as HTMLButtonElement[];
+<script is:inline>
+  function initTeamLevels() {
+    const toggleButton = document.querySelector("[data-toggle-all]");
+    if (!toggleButton) return;
 
-  triggers.forEach((trigger) => {
-    if (trigger.disabled) return;
-    const panel = trigger.nextElementSibling as HTMLElement | null;
+    // Prevent duplicate initialization
+    if (toggleButton.dataset.initialized === 'true') return;
+    toggleButton.dataset.initialized = 'true';
 
-    trigger.addEventListener("click", () => {
-      const expanded = trigger.getAttribute("aria-expanded") === "true";
-      trigger.setAttribute("aria-expanded", expanded ? "false" : "true");
+    const panels = Array.from(document.querySelectorAll("[data-accordion-panel]"));
+    const showText = toggleButton.querySelector("[data-show-text]");
+    const hideText = toggleButton.querySelector("[data-hide-text]");
 
-      if (!panel) return;
+    toggleButton.addEventListener("click", () => {
+      const isExpanded = toggleButton.getAttribute("aria-expanded") === "true";
+      const newState = !isExpanded;
 
-      if (expanded) {
-        panel.setAttribute("hidden", "");
-      } else {
-        panel.removeAttribute("hidden");
+      toggleButton.setAttribute("aria-expanded", String(newState));
+
+      panels.forEach((panel) => {
+        if (newState) {
+          panel.removeAttribute("hidden");
+        } else {
+          panel.setAttribute("hidden", "");
+        }
+      });
+
+      if (showText && hideText) {
+        if (newState) {
+          showText.setAttribute("hidden", "");
+          hideText.removeAttribute("hidden");
+        } else {
+          showText.removeAttribute("hidden");
+          hideText.setAttribute("hidden", "");
+        }
       }
     });
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTeamLevels);
+  } else {
+    initTeamLevels();
+  }
+
+  document.addEventListener("astro:page-load", initTeamLevels);
 </script>
 
 <style>
@@ -201,12 +231,52 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
 
   .team-levels__intro {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .team-levels__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .team-levels__header h2 {
+    margin: 0;
+  }
+
+  .team-levels__toggle {
+    padding: 0.5rem 1rem;
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .team-levels__toggle:hover {
+    background: var(--brand-primary-dark, #1a4aa3);
+  }
+
+  .team-levels__toggle:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
   }
 
   .team-levels__grid {
     display: grid;
     gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .team-levels__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .team-levels__item {
@@ -220,28 +290,9 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
   }
 
   .team-levels__summary {
-    list-style: none;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    cursor: pointer;
-    width: 100%;
-    background: none;
-    border: none;
-    padding: 0;
-    text-align: left;
-    color: inherit;
-    font: inherit;
-  }
-
-  .team-levels__summary[disabled] {
-    cursor: default;
-  }
-
-  .team-levels__summary:focus-visible {
-    outline: 2px solid var(--brand-primary);
-    outline-offset: 4px;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .team-levels__text {
@@ -261,37 +312,14 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
     font-size: 0.95rem;
   }
 
-  .team-levels__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 999px;
-    background: rgba(32, 75, 165, 0.15);
-    color: var(--brand-primary);
-    font-weight: 700;
-  }
-
-  .team-levels__icon::before {
-    content: "+";
-    font-size: 1.1rem;
-    line-height: 1;
-  }
-
-  .team-levels__summary[aria-expanded="true"] .team-levels__icon::before {
-    content: "−";
-  }
-
-  .team-levels__summary[disabled] .team-levels__icon {
-    display: none;
-  }
-
-  .team-levels__details {
-    margin-top: 1.25rem;
+  .team-levels__details:not([hidden]) {
     display: grid;
     gap: 1rem;
     font-size: 0.95rem;
+  }
+
+  .team-levels__details[hidden] {
+    display: none;
   }
 
   .team-levels__details :global(p) {

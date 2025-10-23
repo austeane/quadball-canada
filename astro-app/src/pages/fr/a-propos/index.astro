@@ -2,9 +2,10 @@
 import Layout from "../../../layouts/Layout.astro";
 import PageHero from "../../../components/sections/PageHero.astro";
 import { PortableText } from "astro-portabletext";
-import { getAboutPage } from "../../../utils/sanity";
+import { getAboutPage, getPageSettings } from "../../../utils/sanity";
 
 const aboutPage = await getAboutPage("fr");
+const pageSettings = await getPageSettings();
 const pageTitle = aboutPage?.seo?.metaTitle || aboutPage?.title || "À propos de Quadball Canada";
 ---
 
@@ -16,6 +17,7 @@ const pageTitle = aboutPage?.seo?.metaTitle || aboutPage?.title || "À propos de
         subtitle={aboutPage.subtitle}
         ctaText={aboutPage.heroCtaText}
         ctaHref={aboutPage.heroCtaHref}
+        image={pageSettings?.aboutHeroImage ?? pageSettings?.defaultHeroImage}
       />
       <section style="padding: 3rem 0;">
         <PortableText value={aboutPage.content} />

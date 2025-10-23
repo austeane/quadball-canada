@@ -1,15 +1,30 @@
 ---
+import type { SanityImageWithAlt } from "../../utils/sanity";
+import { urlForImage } from "../../utils/sanity";
+
 interface Props {
   title: string;
   subtitle?: string;
   ctaText?: string;
   ctaHref?: string;
-  image?: string; // /about-cover.jpg etc.
+  image?: string | SanityImageWithAlt | null; // string for legacy, SanityImageWithAlt for CMS
 }
+
 const { title, subtitle, ctaText, ctaHref, image = "/hero-cover.jpg" } = Astro.props as Props;
+
+// Generate image URL
+let imageUrl = "/hero-cover.jpg";
+if (typeof image === "string") {
+  imageUrl = image;
+} else if (image) {
+  const sanityImageUrl = urlForImage(image)?.width(1920).height(560).url();
+  if (sanityImageUrl) {
+    imageUrl = sanityImageUrl;
+  }
+}
 ---
 <section class="pagehero">
-  <img src={image} alt="" width="1920" height="560" class="pagehero__img" decoding="async" loading="eager" />
+  <img src={imageUrl} alt="" width="1920" height="560" class="pagehero__img" decoding="async" loading="eager" />
   <div class="pagehero__overlay">
     <div class="pagehero__content">
       <h1 class="pagehero__title">{title}</h1>
