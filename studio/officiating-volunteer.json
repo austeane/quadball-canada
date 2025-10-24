@@ -1,0 +1,23 @@
+{
+  "_type": "volunteerOpportunity",
+  "_id": "volunteer-officiating",
+  "title": {
+    "en": "Become a Certified Referee or Scorekeeper",
+    "fr": "Devenez arbitre ou marqueur certifié"
+  },
+  "slug": {
+    "current": "referee-scorekeeper-certification"
+  },
+  "summary": {
+    "en": "Help maintain fair and safe gameplay at quadball events across Canada. We provide comprehensive training and certification for referees and scorekeepers at all levels, from local games to national championships.",
+    "fr": "Aidez à maintenir un jeu équitable et sécuritaire lors d'événements de quadball à travers le Canada. Nous offrons une formation et une certification complètes pour les arbitres et marqueurs à tous les niveaux, des matchs locaux aux championnats nationaux."
+  },
+  "roleType": "officiating",
+  "timeCommitment": "ongoing",
+  "location": "Various locations across Canada",
+  "isRemote": false,
+  "applicationUrl": "https://forms.gle/example",
+  "contactEmail": "officials@quadballcanada.com",
+  "orderRank": 1,
+  "publishedAt": "2025-01-01T00:00:00.000Z"
+}

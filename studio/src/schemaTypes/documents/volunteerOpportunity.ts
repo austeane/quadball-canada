@@ -51,6 +51,7 @@ export default defineType({
       type: 'string',
       options: {
         list: [
+          { title: 'Officiating (Referee/Scorekeeper)', value: 'officiating' },
           { title: 'Event Support', value: 'event-support' },
           { title: 'Administration', value: 'administration' },
           { title: 'Coaching & Development', value: 'coaching' },
@@ -134,6 +135,7 @@ export default defineType({
     },
     prepare({ title, roleType, isRemote, location, province }) {
       const roleTitleMap: Record<string, string> = {
+        officiating: 'Officiating',
         'event-support': 'Event Support',
         administration: 'Administration',
         coaching: 'Coaching & Development',
