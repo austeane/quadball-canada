@@ -1,0 +1,58 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+
+const alternate = {
+  en: "/resources/planning-a-tournament/",
+  fr: "/fr/ressources/planifier-un-tournoi/",
+};
+---
+
+<Layout title="Planning a Tournament — Quadball Canada" alternate={alternate} locale="en">
+  <section style="padding: 3rem 0;">
+    <h1>Planning a Tournament</h1>
+    <p>Ready to host a quadball tournament? We've compiled resources to help you organize a successful event.</p>
+
+    <div style="padding: 2rem; background: var(--bg-secondary); border-radius: 8px; margin: 2rem 0;">
+      <h2>Tournament Planning Resources</h2>
+      <p>Our comprehensive tournament planning guide is available as a Google Doc that you can copy and customize for your event.</p>
+
+      <p><strong>Coming Soon:</strong> We're finalizing our tournament planning guide. Check back soon or <a href="/contact/">contact us</a> for early access.</p>
+
+      <!-- When you have the Google Doc URL, replace the above with:
+      <p>
+        <a class="btn" href="YOUR_GOOGLE_DOC_URL" target="_blank" rel="noopener noreferrer">
+          Access Tournament Planning Guide →
+        </a>
+      </p>
+      -->
+    </div>
+
+    <h2>Key Considerations</h2>
+    <ul>
+      <li>Venue selection and field layout</li>
+      <li>Equipment and supply checklist</li>
+      <li>Tournament format and scheduling</li>
+      <li>Referee and volunteer coordination</li>
+      <li>Registration and team communications</li>
+      <li>Safety protocols and first aid planning</li>
+    </ul>
+
+    <h2>Sanctioning</h2>
+    <p>For official sanctioning of your tournament by Quadball Canada, please review our <a href="/get-involved/host-an-event/">event hosting guide</a> and submit your application at least 60 days before your event date.</p>
+  </section>
+</Layout>
+
+<style>
+  .btn {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    background: var(--brand-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .btn:hover {
+    background: var(--brand-ink);
+  }
+</style>

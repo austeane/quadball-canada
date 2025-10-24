@@ -1,0 +1,197 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import type { Locale } from "@/utils/localization";
+import { getEvents, getLandingSection } from "@/utils/sanity";
+import { formatDate } from "@/utils";
+import EventCard from "@/components/content/EventCard.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const isFr = locale === "fr";
+
+// Fetch landing section content from Sanity
+const landingSection = await getLandingSection("events", locale);
+
+// Fetch events
+const events = await getEvents(locale);
+const now = new Date();
+const upcoming = [...events]
+  .filter((e) => new Date(e.startDateTime) >= now)
+  .sort((a, b) => +new Date(a.startDateTime) - +new Date(b.startDateTime));
+const featured = upcoming[0];
+
+// Fallback content if Sanity data is not available
+const fallbackContent = isFr
+  ? {
+      layoutTitle: "Événements — Quadball Canada",
+      heading: "Événements",
+      intro: "Découvrez les tournois, camps et événements de quadball à venir partout au Canada.",
+    }
+  : {
+      layoutTitle: "Events — Quadball Canada",
+      heading: "Events",
+      intro: "Find upcoming quadball tournaments, camps, and events across Canada.",
+    };
+
+const content = landingSection
+  ? {
+      layoutTitle: `${landingSection.title} — Quadball Canada`,
+      heading: landingSection.title,
+      intro: landingSection.intro,
+      cards: landingSection.cards,
+      showContent: landingSection.showContent,
+    }
+  : {
+      ...fallbackContent,
+      cards: [],
+      showContent: true,
+    };
+
+const alternate = {
+  en: "/events/",
+  fr: "/fr/evenements/",
+};
+---
+
+<Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+  <section class="section">
+    <header class="intro">
+      <h1>{content.heading}</h1>
+      <p>{content.intro}</p>
+    </header>
+
+    {content.cards && content.cards.length > 0 && (
+      <div class="grid">
+        {content.cards.map((card) => (
+          <article>
+            <h2>{card.title}</h2>
+            <p>{card.body}</p>
+            <a
+              class="btn"
+              href={card.href}
+              target={card.external ? "_blank" : undefined}
+              rel={card.external ? "noopener noreferrer" : undefined}
+            >
+              {card.ctaText}
+              {card.external && " →"}
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {content.showContent && (
+      <div class="events-section">
+        <h2>{isFr ? "Événements à venir" : "Upcoming Events"}</h2>
+        <p><a class="btn-secondary" href="/events.ics">{isFr ? "Ajouter au calendrier (ICS)" : "Add to Calendar (ICS)"}</a></p>
+
+        {featured && (
+          <div class="featured">
+            <div class="datechip">{formatDate(featured.startDateTime, locale)}</div>
+            <h3 class="featured__title">
+              <a href={`${isFr ? "/fr/evenements/" : "/events/"}${featured.slug}`}>{featured.title}</a>
+            </h3>
+            <p><a class="btn btn--primary" href={`${isFr ? "/fr/evenements/" : "/events/"}${featured.slug}`}>
+              {isFr ? "Détails" : "Details"}
+            </a></p>
+          </div>
+        )}
+
+        <div class="list">
+          {events.length ? (
+            events.map((e) => <EventCard event={e} locale={locale} basePath={isFr ? "/fr/evenements/" : "/events/"} />)
+          ) : (
+            <p>{isFr ? "Aucun événement pour le moment." : "No events yet."}</p>
+          )}
+        </div>
+      </div>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .intro {
+    max-width: 720px;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  article {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .btn,
+  .btn-secondary,
+  .btn--primary {
+    display: inline-block;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.8rem 1.6rem;
+    text-decoration: none;
+  }
+  .btn {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  .btn:hover {
+    background: var(--brand-ink);
+  }
+  .btn-secondary {
+    color: var(--brand-primary);
+  }
+  .btn--primary {
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  .events-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .events-section h2 {
+    margin-top: 2rem;
+  }
+  .featured {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+  }
+  .datechip {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--brand-primary) 10%, white);
+    color: var(--brand-primary);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .featured__title {
+    margin: 0.5rem 0;
+  }
+  .list {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

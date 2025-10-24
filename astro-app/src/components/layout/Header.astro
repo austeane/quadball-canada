@@ -63,12 +63,21 @@ const navConfig: NavConfig[] = [
     href: { en: "/resources/", fr: "/fr/ressources/" },
     dropdown: [
       {
-        labelKey: "nav.resources.all",
-        href: { en: "/resources/", fr: "/fr/ressources/" },
-      },
-      {
         labelKey: "nav.resources.policies",
         href: { en: "/resources/policies/", fr: "/fr/ressources/politiques/" },
+      },
+      {
+        labelKey: "nav.resources.startingTeam",
+        href: { en: "/resources/starting-a-team/", fr: "/fr/ressources/demarrer-une-equipe/" },
+      },
+      {
+        labelKey: "nav.resources.drillBank",
+        href: { en: "https://www.qdrill.app", fr: "https://www.qdrill.app" },
+        external: true,
+      },
+      {
+        labelKey: "nav.resources.tournament",
+        href: { en: "/resources/planning-a-tournament/", fr: "/fr/ressources/planifier-un-tournoi/" },
       },
     ],
   },
@@ -76,10 +85,6 @@ const navConfig: NavConfig[] = [
     labelKey: "nav.events",
     href: { en: "/events/", fr: "/fr/evenements/" },
     dropdown: [
-      {
-        labelKey: "nav.events.upcoming",
-        href: { en: "/events/", fr: "/fr/evenements/" },
-      },
       {
         labelKey: "nav.events.host",
         href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },

@@ -1,7 +1,8 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import type { Locale } from "@/utils/localization";
-import { getLandingSection } from "@/utils/sanity";
+import { getResourceArticles, getLandingSection } from "@/utils/sanity";
+import ResourceCard from "@/components/content/ResourceCard.astro";
 
 interface Props {
   locale: Locale;
@@ -11,21 +12,22 @@ const { locale } = Astro.props as Props;
 const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
-const landingSection = await getLandingSection("getInvolved", locale);
+const landingSection = await getLandingSection("resources", locale);
+
+// Fetch resources
+const resources = await getResourceArticles(locale);
 
 // Fallback content if Sanity data is not available
 const fallbackContent = isFr
   ? {
-      layoutTitle: "S'impliquer — Quadball Canada",
-      heading: "S'impliquer",
-      intro: "Rejoignez la communauté de quadball au Canada. Que vous souhaitiez jouer, bénévoler, ou organiser des activités, un parcours est prêt pour vous.",
-      cards: [],
+      layoutTitle: "Ressources — Quadball Canada",
+      heading: "Ressources",
+      intro: "Trouvez des guides, outils et informations pour soutenir votre parcours dans le quadball.",
     }
   : {
-      layoutTitle: "Get Involved — Quadball Canada",
-      heading: "Get Involved",
-      intro: "Join the growing quadball community in Canada. Whether you want to play, volunteer, or host programming, there is a pathway ready for you.",
-      cards: [],
+      layoutTitle: "Resources — Quadball Canada",
+      heading: "Resources",
+      intro: "Find guides, tools, and information to support your quadball journey.",
     };
 
 const content = landingSection
@@ -34,12 +36,17 @@ const content = landingSection
       heading: landingSection.title,
       intro: landingSection.intro,
       cards: landingSection.cards,
+      showContent: landingSection.showContent,
     }
-  : fallbackContent;
+  : {
+      ...fallbackContent,
+      cards: [],
+      showContent: true,
+    };
 
 const alternate = {
-  en: "/get-involved/",
-  fr: "/fr/simpliquer/",
+  en: "/resources/",
+  fr: "/fr/ressources/",
 };
 ---
 
@@ -53,7 +60,7 @@ const alternate = {
     {content.cards && content.cards.length > 0 && (
       <div class="grid">
         {content.cards.map((card) => (
-          <article>
+          <article class="card">
             <h2>{card.title}</h2>
             <p>{card.body}</p>
             <a
@@ -67,6 +74,17 @@ const alternate = {
             </a>
           </article>
         ))}
+      </div>
+    )}
+
+    {content.showContent && resources.length > 0 && (
+      <div class="resources-section">
+        <h2>{isFr ? "Toutes les ressources" : "All Resources"}</h2>
+        <div class="resources-list">
+          {resources.map((resource) => (
+            <ResourceCard resource={resource} locale={locale} basePath={isFr ? "/fr/ressources/" : "/resources/"} />
+          ))}
+        </div>
       </div>
     )}
   </section>
@@ -86,7 +104,7 @@ const alternate = {
     display: grid;
     gap: 2rem;
   }
-  article {
+  .card {
     padding: 2rem;
     border-radius: 12px;
     background: var(--bg-secondary, #f8f9fa);
@@ -106,9 +124,29 @@ const alternate = {
   .btn:hover {
     background: var(--brand-ink);
   }
+  .resources-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .resources-section h2 {
+    margin-top: 2rem;
+  }
+  .resources-list {
+    display: grid;
+    gap: 1rem;
+  }
   @media (min-width: 768px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .resources-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

@@ -11,20 +11,20 @@ const { locale } = Astro.props as Props;
 const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
-const landingSection = await getLandingSection("getInvolved", locale);
+const landingSection = await getLandingSection("about", locale);
 
 // Fallback content if Sanity data is not available
 const fallbackContent = isFr
   ? {
-      layoutTitle: "S'impliquer — Quadball Canada",
-      heading: "S'impliquer",
-      intro: "Rejoignez la communauté de quadball au Canada. Que vous souhaitiez jouer, bénévoler, ou organiser des activités, un parcours est prêt pour vous.",
+      layoutTitle: "À propos — Quadball Canada",
+      heading: "À propos",
+      intro: "Découvrez notre mission, rencontrez notre équipe et apprenez-en plus sur le quadball au Canada.",
       cards: [],
     }
   : {
-      layoutTitle: "Get Involved — Quadball Canada",
-      heading: "Get Involved",
-      intro: "Join the growing quadball community in Canada. Whether you want to play, volunteer, or host programming, there is a pathway ready for you.",
+      layoutTitle: "About — Quadball Canada",
+      heading: "About Us",
+      intro: "Learn about our mission, meet our team, and discover more about quadball in Canada.",
       cards: [],
     };
 
@@ -38,8 +38,8 @@ const content = landingSection
   : fallbackContent;
 
 const alternate = {
-  en: "/get-involved/",
-  fr: "/fr/simpliquer/",
+  en: "/about/",
+  fr: "/fr/a-propos/",
 };
 ---
 
@@ -109,6 +109,11 @@ const alternate = {
   @media (min-width: 768px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

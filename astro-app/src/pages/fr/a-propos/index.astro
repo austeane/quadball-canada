@@ -1,34 +1,5 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import PageHero from "../../../components/sections/PageHero.astro";
-import { PortableText } from "astro-portabletext";
-import { getAboutPage, getPageSettings } from "../../../utils/sanity";
-
-const aboutPage = await getAboutPage("fr");
-const pageSettings = await getPageSettings();
-const pageTitle = aboutPage?.seo?.metaTitle || aboutPage?.title || "À propos de Quadball Canada";
+import About from "../../_shared/about.astro";
 ---
 
-<Layout title={pageTitle} alternate={{ en: "/about/", fr: "/fr/a-propos/" }} locale="fr">
-  {aboutPage ? (
-    <>
-      <PageHero
-        title={aboutPage.title}
-        subtitle={aboutPage.subtitle}
-        ctaText={aboutPage.heroCtaText}
-        ctaHref={aboutPage.heroCtaHref}
-        image={pageSettings?.aboutHeroImage ?? pageSettings?.defaultHeroImage}
-      />
-      <section style="padding: 3rem 0;">
-        <PortableText value={aboutPage.content} />
-      </section>
-    </>
-  ) : (
-    <section style="padding: 3rem 0;">
-      <h1>À propos de Quadball Canada</h1>
-      <p>
-        Le contenu de la page À propos n'a pas encore été publié. Ajoutez un document <strong>About Page</strong> dans Sanity Studio pour remplir cette page avec du contenu.
-      </p>
-    </section>
-  )}
-</Layout>
+<About locale="fr" />

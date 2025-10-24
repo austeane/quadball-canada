@@ -6,6 +6,24 @@ import imageUrlBuilder from "@sanity/image-url";
 
 export type Locale = "en" | "fr";
 
+// Landing Section Types
+export type LandingCard = {
+  title: string;
+  body: string;
+  ctaText: string;
+  href: string;
+  external: boolean;
+};
+
+export type LandingSection = {
+  _id: string;
+  key: string;
+  title: string;
+  intro: string;
+  showContent: boolean;
+  cards: LandingCard[];
+};
+
 // Image URL builder
 const builder = imageUrlBuilder(sanityClient);
 
@@ -737,4 +755,27 @@ export async function getPoliciesByCategory(locale: Locale = "en"): Promise<Reco
   });
 
   return grouped;
+}
+
+// Fetch landing section data
+export async function getLandingSection(key: string, locale: Locale): Promise<LandingSection | null> {
+  const query = groq`
+    *[_type == "landingSection" && key == $key][0] {
+      _id,
+      key,
+      "title": title[$locale],
+      "intro": intro[$locale],
+      showContent,
+      cards[] {
+        "title": title[$locale],
+        "body": body[$locale],
+        "ctaText": ctaText[$locale],
+        "href": href[$locale],
+        external
+      }
+    }
+  `;
+
+  const result = await sanityClient.fetch(query, { key, locale });
+  return result;
 }

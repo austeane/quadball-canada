@@ -1,0 +1,346 @@
+[
+  {
+    "_type": "landingSection",
+    "_id": "landingSection-about",
+    "key": "about",
+    "title": {
+      "en": "About Us",
+      "fr": "À propos"
+    },
+    "intro": {
+      "en": "Learn about our mission, meet our team, and discover more about quadball in Canada.",
+      "fr": "Découvrez notre mission, rencontrez notre équipe et apprenez-en plus sur le quadball au Canada."
+    },
+    "showContent": false,
+    "cards": [
+      {
+        "_key": "mission",
+        "title": {
+          "en": "Mission & Values",
+          "fr": "Mission et valeurs"
+        },
+        "body": {
+          "en": "Discover our commitment to inclusivity and growing the sport across Canada.",
+          "fr": "Découvrez notre engagement envers l'inclusivité et le développement du sport à travers le Canada."
+        },
+        "ctaText": {
+          "en": "Read Our Mission",
+          "fr": "Lire notre mission"
+        },
+        "href": {
+          "en": "/about/mission-and-values/",
+          "fr": "/fr/a-propos/mission-et-valeurs/"
+        },
+        "external": false
+      },
+      {
+        "_key": "board",
+        "title": {
+          "en": "Meet the Board",
+          "fr": "Conseil d'administration"
+        },
+        "body": {
+          "en": "Meet the dedicated volunteers guiding Quadball Canada into the future.",
+          "fr": "Rencontrez les bénévoles dévoués qui guident Quadball Canada vers l'avenir."
+        },
+        "ctaText": {
+          "en": "Meet the Board",
+          "fr": "Rencontrer le conseil"
+        },
+        "href": {
+          "en": "/about/meet-the-board/",
+          "fr": "/fr/a-propos/conseil/"
+        },
+        "external": false
+      },
+      {
+        "_key": "staff",
+        "title": {
+          "en": "Meet the Staff",
+          "fr": "Équipe"
+        },
+        "body": {
+          "en": "Get to know the staff working daily to support our community.",
+          "fr": "Découvrez le personnel qui travaille quotidiennement pour soutenir notre communauté."
+        },
+        "ctaText": {
+          "en": "Meet the Staff",
+          "fr": "Rencontrer l'équipe"
+        },
+        "href": {
+          "en": "/about/meet-the-staff/",
+          "fr": "/fr/a-propos/equipe/"
+        },
+        "external": false
+      },
+      {
+        "_key": "teams",
+        "title": {
+          "en": "Our Teams",
+          "fr": "Nos équipes"
+        },
+        "body": {
+          "en": "Explore quadball clubs and programs across Canada.",
+          "fr": "Explorez les clubs et programmes de quadball à travers le Canada."
+        },
+        "ctaText": {
+          "en": "View Teams",
+          "fr": "Voir les équipes"
+        },
+        "href": {
+          "en": "/teams/",
+          "fr": "/fr/equipes/"
+        },
+        "external": false
+      },
+      {
+        "_key": "whatisquadball",
+        "title": {
+          "en": "What is Quadball?",
+          "fr": "Qu'est-ce que le quadball?"
+        },
+        "body": {
+          "en": "Learn the basics and history of this dynamic, inclusive sport.",
+          "fr": "Apprenez les règles de base et l'histoire de ce sport dynamique et inclusif."
+        },
+        "ctaText": {
+          "en": "Discover the Sport",
+          "fr": "Découvrir le sport"
+        },
+        "href": {
+          "en": "/info/what-is-quadball/",
+          "fr": "/fr/info/quest-ce-que-le-quadball/"
+        },
+        "external": false
+      }
+    ]
+  },
+  {
+    "_type": "landingSection",
+    "_id": "landingSection-events",
+    "key": "events",
+    "title": {
+      "en": "Events",
+      "fr": "Événements"
+    },
+    "intro": {
+      "en": "Find upcoming quadball tournaments, camps, and events across Canada.",
+      "fr": "Découvrez les tournois, camps et événements de quadball à venir partout au Canada."
+    },
+    "showContent": true,
+    "cards": [
+      {
+        "_key": "hostEvent",
+        "title": {
+          "en": "Host an Event",
+          "fr": "Organiser un événement"
+        },
+        "body": {
+          "en": "Bring quadball to your community with our support and resources.",
+          "fr": "Apportez le quadball dans votre communauté avec notre soutien et nos ressources."
+        },
+        "ctaText": {
+          "en": "Event Hosting Guide",
+          "fr": "Guide d'organisation"
+        },
+        "href": {
+          "en": "/get-involved/host-an-event/",
+          "fr": "/fr/simpliquer/organiser-un-evenement/"
+        },
+        "external": false
+      }
+    ]
+  },
+  {
+    "_type": "landingSection",
+    "_id": "landingSection-resources",
+    "key": "resources",
+    "title": {
+      "en": "Resources",
+      "fr": "Ressources"
+    },
+    "intro": {
+      "en": "Find guides, tools, and information to support your quadball journey.",
+      "fr": "Trouvez des guides, outils et informations pour soutenir votre parcours dans le quadball."
+    },
+    "showContent": true,
+    "cards": [
+      {
+        "_key": "policies",
+        "title": {
+          "en": "Policies",
+          "fr": "Politiques"
+        },
+        "body": {
+          "en": "Review official policies and guidelines from Quadball Canada.",
+          "fr": "Consultez les politiques officielles et les lignes directrices de Quadball Canada."
+        },
+        "ctaText": {
+          "en": "Read Policies",
+          "fr": "Lire les politiques"
+        },
+        "href": {
+          "en": "/resources/policies/",
+          "fr": "/fr/ressources/politiques/"
+        },
+        "external": false
+      },
+      {
+        "_key": "startingTeam",
+        "title": {
+          "en": "Starting a Team",
+          "fr": "Démarrer une équipe"
+        },
+        "body": {
+          "en": "Step-by-step guide to creating and launching your own quadball team.",
+          "fr": "Guide étape par étape pour créer et lancer votre propre équipe de quadball."
+        },
+        "ctaText": {
+          "en": "Startup Guide",
+          "fr": "Guide de démarrage"
+        },
+        "href": {
+          "en": "/resources/starting-a-team/",
+          "fr": "/fr/ressources/demarrer-une-equipe/"
+        },
+        "external": false
+      },
+      {
+        "_key": "drillBank",
+        "title": {
+          "en": "Drill Bank",
+          "fr": "Banque d'exercices"
+        },
+        "body": {
+          "en": "Access a collection of drills and practice plans to improve your skills.",
+          "fr": "Accédez à une collection d'exercices et de plans d'entraînement pour améliorer vos compétences."
+        },
+        "ctaText": {
+          "en": "Visit QDrill",
+          "fr": "Visiter QDrill"
+        },
+        "href": {
+          "en": "https://www.qdrill.app",
+          "fr": "https://www.qdrill.app"
+        },
+        "external": true
+      },
+      {
+        "_key": "tournament",
+        "title": {
+          "en": "Planning a Tournament",
+          "fr": "Planifier un tournoi"
+        },
+        "body": {
+          "en": "Resources and templates for organizing successful quadball tournaments.",
+          "fr": "Ressources et modèles pour organiser des tournois de quadball réussis."
+        },
+        "ctaText": {
+          "en": "Planning Guide",
+          "fr": "Guide de planification"
+        },
+        "href": {
+          "en": "/resources/planning-a-tournament/",
+          "fr": "/fr/ressources/planifier-un-tournoi/"
+        },
+        "external": false
+      }
+    ]
+  },
+  {
+    "_type": "landingSection",
+    "_id": "landingSection-getInvolved",
+    "key": "getInvolved",
+    "title": {
+      "en": "Get Involved",
+      "fr": "S'impliquer"
+    },
+    "intro": {
+      "en": "Join the growing quadball community in Canada. Whether you want to play, volunteer, or host programming, there is a pathway ready for you.",
+      "fr": "Rejoignez la communauté de quadball au Canada. Que vous souhaitiez jouer, bénévoler, ou organiser des activités, un parcours est prêt pour vous."
+    },
+    "showContent": false,
+    "cards": [
+      {
+        "_key": "findTeam",
+        "title": {
+          "en": "Find a Team",
+          "fr": "Trouver une équipe"
+        },
+        "body": {
+          "en": "Discover quadball clubs across the country and connect with players in your region.",
+          "fr": "Découvrez les clubs de quadball partout au pays et connectez-vous avec des passionné.e.s."
+        },
+        "ctaText": {
+          "en": "Browse Teams",
+          "fr": "Parcourir les équipes"
+        },
+        "href": {
+          "en": "/teams/",
+          "fr": "/fr/equipes/"
+        },
+        "external": false
+      },
+      {
+        "_key": "volunteer",
+        "title": {
+          "en": "Volunteer",
+          "fr": "Bénévolat"
+        },
+        "body": {
+          "en": "Support local leagues and national initiatives by lending your skills at events or behind the scenes.",
+          "fr": "Soutenez les ligues locales et les initiatives nationales en offrant vos compétences sur le terrain ou en coulisse."
+        },
+        "ctaText": {
+          "en": "Volunteer Opportunities",
+          "fr": "Voir les occasions"
+        },
+        "href": {
+          "en": "/volunteer-opportunities/",
+          "fr": "/fr/benevolat/"
+        },
+        "external": false
+      },
+      {
+        "_key": "teamCanada",
+        "title": {
+          "en": "Team Canada",
+          "fr": "Équipe Canada"
+        },
+        "body": {
+          "en": "Represent Canada on the international stage. Learn about opportunities and selection processes.",
+          "fr": "Représentez le Canada sur la scène internationale. Découvrez les opportunités et les sélections."
+        },
+        "ctaText": {
+          "en": "Learn More",
+          "fr": "En savoir plus"
+        },
+        "href": {
+          "en": "/teams/national-team/",
+          "fr": "/fr/equipes/equipe-nationale/"
+        },
+        "external": false
+      },
+      {
+        "_key": "hostEvent",
+        "title": {
+          "en": "Host an Event",
+          "fr": "Organiser un événement"
+        },
+        "body": {
+          "en": "Bring quadball to your community with our sanctioning, planning, and promotional support.",
+          "fr": "Accueillez le quadball dans votre communauté avec notre soutien en planification et promotion."
+        },
+        "ctaText": {
+          "en": "Event Hosting Guide",
+          "fr": "Guide d'organisation"
+        },
+        "href": {
+          "en": "/get-involved/host-an-event/",
+          "fr": "/fr/simpliquer/organiser-un-evenement/"
+        },
+        "external": false
+      }
+    ]
+  }
+]

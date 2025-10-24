@@ -1,0 +1,58 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+
+const alternate = {
+  en: "/resources/planning-a-tournament/",
+  fr: "/fr/ressources/planifier-un-tournoi/",
+};
+---
+
+<Layout title="Planifier un tournoi — Quadball Canada" alternate={alternate} locale="fr">
+  <section style="padding: 3rem 0;">
+    <h1>Planifier un tournoi</h1>
+    <p>Prêt à organiser un tournoi de quadball ? Nous avons compilé des ressources pour vous aider à organiser un événement réussi.</p>
+
+    <div style="padding: 2rem; background: var(--bg-secondary); border-radius: 8px; margin: 2rem 0;">
+      <h2>Ressources de planification de tournoi</h2>
+      <p>Notre guide complet de planification de tournoi est disponible sous forme de document Google que vous pouvez copier et personnaliser pour votre événement.</p>
+
+      <p><strong>Bientôt disponible :</strong> Nous finalisons notre guide de planification de tournoi. Revenez bientôt ou <a href="/fr/contact/">contactez-nous</a> pour un accès anticipé.</p>
+
+      <!-- Quand vous avez l'URL du Google Doc, remplacez ce qui précède par:
+      <p>
+        <a class="btn" href="YOUR_GOOGLE_DOC_URL" target="_blank" rel="noopener noreferrer">
+          Accéder au guide de planification →
+        </a>
+      </p>
+      -->
+    </div>
+
+    <h2>Considérations clés</h2>
+    <ul>
+      <li>Sélection du lieu et disposition des terrains</li>
+      <li>Liste de contrôle de l'équipement et des fournitures</li>
+      <li>Format du tournoi et planification</li>
+      <li>Coordination des arbitres et des bénévoles</li>
+      <li>Inscription et communications avec les équipes</li>
+      <li>Protocoles de sécurité et planification des premiers soins</li>
+    </ul>
+
+    <h2>Sanctionnement</h2>
+    <p>Pour le sanctionnement officiel de votre tournoi par Quadball Canada, veuillez consulter notre <a href="/fr/simpliquer/organiser-un-evenement/">guide d'organisation d'événement</a> et soumettre votre demande au moins 60 jours avant la date de votre événement.</p>
+  </section>
+</Layout>
+
+<style>
+  .btn {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    background: var(--brand-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .btn:hover {
+    background: var(--brand-ink);
+  }
+</style>

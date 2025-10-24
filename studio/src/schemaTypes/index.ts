@@ -30,6 +30,7 @@ import teamsPage from './documents/teamsPage'
 import nationalTeamPage from './documents/nationalTeamPage'
 import pageSettings from './documents/pageSettings'
 import policy from './documents/policy'
+import landingSection from './documents/landingSection'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -53,6 +54,7 @@ export const schemaTypes = [
   siteSettings,
   pageSettings,
   policy,
+  landingSection,
   ctaBlock,
   formEmbed,
   teamLevelSection,
