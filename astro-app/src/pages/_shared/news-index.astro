@@ -1,0 +1,44 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import NewsCard from "@/components/content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "@/utils/sanity";
+import { resolveLocale } from "@/i18n";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  locale?: Locale;
+}
+
+const props = Astro.props as Props;
+const locale = props.locale ?? resolveLocale(Astro);
+const articles = await getNewsArticles(locale);
+const title = t(locale, "news.title");
+const emptyState = t(locale, "news.empty");
+const alternate = {
+  en: "/news/",
+  fr: "/fr/nouvelles/",
+};
+---
+
+<Layout title={title} alternate={alternate} locale={locale}>
+  <section class="news-index">
+    {articles.length ? (
+      articles.map((article) => <NewsCard article={article} />)
+    ) : (
+      <p class="news-index__empty">{emptyState}</p>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .news-index {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+  }
+
+  .news-index__empty {
+    margin: 0;
+    color: var(--gray-600);
+  }
+</style>

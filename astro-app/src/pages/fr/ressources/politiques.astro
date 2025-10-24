@@ -1,0 +1,188 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PageHero from "../../../components/sections/PageHero.astro";
+import { getPoliciesByCategory, getPageSettings, type PolicyCategory } from "../../../utils/sanity";
+
+const locale = "fr";
+const policiesByCategory = await getPoliciesByCategory(locale);
+const pageSettings = await getPageSettings();
+
+// Category display names in French
+const categoryNames: Record<PolicyCategory, string> = {
+  'rules': 'Règlements',
+  'general': 'Politiques générales',
+  'events': 'Politiques d\'événements',
+  'gameplay': 'Politiques de jeu',
+  'team-canada': 'Équipe Canada',
+};
+
+// Category order for display
+const categoryOrder: PolicyCategory[] = ['rules', 'general', 'events', 'gameplay', 'team-canada'];
+---
+
+<Layout
+  title="Politiques - Quadball Canada"
+  alternate={{ en: "/resources/policies/", fr: "/fr/ressources/politiques/" }}
+  locale="fr"
+>
+  <PageHero
+    title="Politiques"
+    subtitle="Politiques et documents officiels régissant les opérations, les événements et le jeu de Quadball Canada."
+    image={pageSettings?.defaultHeroImage}
+  />
+
+  <section class="policies">
+    <div class="policies-container">
+      {categoryOrder.map((category) => {
+        const policies = policiesByCategory[category];
+        if (policies.length === 0) return null;
+
+        return (
+          <div class="policy-category">
+            <h2 class="category-heading">{categoryNames[category]}</h2>
+            <ul class="policy-list">
+              {policies.map((policy) => (
+                <li class="policy-item">
+                  <a
+                    href={policy.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="policy-link"
+                  >
+                    {policy.title}
+                    <svg class="external-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.5 1.5L1.5 10.5M10.5 1.5V7.5M10.5 1.5H4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                  {policy.description && (
+                    <p class="policy-description">{policy.description}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+
+      {Object.values(policiesByCategory).every(policies => policies.length === 0) && (
+        <div class="empty-state">
+          <p>Aucune politique n'a encore été publiée. Veuillez revenir bientôt.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .policies {
+    padding: 3rem 0 4rem;
+  }
+
+  .policies-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 40px);
+  }
+
+  .policy-category {
+    margin-bottom: 3rem;
+  }
+
+  .category-heading {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-6);
+    font-weight: 700;
+    color: var(--brand-ink);
+    margin: 0 0 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .policy-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .policy-item {
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .policy-item:last-child {
+    border-bottom: none;
+  }
+
+  .policy-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-4);
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .policy-link:hover {
+    color: var(--brand-ink);
+    text-decoration: underline;
+  }
+
+  .external-icon {
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .policy-link:hover .external-icon {
+    opacity: 1;
+  }
+
+  .policy-description {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-family-serif);
+    font-size: var(--font-size-3);
+    line-height: var(--line-height-2);
+    color: var(--gray-700);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+  }
+
+  .empty-state p {
+    font-family: var(--font-family-serif);
+    font-size: var(--font-size-4);
+    color: var(--gray-600);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .policies {
+      padding: 2rem 0 3rem;
+    }
+
+    .policy-category {
+      margin-bottom: 2rem;
+    }
+
+    .category-heading {
+      font-size: var(--font-size-5);
+      margin-bottom: 1rem;
+    }
+
+    .policy-link {
+      font-size: var(--font-size-3);
+    }
+
+    .policy-description {
+      font-size: var(--font-size-2);
+    }
+  }
+</style>

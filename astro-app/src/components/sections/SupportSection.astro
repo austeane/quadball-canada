@@ -1,5 +1,10 @@
 ---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
 interface Props {
+  locale?: Locale;
   title?: string;
   description?: string;
   primaryCtaLabel?: string;
@@ -8,14 +13,15 @@ interface Props {
   secondaryCtaHref?: string;
 }
 
-const {
-  title = "Support Quadball Canada",
-  description = "Your donation helps grow quadball nationwide and supports inclusive programs.",
-  primaryCtaLabel = "Donate",
-  primaryCtaHref = "https://www.paypal.me/quidditchcanada",
-  secondaryCtaLabel = "Sponsorship",
-  secondaryCtaHref = "/support/",
-} = Astro.props as Props;
+const props = Astro.props as Props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+
+const title = props.title ?? t(locale, "support.title");
+const description = props.description ?? t(locale, "support.description");
+const primaryCtaLabel = props.primaryCtaLabel ?? t(locale, "support.primaryCta");
+const primaryCtaHref = props.primaryCtaHref ?? "https://www.paypal.me/quidditchcanada";
+const secondaryCtaLabel = props.secondaryCtaLabel ?? t(locale, "support.secondaryCta");
+const secondaryCtaHref = props.secondaryCtaHref ?? "/support/";
 ---
 <section class="support">
   <h2>{title}</h2>

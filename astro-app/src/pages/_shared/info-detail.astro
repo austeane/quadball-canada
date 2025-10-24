@@ -1,0 +1,57 @@
+---
+import { PortableText } from "astro-portabletext";
+import Layout from "@/layouts/Layout.astro";
+import { getInfoArticle } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props as Props;
+const article = await getInfoArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Information article not found: ${slug} (${locale})`);
+}
+
+const alternate = {
+  en: article.slugEn ? `/info/${article.slugEn}/` : undefined,
+  fr: article.slugFr ? `/fr/info/${article.slugFr}/` : undefined,
+};
+
+const metaTitle = article.seo?.metaTitle ?? article.title;
+const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quadball Canada informational article.";
+---
+
+<Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
+  <section class="info-article">
+    <h1>{article.title}</h1>
+    {article.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
+    <PortableText value={article.content} />
+  </section>
+</Layout>
+
+<style>
+  .info-article {
+    padding: 48px 0;
+    display: grid;
+    gap: 24px;
+  }
+
+  .info-article__excerpt {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--gray-600);
+  }
+
+  .info-article :global(h2) {
+    margin-top: 2rem;
+  }
+
+  .info-article :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+</style>

@@ -1,0 +1,145 @@
+[
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Code of Conduct",
+      "fr": "Code de conduite"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/1-code-of-conduct/edit",
+    "order": 10,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Misconduct Policy",
+      "fr": "Politique sur l'inconduite"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/2-misconduct-policy/edit",
+    "order": 20,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Appeal Policy",
+      "fr": "Politique d'appel"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/3-appeal-policy/edit",
+    "order": 30,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Gender Equity Policy",
+      "fr": "Politique d'équité des genres"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/4-gender-equity/edit",
+    "order": 40,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Privacy Policy",
+      "fr": "Politique de confidentialité"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/5-privacy-policy/edit",
+    "order": 50,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Membership Policy",
+      "fr": "Politique d'adhésion"
+    },
+    "category": "general",
+    "url": "https://docs.google.com/document/d/6-membership-policy/edit",
+    "order": 60,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Major Events Eligibility Policy",
+      "fr": "Politique d'admissibilité aux événements majeurs"
+    },
+    "category": "events",
+    "url": "https://docs.google.com/document/d/7-major-events/edit",
+    "order": 10,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Official Tournament Procedures",
+      "fr": "Procédures de tournoi officielles"
+    },
+    "category": "events",
+    "url": "https://docs.google.com/document/d/8-tournament-procedures/edit",
+    "order": 20,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Official Games Policy",
+      "fr": "Politique des matchs officiels"
+    },
+    "category": "gameplay",
+    "url": "https://docs.google.com/document/d/9-official-games/edit",
+    "order": 10,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Transfer Policy",
+      "fr": "Politique de transfert"
+    },
+    "category": "gameplay",
+    "url": "https://docs.google.com/document/d/10-transfer-policy/edit",
+    "order": 20,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Officials Certification Policy",
+      "fr": "Politique de certification des officiels"
+    },
+    "category": "gameplay",
+    "url": "https://docs.google.com/document/d/11-officials-cert/edit",
+    "order": 30,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "Match Protest Policy",
+      "fr": "Politique de protestation de match"
+    },
+    "category": "gameplay",
+    "url": "https://docs.google.com/document/d/12-match-protest/edit",
+    "order": 40,
+    "isActive": true
+  },
+  {
+    "_type": "policy",
+    "title": {
+      "en": "National Team Player Selection Policy",
+      "fr": "Politique de sélection des joueurs de l'équipe nationale"
+    },
+    "category": "team-canada",
+    "url": "https://docs.google.com/document/d/13-national-team-selection/edit",
+    "order": 10,
+    "isActive": true
+  }
+]

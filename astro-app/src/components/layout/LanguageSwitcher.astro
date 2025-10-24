@@ -1,53 +1,32 @@
 ---
 import type { Locale } from "../../utils/localization";
+import { inferLocaleFromPath, switchLocalePath } from "../../i18n";
+import { t } from "../../i18n/ui";
 
 interface Props {
   currentPath: string;
-  alternate?: { en: string; fr: string };
+  alternate?: Partial<Record<Locale, string>>;
 }
 
-const { currentPath, alternate } = Astro.props as Props;
+const props = Astro.props as Props;
+const currentPath = props.currentPath ?? Astro.url.pathname ?? "/";
+const alternate = props.alternate;
+const locale: Locale = inferLocaleFromPath(currentPath);
+const isFr = locale === "fr";
 
-const staticMappings: Array<{ en: string; fr: string }> = [
-  { en: "/", fr: "/fr/" },
-  { en: "/about/", fr: "/fr/a-propos/" },
-  { en: "/contact/", fr: "/fr/contact/" },
-  { en: "/events/", fr: "/fr/evenements/" },
-  { en: "/get-involved/", fr: "/fr/simpliquer/" },
-  { en: "/teams/", fr: "/fr/equipes/" },
-  { en: "/news/", fr: "/fr/nouvelles/" },
-];
-
-const normalize = (path: string) => (path.endsWith("/") ? path : `${path}/`);
-
-const normalizedPath = normalize(currentPath || "/");
-const isFr = normalizedPath.startsWith("/fr/");
-
-function mapStatic(target: Locale) {
-  if (target === "fr") {
-    const match = staticMappings.find((entry) => normalize(entry.en) === normalizedPath);
-    return match?.fr;
+function mapTo(target: Locale) {
+  try {
+    return switchLocalePath(currentPath, target, alternate);
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn(`[i18n] Failed to resolve alternate path for ${target} from ${currentPath}`, error);
+    }
+    return target === "fr" ? "/fr/" : "/";
   }
-  const match = staticMappings.find((entry) => normalize(entry.fr) === normalizedPath);
-  return match?.en;
-}
-
-function mapTo(locale: Locale) {
-  if (alternate && alternate[locale]) {
-    return alternate[locale];
-  }
-
-  if (locale === "fr") {
-    if (isFr) return normalizedPath;
-    return mapStatic("fr") ?? "/fr/";
-  }
-
-  if (!isFr) return normalizedPath;
-  return mapStatic("en") ?? "/";
 }
 ---
 
-<nav class="lang-switcher" aria-label="Language">
+<nav class="lang-switcher" aria-label={t(locale, "layout.languageLabel")}>
   <a class="lang" data-language-switch="en" href={mapTo('en')} aria-current={!isFr ? 'true' : undefined}>EN</a>
   <span class="sep">/</span>
   <a class="lang" data-language-switch="fr" href={mapTo('fr')} aria-current={isFr ? 'true' : undefined}>FR</a>

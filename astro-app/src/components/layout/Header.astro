@@ -1,24 +1,26 @@
 ---
 import LanguageSwitcher from "./LanguageSwitcher.astro";
 import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t, type TranslationKey } from "../../i18n/ui";
 
 interface Props {
   currentPath: string;
-  alternate?: { en: string; fr: string };
+  alternate?: Partial<Record<Locale, string>>;
   locale?: Locale;
 }
 
 const props = Astro.props as Props;
 const currentPath = props.currentPath ?? Astro.url.pathname;
 const alternate = props.alternate;
-const locale: Locale = props.locale ?? (currentPath.startsWith("/fr/") ? "fr" : "en");
+const locale: Locale = resolveLocale(Astro, props.locale);
 const isFr = locale === "fr";
 
 type NavConfig = {
-  label: Record<Locale, string>;
+  labelKey: TranslationKey;
   href: Record<Locale, string>;
   dropdown?: Array<{
-    label: Record<Locale, string>;
+    labelKey: TranslationKey;
     href: Record<Locale, string>;
     external?: boolean;
   }>;
@@ -27,71 +29,81 @@ type NavConfig = {
 
 const navConfig: NavConfig[] = [
   {
-    label: { en: "Announcements", fr: "Communiques" },
+    labelKey: "nav.announcements",
     href: { en: "/news/", fr: "/fr/nouvelles/" },
   },
   {
-    label: { en: "About Us", fr: "A propos" },
+    labelKey: "nav.about",
     href: { en: "/about/", fr: "/fr/a-propos/" },
     dropdown: [
       {
-        label: { en: "Mission & Values", fr: "Mission et valeurs" },
+        labelKey: "nav.about.missionValues",
         href: { en: "/about/mission-and-values/", fr: "/fr/a-propos/mission-et-valeurs/" },
       },
       {
-        label: { en: "Meet the Board", fr: "Conseil d'administration" },
+        labelKey: "nav.about.board",
         href: { en: "/about/meet-the-board/", fr: "/fr/a-propos/conseil/" },
       },
       {
-        label: { en: "Meet the Staff", fr: "Equipe" },
+        labelKey: "nav.about.staff",
         href: { en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" },
       },
       {
-        label: { en: "Our Teams", fr: "Nos equipes" },
+        labelKey: "nav.about.teams",
         href: { en: "/teams/", fr: "/fr/equipes/" },
       },
       {
-        label: { en: "What is Quadball?", fr: "Qu'est-ce que le quadball?" },
+        labelKey: "nav.about.whatIsQuadball",
         href: { en: "/info/what-is-quadball/", fr: "/fr/info/quest-ce-que-le-quadball/" },
       },
     ],
   },
   {
-    label: { en: "Resources", fr: "Ressources" },
+    labelKey: "nav.resources",
     href: { en: "/resources/", fr: "/fr/ressources/" },
+    dropdown: [
+      {
+        labelKey: "nav.resources.all",
+        href: { en: "/resources/", fr: "/fr/ressources/" },
+      },
+      {
+        labelKey: "nav.resources.policies",
+        href: { en: "/resources/policies/", fr: "/fr/ressources/politiques/" },
+      },
+    ],
   },
   {
-    label: { en: "Events", fr: "Evenements" },
+    labelKey: "nav.events",
     href: { en: "/events/", fr: "/fr/evenements/" },
     dropdown: [
       {
-        label: { en: "Upcoming Events", fr: "Evenements a venir" },
+        labelKey: "nav.events.upcoming",
         href: { en: "/events/", fr: "/fr/evenements/" },
       },
       {
-        label: { en: "Host an Event", fr: "Organiser un evenement" },
+        labelKey: "nav.events.host",
         href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },
       },
     ],
   },
   {
-    label: { en: "Get Involved", fr: "S'impliquer" },
+    labelKey: "nav.getInvolved",
     href: { en: "/get-involved/", fr: "/fr/simpliquer/" },
     dropdown: [
       {
-        label: { en: "Find a Team", fr: "Trouver une equipe" },
+        labelKey: "nav.getInvolved.findTeam",
         href: { en: "/teams/", fr: "/fr/equipes/" },
       },
       {
-        label: { en: "Volunteer Opportunities", fr: "Benevolat" },
+        labelKey: "nav.getInvolved.volunteer",
         href: { en: "/volunteer-opportunities/", fr: "/fr/benevolat/" },
       },
       {
-        label: { en: "Host an Event", fr: "Organiser un evenement" },
+        labelKey: "nav.getInvolved.host",
         href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },
       },
       {
-        label: { en: "Team Canada", fr: "Equipe Canada" },
+        labelKey: "nav.getInvolved.teamCanada",
         href: { en: "/teams/national-team/", fr: "/fr/equipes/equipe-nationale/" },
       },
     ],
@@ -99,11 +111,11 @@ const navConfig: NavConfig[] = [
 ];
 
 const navItems = navConfig.map((item) => ({
-  label: item.label[locale],
+  label: t(locale, item.labelKey),
   href: item.href[locale],
   external: item.external,
   dropdown: item.dropdown?.map((child) => ({
-    label: child.label[locale],
+    label: t(locale, child.labelKey),
     href: child.href[locale],
     external: child.external,
   })),
@@ -121,9 +133,9 @@ function isActive(href: string) {
 }
 
 const ctaCopy = {
-  contact: isFr ? "Nous joindre" : "Contact",
-  store: isFr ? "Boutique" : "Store",
-  donate: isFr ? "Faire un don" : "Donate",
+  contact: t(locale, "cta.contact"),
+  store: t(locale, "cta.store"),
+  donate: t(locale, "cta.donate"),
 };
 
 const ctaLinks = {

@@ -1,38 +1,25 @@
 ---
 import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
 
 const props = Astro.props as { locale?: Locale } | undefined;
-const locale: Locale = props?.locale ?? (Astro.url.pathname.startsWith("/fr/") ? "fr" : "en");
+const locale: Locale = resolveLocale(Astro, props?.locale);
 
-const copy = locale === "fr"
-  ? {
-      getInvolved: "S'impliquer",
-      findTeam: "Trouver une equipe",
-      hostEvent: "Organiser un evenement",
-      teamCanada: "Equipe Canada",
-      volunteer: "Benevolat",
-      explore: "Explorer",
-      about: "A propos",
-      news: "Nouvelles",
-      events: "Evenements",
-      rules: "Regles",
-      followUs: "Nous suivre",
-      contactUs: "Nous joindre",
-    }
-  : {
-      getInvolved: "Get Involved",
-      findTeam: "Find a Team",
-      hostEvent: "Host an Event",
-      teamCanada: "Team Canada",
-      volunteer: "Volunteer",
-      explore: "Explore",
-      about: "About",
-      news: "Latest News",
-      events: "Events",
-      rules: "Rules",
-      followUs: "Follow Us",
-      contactUs: "Contact Us",
-    };
+const copy = {
+  getInvolved: t(locale, "footer.getInvolved"),
+  findTeam: t(locale, "footer.findTeam"),
+  hostEvent: t(locale, "footer.hostEvent"),
+  teamCanada: t(locale, "footer.teamCanada"),
+  volunteer: t(locale, "footer.volunteer"),
+  explore: t(locale, "footer.explore"),
+  about: t(locale, "footer.about"),
+  news: t(locale, "footer.news"),
+  events: t(locale, "footer.events"),
+  rules: t(locale, "footer.rules"),
+  followUs: t(locale, "footer.followUs"),
+  contactUs: t(locale, "footer.contact"),
+};
 
 const routes = {
   teams: locale === "fr" ? "/fr/equipes/" : "/teams/",

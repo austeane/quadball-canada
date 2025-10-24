@@ -1,21 +1,34 @@
 ---
 // Client-side routing (Astro 5)
-import { ClientRouter } from 'astro:transitions';
+import { ClientRouter } from "astro:transitions";
 import UtilityBar from "../components/layout/UtilityBar.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import type { Locale } from "../utils/localization";
+import { resolveLocale } from "../i18n";
+import { t } from "../i18n/ui";
+
+interface SeoProps {
+  title?: string;
+  description?: string;
+  image?: string;
+}
 
 interface Props {
   title: string;
-  alternate?: { en: string; fr: string };
+  description?: string;
+  alternate?: Partial<Record<Locale, string>>;
   locale?: Locale;
+  seo?: SeoProps;
 }
 
 const props = Astro.props as Props;
-const localeFromPath: Locale = Astro.url.pathname.startsWith("/fr/") ? "fr" : "en";
-const locale: Locale = props.locale ?? localeFromPath;
-const { title, alternate } = props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+const metaTitle = props.seo?.title ?? props.title;
+const metaDescription =
+  props.seo?.description ?? props.description ?? t(locale, "seo.siteDescription");
+const metaImage = props.seo?.image ?? "/hero-cover.jpg";
+const { alternate } = props;
 ---
 
 <!DOCTYPE html>
@@ -54,28 +67,28 @@ const { title, alternate } = props;
     />
 
     <slot name="head" />
-    <title>{title}</title>
-    <meta name="description" content="Quadball Canada — official site. Building community through sport across Canada." />
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Quadball Canada" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content="Quadball Canada — official site. Building community through sport across Canada." />
-    <meta property="og:image" content="/hero-cover.jpg" />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={metaImage} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content="Quadball Canada — official site. Building community through sport across Canada." />
-    <meta name="twitter:image" content="/hero-cover.jpg" />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={metaImage} />
     {alternate && (
       <>
-        <link rel="alternate" hreflang="en" href={alternate.en} />
-        <link rel="alternate" hreflang="fr" href={alternate.fr} />
-        <link rel="alternate" hreflang="x-default" href={alternate.en} />
+        {alternate.en && <link rel="alternate" hreflang="en" href={alternate.en} />}
+        {alternate.fr && <link rel="alternate" hreflang="fr" href={alternate.fr} />}
+        {alternate.en && <link rel="alternate" hreflang="x-default" href={alternate.en} />}
       </>
     )}
     <ClientRouter />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">{t(locale, "layout.skipLink")}</a>
     <div class="site-chrome">
       <UtilityBar locale={locale} />
       <Header currentPath={Astro.url.pathname} alternate={alternate} locale={locale} />

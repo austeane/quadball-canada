@@ -1,0 +1,187 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const isFr = locale === "fr";
+
+const content = isFr
+  ? {
+      layoutTitle: "S'impliquer — Quadball Canada",
+      heading: "S'impliquer",
+      intro:
+        "Rejoignez la communaute de quadball au Canada. Que vous souhaitiez jouer, benevoler, arbitrer ou organiser des activites, un parcours est pret pour vous.",
+      cards: [
+        {
+          title: "Trouver une equipe",
+          body: "Decouvrez les clubs de quadball partout au pays et connectez-vous avec des passionne.e.s.",
+          href: "/fr/equipes/",
+          cta: "Parcourir les equipes",
+        },
+        {
+          title: "Benevolat",
+          body:
+            "Soutenez les ligues locales et les initiatives nationales en offrant vos competences sur le terrain ou en coulisse.",
+          href: "/fr/benevolat/",
+          cta: "Voir les occasions",
+        },
+        {
+          title: "Arbitrage",
+          body: "Les officiel.le.s assurent un jeu equitable. Informez-vous sur les formations et la certification.",
+          href: "/fr/contact/",
+          cta: "En savoir plus",
+        },
+        {
+          title: "Organiser un evenement",
+          body: "Accueillez le quadball dans votre communaute avec notre soutien en planification et promotion.",
+          href: "/fr/simpliquer/organiser-un-evenement/",
+          cta: "Guide d'organisation",
+        },
+      ],
+      panel: {
+        heading: "Trouvez votre niveau",
+        body:
+          "Parcourez le repertoire des equipes pour explorer les programmes jeunesse, recreatifs, competitifs et de l'equipe nationale.",
+        ctaLabel: "Explorer les equipes",
+        ctaHref: "/fr/equipes/",
+      },
+    }
+  : {
+      layoutTitle: "Get Involved — Quadball Canada",
+      heading: "Get Involved",
+      intro:
+        "Join the growing quadball community in Canada. Whether you want to play, volunteer, officiate, or host programming, there is a pathway ready for you.",
+      cards: [
+        {
+          title: "Find a Team",
+          body:
+            "Discover quadball clubs across the country and connect with players in your region.",
+          href: "/teams/",
+          cta: "Browse Teams",
+        },
+        {
+          title: "Volunteer",
+          body:
+            "Support local leagues and national initiatives by lending your skills at events or behind the scenes.",
+          href: "/volunteer-opportunities/",
+          cta: "Volunteer Opportunities",
+        },
+        {
+          title: "Officiate",
+          body:
+            "Referees and scorekeepers keep the game safe and fair. Explore training and certification pathways.",
+          href: "/contact/",
+          cta: "Learn About Training",
+        },
+        {
+          title: "Host an Event",
+          body:
+            "Bring quadball to your community with our sanctioning, planning, and promotional support.",
+          href: "/get-involved/host-an-event/",
+          cta: "Event Hosting Guide",
+        },
+      ],
+      panel: {
+        heading: "Find Your Level",
+        body:
+          "Use the Teams directory to explore youth, recreational, competitive, and national team programs across Canada.",
+        ctaLabel: "Explore Teams",
+        ctaHref: "/teams/",
+      },
+    };
+
+const alternate = {
+  en: "/get-involved/",
+  fr: "/fr/simpliquer/",
+};
+---
+
+<Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+  <section class="section">
+    <header class="intro">
+      <h1>{content.heading}</h1>
+      <p>{content.intro}</p>
+    </header>
+
+    <div class="grid">
+      {content.cards.map((card) => (
+        <article>
+          <h2>{card.title}</h2>
+          <p>{card.body}</p>
+          <a class="btn" href={card.href}>{card.cta}</a>
+        </article>
+      ))}
+    </div>
+
+    <section class="panel">
+      <h2>{content.panel.heading}</h2>
+      <p>{content.panel.body}</p>
+      <a class="btn-secondary" href={content.panel.ctaHref}>{content.panel.ctaLabel}</a>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .intro {
+    max-width: 720px;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  article {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .panel {
+    padding: 2.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    text-align: center;
+  }
+  .panel p {
+    margin: 0 auto 1.25rem;
+    max-width: 48ch;
+  }
+  .btn,
+  .btn-secondary {
+    display: inline-block;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.8rem 1.6rem;
+    text-decoration: none;
+  }
+  .btn {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  .btn:hover { background: var(--brand-ink); }
+  .btn-secondary {
+    background: #fff;
+    border: 1px solid var(--brand-primary);
+    color: var(--brand-primary);
+  }
+  .btn-secondary:hover {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

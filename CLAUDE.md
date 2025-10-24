@@ -170,6 +170,12 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 
 - Update `MIGRATION_PLAN.md` and `CHECKLIST.md` when changing structure, naming, or workflows.
 
+## Recent Updates (2025-XX-XX)
+
+- Added `@/` path alias via `tsconfig.json` (maps to `astro-app/src`). Prefer this over long relative imports.
+- Introduced `src/i18n/` with `resolveLocale`, `switchLocalePath`, and `t(locale, key)` helpers plus a UI copy dictionary.
+- Extracted mixed-language page templates into `astro-app/src/pages/_shared/` components; route files now pass a `locale` prop instead of duplicating markup.
+
 ## Recent Updates (2025-10-05)
 
 Visual polish applied to Astro app:

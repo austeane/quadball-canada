@@ -1,8 +1,10 @@
 ---
 import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
 
 const props = Astro.props as { locale?: Locale } | undefined;
-const locale: Locale = props?.locale ?? (Astro.url.pathname.startsWith("/fr/") ? "fr" : "en");
+const locale: Locale = resolveLocale(Astro, props?.locale);
 
 const socials = [
   {
@@ -51,7 +53,7 @@ const socials = [
         </li>
       ))}
       <li class="utility__search">
-        <a href="/search" aria-label={locale === "fr" ? "Recherche" : "Search"}>
+        <a href="/search" aria-label={t(locale, "utility.search")}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z" />
           </svg>

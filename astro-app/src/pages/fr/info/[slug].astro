@@ -1,62 +1,16 @@
 ---
 import type { InferGetStaticParamsType } from "astro";
-import Layout from "../../../layouts/Layout.astro";
-import { PortableText } from "astro-portabletext";
-import { getInfoArticles, getInfoArticle, type Locale } from "../../../utils/sanity";
+import type { Locale } from "../../../utils/localization";
+import Page from "../../_shared/info-detail.astro";
+import { buildInfoStaticPaths } from "@/lib/routes/info";
 
 export async function getStaticPaths() {
-  const locale: Locale = "fr";
-  const articles = await getInfoArticles(locale);
-  return articles.map((article) => ({ params: { slug: article.slug } }));
+  return buildInfoStaticPaths("fr");
 }
 
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 const { slug } = Astro.params as Params;
 const locale: Locale = "fr";
-const article = await getInfoArticle(slug, locale);
-
-if (!article) {
-  throw new Error(`Article d'information introuvable : ${slug}`);
-}
-
-const alternate = article.slugEn
-  ? {
-      en: `/info/${article.slugEn}/`,
-      fr: `/fr/info/${article.slug}/`,
-    }
-  : undefined;
-
-const description = article.seo?.metaDescription ?? article.excerpt ?? "Article d'information de Quadball Canada.";
 ---
 
-<Layout title={article.seo?.metaTitle ?? article.title} alternate={alternate} locale="fr">
-  <meta slot="head" name="description" content={description} />
-  <section class="info-article">
-    <h1>{article.title}</h1>
-    {article.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
-    <PortableText value={article.content} />
-  </section>
-</Layout>
-
-<style>
-  .info-article {
-    padding: 48px 0;
-    display: grid;
-    gap: 24px;
-  }
-
-  .info-article__excerpt {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: var(--gray-600);
-  }
-
-  .info-article :global(h2) {
-    margin-top: 2rem;
-  }
-
-  .info-article :global(img) {
-    max-width: 100%;
-    border-radius: 8px;
-  }
-</style>
+<Page locale={locale} slug={slug} />

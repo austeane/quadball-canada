@@ -1,18 +1,5 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import NewsCard from "../../../components/content/NewsCard.astro";
-import { getNewsArticles, type Locale } from "../../../utils/sanity";
-
-const locale: Locale = "fr";
-const articles = await getNewsArticles(locale);
+import Page from "../../_shared/news-index.astro";
 ---
 
-<Layout title="Nouvelles" alternate={{ en: "/news/", fr: "/fr/nouvelles/" }}>
-  <section>
-    {articles.length ? (
-      articles.map((article) => <NewsCard article={article} />)
-    ) : (
-      <p>Aucune nouvelle pour le moment.</p>
-    )}
-  </section>
-</Layout>
+<Page locale="fr" />

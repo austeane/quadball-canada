@@ -694,3 +694,47 @@ export async function getPageSettings(): Promise<PageSettings | null> {
     }`
   );
 }
+
+export type PolicyCategory = 'rules' | 'general' | 'events' | 'gameplay' | 'team-canada';
+
+export interface Policy {
+  _id: string;
+  title: string;
+  category: PolicyCategory;
+  url: string;
+  description?: string;
+  order: number;
+}
+
+export async function getPolicies(locale: Locale = "en"): Promise<Policy[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "policy" && isActive == true] | order(category asc, order asc, title.${locale} asc) {
+      _id,
+      "title": title.${locale},
+      category,
+      url,
+      "description": description.${locale},
+      order
+    }`
+  );
+}
+
+export async function getPoliciesByCategory(locale: Locale = "en"): Promise<Record<PolicyCategory, Policy[]>> {
+  const policies = await getPolicies(locale);
+
+  const grouped: Record<PolicyCategory, Policy[]> = {
+    'rules': [],
+    'general': [],
+    'events': [],
+    'gameplay': [],
+    'team-canada': [],
+  };
+
+  policies.forEach(policy => {
+    if (policy.category in grouped) {
+      grouped[policy.category].push(policy);
+    }
+  });
+
+  return grouped;
+}

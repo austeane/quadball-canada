@@ -1,0 +1,2726 @@
+================================================================
+Files
+================================================================
+
+================
+File: astro-app/src/i18n/config.ts
+================
+import type { Locale } from "../utils/localization";
+
+export const SUPPORTED_LOCALES = ["en", "fr"] as const;
+
+export const DEFAULT_LOCALE: Locale = "en";
+
+const FR_PREFIX = "/fr";
+
+function normalizePath(path: string): string {
+  if (!path) return "/";
+  if (!path.startsWith("/")) return `/${path}`;
+  return path.endsWith("/") ? path : `${path}/`;
+}
+
+export function inferLocaleFromPath(path: string | undefined | null): Locale {
+  if (!path) return DEFAULT_LOCALE;
+  const normalized = normalizePath(path);
+  return normalized === `${FR_PREFIX}/` || normalized.startsWith(`${FR_PREFIX}/`)
+    ? "fr"
+    : DEFAULT_LOCALE;
+}
+
+export function getAlternatePath(
+  currentPath: string,
+  targetLocale: Locale
+): string {
+  const normalized = normalizePath(currentPath);
+  const isFrench = normalized === `${FR_PREFIX}/` || normalized.startsWith(`${FR_PREFIX}/`);
+
+  if (targetLocale === "fr") {
+    if (isFrench) return normalized;
+    if (normalized === "/") return `${FR_PREFIX}/`;
+    return `${FR_PREFIX}${normalized}`.replace("//", "/");
+  }
+
+  if (!isFrench) return normalized;
+
+  const remainder = normalized.slice(FR_PREFIX.length);
+  return remainder === "" ? "/" : remainder;
+}
+
+export function ensureLeadingSlash(path: string): string {
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+export function ensureTrailingSlash(path: string): string {
+  if (!path) return "/";
+  return path.endsWith("/") ? path : `${path}/`;
+}
+
+================
+File: astro-app/src/i18n/index.ts
+================
+import type { AstroGlobal } from "astro";
+import type { Locale, LocalizedValue } from "../utils/localization";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+  ensureLeadingSlash,
+  ensureTrailingSlash,
+  getAlternatePath,
+  inferLocaleFromPath,
+} from "./config";
+
+export { DEFAULT_LOCALE, SUPPORTED_LOCALES, getAlternatePath, inferLocaleFromPath };
+
+export function resolveLocale(
+  astro: Pick<AstroGlobal, "props" | "url">,
+  explicit?: Locale
+): Locale {
+  if (explicit) return explicit;
+  const propLocale = (astro.props as { locale?: Locale } | undefined)?.locale;
+  if (propLocale && SUPPORTED_LOCALES.includes(propLocale)) {
+    return propLocale;
+  }
+  return inferLocaleFromPath(astro.url?.pathname);
+}
+
+export function localizedPath(
+  slugs: LocalizedValue<string> | undefined,
+  locale: Locale,
+  fallback: Locale = DEFAULT_LOCALE
+): string | undefined {
+  if (!slugs) return undefined;
+  const preferred = slugs[locale] ?? slugs[fallback];
+  if (!preferred) return undefined;
+  return ensureTrailingSlash(ensureLeadingSlash(preferred));
+}
+
+export function switchLocalePath(
+  currentPath: string,
+  targetLocale: Locale,
+  alternate?: Partial<Record<Locale, string>>
+): string {
+  if (alternate?.[targetLocale]) {
+    return ensureTrailingSlash(ensureLeadingSlash(alternate[targetLocale]!));
+  }
+  return getAlternatePath(currentPath, targetLocale);
+}
+
+================
+File: astro-app/src/i18n/ui.ts
+================
+import type { Locale } from "../utils/localization";
+import { DEFAULT_LOCALE } from "./config";
+
+const uiCopy = {
+  en: {
+    "seo.siteDescription": "Quadball Canada — official site. Building community through sport across Canada.",
+    "layout.skipLink": "Skip to content",
+    "layout.languageLabel": "Language",
+    "nav.announcements": "Announcements",
+    "nav.about": "About Us",
+    "nav.about.missionValues": "Mission & Values",
+    "nav.about.board": "Meet the Board",
+    "nav.about.staff": "Meet the Staff",
+    "nav.about.teams": "Our Teams",
+    "nav.about.whatIsQuadball": "What is Quadball?",
+    "nav.resources": "Resources",
+    "nav.resources.all": "All Resources",
+    "nav.resources.policies": "Policies",
+    "nav.events": "Events",
+    "nav.events.upcoming": "Upcoming Events",
+    "nav.events.host": "Host an Event",
+    "nav.getInvolved": "Get Involved",
+    "nav.getInvolved.findTeam": "Find a Team",
+    "nav.getInvolved.volunteer": "Volunteer Opportunities",
+    "nav.getInvolved.host": "Host an Event",
+    "nav.getInvolved.teamCanada": "Team Canada",
+    "cta.contact": "Contact",
+    "cta.store": "Store",
+    "cta.donate": "Donate",
+    "hero.title": "Quadball Canada",
+    "hero.subtitle": "Building community through sport across Canada.",
+    "hero.cta": "Get Involved",
+    "support.title": "Support Quadball Canada",
+    "support.description": "Your donation helps grow quadball nationwide and supports inclusive programs.",
+    "support.primaryCta": "Donate",
+    "support.secondaryCta": "Sponsorship",
+    "footer.getInvolved": "Get Involved",
+    "footer.findTeam": "Find a Team",
+    "footer.hostEvent": "Host an Event",
+    "footer.teamCanada": "Team Canada",
+    "footer.volunteer": "Volunteer",
+    "footer.explore": "Explore",
+    "footer.about": "About",
+    "footer.news": "Latest News",
+    "footer.events": "Events",
+    "footer.rules": "Rules",
+    "footer.followUs": "Follow Us",
+    "footer.contact": "Contact Us",
+    "utility.search": "Search",
+    "news.title": "News",
+    "news.empty": "No news yet.",
+  },
+  fr: {
+    "seo.siteDescription": "Quadball Canada — site officiel. Construire une communaute sportive partout au Canada.",
+    "layout.skipLink": "Aller au contenu",
+    "layout.languageLabel": "Langue",
+    "nav.announcements": "Communiques",
+    "nav.about": "A propos",
+    "nav.about.missionValues": "Mission et valeurs",
+    "nav.about.board": "Conseil d'administration",
+    "nav.about.staff": "Equipe",
+    "nav.about.teams": "Nos equipes",
+    "nav.about.whatIsQuadball": "Qu'est-ce que le quadball?",
+    "nav.resources": "Ressources",
+    "nav.resources.all": "Toutes les ressources",
+    "nav.resources.policies": "Politiques",
+    "nav.events": "Evenements",
+    "nav.events.upcoming": "Evenements a venir",
+    "nav.events.host": "Organiser un evenement",
+    "nav.getInvolved": "S'impliquer",
+    "nav.getInvolved.findTeam": "Trouver une equipe",
+    "nav.getInvolved.volunteer": "Benevolat",
+    "nav.getInvolved.host": "Organiser un evenement",
+    "nav.getInvolved.teamCanada": "Equipe Canada",
+    "cta.contact": "Nous joindre",
+    "cta.store": "Boutique",
+    "cta.donate": "Faire un don",
+    "hero.title": "Quadball Canada",
+    "hero.subtitle": "Une communaute sportive inclusive partout au Canada.",
+    "hero.cta": "S'impliquer",
+    "support.title": "Soutenir Quadball Canada",
+    "support.description": "Vos contributions aident a developper le quadball et a soutenir des programmes inclusifs.",
+    "support.primaryCta": "Faire un don",
+    "support.secondaryCta": "Commandites",
+    "footer.getInvolved": "S'impliquer",
+    "footer.findTeam": "Trouver une equipe",
+    "footer.hostEvent": "Organiser un evenement",
+    "footer.teamCanada": "Equipe Canada",
+    "footer.volunteer": "Benevolat",
+    "footer.explore": "Explorer",
+    "footer.about": "A propos",
+    "footer.news": "Nouvelles",
+    "footer.events": "Evenements",
+    "footer.rules": "Regles",
+    "footer.followUs": "Nous suivre",
+    "footer.contact": "Nous joindre",
+    "utility.search": "Recherche",
+    "news.title": "Nouvelles",
+    "news.empty": "Aucune nouvelle pour le moment.",
+  },
+} as const;
+
+type UiLocaleMap = typeof uiCopy;
+type UiKey = keyof UiLocaleMap["en"];
+
+export type TranslationKey = UiKey;
+
+export function t(locale: Locale, key: TranslationKey): string {
+  const localeMap = uiCopy[locale] ?? uiCopy[DEFAULT_LOCALE];
+  if (localeMap && key in localeMap) {
+    return localeMap[key as UiKey];
+  }
+
+  const fallbackMap = uiCopy[DEFAULT_LOCALE];
+  if (fallbackMap && key in fallbackMap) {
+    if (import.meta.env.DEV) {
+      console.warn(
+        `[i18n] Missing translation for key "${key}" in locale "${locale}". Falling back to ${DEFAULT_LOCALE}.`
+      );
+    }
+    return fallbackMap[key as UiKey];
+  }
+
+  if (import.meta.env.DEV) {
+    console.warn(`[i18n] Missing translation key "${key}".`);
+  }
+  return key;
+}
+
+================
+File: astro-app/src/lib/routes/info.ts
+================
+import type { Locale } from "../../utils/localization";
+import { getInfoArticles } from "../../utils/sanity";
+
+export async function buildInfoStaticPaths(locale: Locale) {
+  const articles = await getInfoArticles(locale);
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { locale, slug: article.slug },
+  }));
+}
+
+================
+File: astro-app/src/lib/routes/news.ts
+================
+import type { Locale } from "../../utils/localization";
+import { getNewsArticles } from "../../utils/sanity";
+
+export async function buildNewsStaticPaths(locale: Locale) {
+  const articles = await getNewsArticles(locale);
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { locale, slug: article.slug },
+  }));
+}
+
+================
+File: astro-app/src/pages/_shared/get-involved.astro
+================
+---
+import Layout from "@/layouts/Layout.astro";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const isFr = locale === "fr";
+
+const content = isFr
+  ? {
+      layoutTitle: "S'impliquer — Quadball Canada",
+      heading: "S'impliquer",
+      intro:
+        "Rejoignez la communaute de quadball au Canada. Que vous souhaitiez jouer, benevoler, arbitrer ou organiser des activites, un parcours est pret pour vous.",
+      cards: [
+        {
+          title: "Trouver une equipe",
+          body: "Decouvrez les clubs de quadball partout au pays et connectez-vous avec des passionne.e.s.",
+          href: "/fr/equipes/",
+          cta: "Parcourir les equipes",
+        },
+        {
+          title: "Benevolat",
+          body:
+            "Soutenez les ligues locales et les initiatives nationales en offrant vos competences sur le terrain ou en coulisse.",
+          href: "/fr/benevolat/",
+          cta: "Voir les occasions",
+        },
+        {
+          title: "Arbitrage",
+          body: "Les officiel.le.s assurent un jeu equitable. Informez-vous sur les formations et la certification.",
+          href: "/fr/contact/",
+          cta: "En savoir plus",
+        },
+        {
+          title: "Organiser un evenement",
+          body: "Accueillez le quadball dans votre communaute avec notre soutien en planification et promotion.",
+          href: "/fr/simpliquer/organiser-un-evenement/",
+          cta: "Guide d'organisation",
+        },
+      ],
+      panel: {
+        heading: "Trouvez votre niveau",
+        body:
+          "Parcourez le repertoire des equipes pour explorer les programmes jeunesse, recreatifs, competitifs et de l'equipe nationale.",
+        ctaLabel: "Explorer les equipes",
+        ctaHref: "/fr/equipes/",
+      },
+    }
+  : {
+      layoutTitle: "Get Involved — Quadball Canada",
+      heading: "Get Involved",
+      intro:
+        "Join the growing quadball community in Canada. Whether you want to play, volunteer, officiate, or host programming, there is a pathway ready for you.",
+      cards: [
+        {
+          title: "Find a Team",
+          body:
+            "Discover quadball clubs across the country and connect with players in your region.",
+          href: "/teams/",
+          cta: "Browse Teams",
+        },
+        {
+          title: "Volunteer",
+          body:
+            "Support local leagues and national initiatives by lending your skills at events or behind the scenes.",
+          href: "/volunteer-opportunities/",
+          cta: "Volunteer Opportunities",
+        },
+        {
+          title: "Officiate",
+          body:
+            "Referees and scorekeepers keep the game safe and fair. Explore training and certification pathways.",
+          href: "/contact/",
+          cta: "Learn About Training",
+        },
+        {
+          title: "Host an Event",
+          body:
+            "Bring quadball to your community with our sanctioning, planning, and promotional support.",
+          href: "/get-involved/host-an-event/",
+          cta: "Event Hosting Guide",
+        },
+      ],
+      panel: {
+        heading: "Find Your Level",
+        body:
+          "Use the Teams directory to explore youth, recreational, competitive, and national team programs across Canada.",
+        ctaLabel: "Explore Teams",
+        ctaHref: "/teams/",
+      },
+    };
+
+const alternate = {
+  en: "/get-involved/",
+  fr: "/fr/simpliquer/",
+};
+---
+
+<Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+  <section class="section">
+    <header class="intro">
+      <h1>{content.heading}</h1>
+      <p>{content.intro}</p>
+    </header>
+
+    <div class="grid">
+      {content.cards.map((card) => (
+        <article>
+          <h2>{card.title}</h2>
+          <p>{card.body}</p>
+          <a class="btn" href={card.href}>{card.cta}</a>
+        </article>
+      ))}
+    </div>
+
+    <section class="panel">
+      <h2>{content.panel.heading}</h2>
+      <p>{content.panel.body}</p>
+      <a class="btn-secondary" href={content.panel.ctaHref}>{content.panel.ctaLabel}</a>
+    </section>
+  </section>
+</Layout>
+
+<style>
+  .section {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .intro {
+    max-width: 720px;
+  }
+  .grid {
+    display: grid;
+    gap: 2rem;
+  }
+  article {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .panel {
+    padding: 2.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    text-align: center;
+  }
+  .panel p {
+    margin: 0 auto 1.25rem;
+    max-width: 48ch;
+  }
+  .btn,
+  .btn-secondary {
+    display: inline-block;
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.8rem 1.6rem;
+    text-decoration: none;
+  }
+  .btn {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  .btn:hover { background: var(--brand-ink); }
+  .btn-secondary {
+    background: #fff;
+    border: 1px solid var(--brand-primary);
+    color: var(--brand-primary);
+  }
+  .btn-secondary:hover {
+    background: var(--brand-primary);
+    color: #fff;
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
+
+================
+File: astro-app/src/pages/_shared/info-detail.astro
+================
+---
+import { PortableText } from "astro-portabletext";
+import Layout from "@/layouts/Layout.astro";
+import { getInfoArticle } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props as Props;
+const article = await getInfoArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Information article not found: ${slug} (${locale})`);
+}
+
+const alternate = {
+  en: article.slugEn ? `/info/${article.slugEn}/` : undefined,
+  fr: article.slugFr ? `/fr/info/${article.slugFr}/` : undefined,
+};
+
+const metaTitle = article.seo?.metaTitle ?? article.title;
+const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quadball Canada informational article.";
+---
+
+<Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
+  <section class="info-article">
+    <h1>{article.title}</h1>
+    {article.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
+    <PortableText value={article.content} />
+  </section>
+</Layout>
+
+<style>
+  .info-article {
+    padding: 48px 0;
+    display: grid;
+    gap: 24px;
+  }
+
+  .info-article__excerpt {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--gray-600);
+  }
+
+  .info-article :global(h2) {
+    margin-top: 2rem;
+  }
+
+  .info-article :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+</style>
+
+================
+File: astro-app/src/pages/_shared/news-detail.astro
+================
+---
+import { PortableText } from "astro-portabletext";
+import type { Locale } from "@/utils/localization";
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/utils";
+import { urlFor } from "@/utils/image";
+import { getNewsArticle } from "@/utils/sanity";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props as Props;
+const article = await getNewsArticle(slug, locale);
+
+if (!article) {
+  throw new Error(`Article not found: ${slug} (${locale})`);
+}
+
+const alternate = {
+  en: article.slugEn ? `/news/${article.slugEn}` : undefined,
+  fr: article.slugFr ? `/fr/nouvelles/${article.slugFr}` : undefined,
+};
+
+const metaTitle = article.seo?.metaTitle ?? article.title;
+const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "";
+const ogImage = article.featuredImage
+  ? urlFor(article.featuredImage).width(1200).height(630).url()
+  : undefined;
+---
+
+<Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription, image: ogImage }}>
+  <section class="post">
+    {
+      article.featuredImage ? (
+        <img
+          class="post__cover"
+          src={urlFor(article.featuredImage).url()}
+          alt={article.featuredImage.alt || ""}
+        />
+      ) : (
+        <div class="post__cover--none" />
+      )
+    }
+    <div class="post__container">
+      <h1 class="post__title">{article.title}</h1>
+      {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
+      <p class="post__date">{formatDate(article.publishedAt)}</p>
+      <div class="post__content">
+        <PortableText value={article.content} />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .post {
+    width: 100%;
+    margin: var(--space-1) 0 var(--space-4);
+
+    & .post__cover,
+    & .post__cover--none {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    & .post__cover--none {
+      background: var(--black);
+    }
+
+    & .post__container {
+      padding: 0 var(--space-3);
+    }
+
+    & .post__content {
+      font-family: var(--font-family-serif);
+      font-weight: 400;
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-5);
+      letter-spacing: -0.02em;
+      margin-top: var(--space-6);
+
+      & blockquote {
+        border-left: 5px solid var(--black);
+        padding-left: var(--space-3);
+        margin-left: var(--space-4);
+      }
+
+      & a {
+        color: var(--blue-600);
+        text-decoration: none;
+      }
+    }
+
+    & .post__title {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-7);
+      line-height: var(--line-height-6);
+      margin: var(--space-4) 0;
+      font-weight: 800;
+    }
+
+    & .post__excerpt {
+      font-family: var(--font-family-serif);
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-4);
+      margin-top: 0;
+      font-weight: 400;
+    }
+
+    & .post__date {
+      font-family: var(--font-family-sans);
+      font-weight: 600;
+      font-size: var(--font-size-1);
+      line-height: var(--line-height-1);
+      margin-top: var(--space-4);
+    }
+  }
+
+  @media (min-width: 800px) {
+    .post {
+      & .post__cover,
+      & .post__cover--none {
+        width: 750px;
+        height: 380px;
+      }
+
+      & .post__title {
+        font-size: var(--font-size-10);
+        line-height: var(--line-height-10);
+        margin: var(--space-6) 0 0;
+        letter-spacing: -0.025em;
+      }
+
+      & .post__excerpt {
+        font-size: var(--font-size-5);
+        line-height: var(--line-height-5);
+        margin-top: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      & .post__date {
+        font-size: var(--font-size-3);
+        line-height: var(--line-height-2);
+        margin-top: var(--space-0);
+      }
+
+      & .post__content {
+        margin-top: var(--space-7);
+      }
+    }
+  }
+</style>
+
+================
+File: astro-app/src/pages/_shared/news-index.astro
+================
+---
+import Layout from "@/layouts/Layout.astro";
+import NewsCard from "@/components/content/NewsCard.astro";
+import { getNewsArticles, type Locale } from "@/utils/sanity";
+import { resolveLocale } from "@/i18n";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  locale?: Locale;
+}
+
+const props = Astro.props as Props;
+const locale = props.locale ?? resolveLocale(Astro);
+const articles = await getNewsArticles(locale);
+const title = t(locale, "news.title");
+const emptyState = t(locale, "news.empty");
+const alternate = {
+  en: "/news/",
+  fr: "/fr/nouvelles/",
+};
+---
+
+<Layout title={title} alternate={alternate} locale={locale}>
+  <section class="news-index">
+    {articles.length ? (
+      articles.map((article) => <NewsCard article={article} />)
+    ) : (
+      <p class="news-index__empty">{emptyState}</p>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .news-index {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4) 0;
+  }
+
+  .news-index__empty {
+    margin: 0;
+    color: var(--gray-600);
+  }
+</style>
+
+================
+File: astro-app/src/pages/_shared/teams.astro
+================
+---
+import { PortableText } from "astro-portabletext";
+import Layout from "@/layouts/Layout.astro";
+import { getTeams, getTeamsPage } from "@/utils/sanity";
+import TeamLevels from "@/components/team/TeamLevels.astro";
+import TeamSections from "@/components/team/TeamSections.astro";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const [teams, teamsPage] = await Promise.all([getTeams(locale), getTeamsPage(locale)]);
+
+const isFr = locale === "fr";
+
+const fallbackIntro = isFr
+  ? "Les communautes de quadball au Canada offrent des options recreatives, competitives, jeunesse et nationales. Parcourez le repertoire ci-dessous pour trouver le programme qui vous convient."
+  : "Quadball communities across Canada offer youth, recreational, competitive, and national pathways. Explore the directory below to find the best fit and connect with organizers in your area.";
+
+const fallbackCta = isFr
+  ? {
+      heading: "Parlez-nous de vos objectifs et de votre localisation",
+      body:
+        "Dites-nous ce que vous recherchez et nous vous aiderons a rejoindre le programme le plus proche ou a en demarrer un nouveau.",
+      buttonLabel: "Communiquer avec Quadball Canada",
+      buttonHref: "/fr/contact/",
+    }
+  : {
+      heading: "Tell us about your goals and location",
+      body:
+        "Share what you are looking for and we will help you connect with the closest program or launch something new.",
+      buttonLabel: "Connect with Quadball Canada",
+      buttonHref: "/contact/",
+    };
+
+const levelSections = teamsPage?.levels ?? [];
+const introBlocks = teamsPage?.intro ?? [];
+const pageTitle = teamsPage?.title ?? (isFr ? "Equipes" : "Teams");
+const cta = teamsPage?.cta ?? null;
+
+const ctaHeading = cta?.heading ?? fallbackCta.heading;
+const ctaBody = cta?.body ?? fallbackCta.body;
+const ctaLabel = cta?.buttonLabel ?? fallbackCta.buttonLabel;
+const ctaHref = cta?.buttonHref ?? fallbackCta.buttonHref;
+
+const alternate = {
+  en: "/teams/",
+  fr: "/fr/equipes/",
+};
+---
+
+<Layout title={pageTitle} alternate={alternate} locale={locale}>
+  <section class="teams">
+    <header class="teams__intro">
+      <h1>{pageTitle}</h1>
+      {introBlocks.length ? (
+        <div class="teams__intro-content">
+          <PortableText value={introBlocks} />
+        </div>
+      ) : (
+        <p>{fallbackIntro}</p>
+      )}
+    </header>
+
+    <TeamLevels levels={levelSections} locale={locale} />
+
+    <TeamSections teams={teams} locale={locale} levels={levelSections} />
+
+    {(ctaHeading || ctaBody || (ctaHref && ctaLabel)) && (
+      <section class="teams__cta">
+        {ctaHeading && <h2>{ctaHeading}</h2>}
+        {ctaBody && <p>{ctaBody}</p>}
+        {ctaHref && ctaLabel && (
+          <a class="teams__cta-btn" href={ctaHref}>{ctaLabel}</a>
+        )}
+      </section>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .teams {
+    padding: 3rem 0;
+    display: grid;
+    gap: 3rem;
+  }
+
+  .teams__intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 720px;
+  }
+
+  .teams__intro h1 {
+    margin: 0;
+  }
+
+  .teams__intro-content :global(p) {
+    margin: 0;
+  }
+
+  .teams__cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 1.25rem;
+    background: var(--brand-tint);
+    display: grid;
+    gap: 1rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .teams__cta h2 {
+    margin: 0;
+  }
+
+  .teams__cta p {
+    margin: 0 auto;
+    max-width: 48ch;
+  }
+
+  .teams__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    background: var(--brand-primary);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .teams__cta-btn:hover {
+    background: var(--brand-ink);
+  }
+</style>
+
+================
+File: docs/i18n-refactor-ticket.md
+================
+# Ticket: Consolidate Bilingual Pages & Strengthen i18n Infrastructure
+
+## Summary
+Reduce code duplication between English and French routes by centralizing localization logic, sharing page templates, and ensuring UI chrome and metadata are sourced from a single translation layer. Align Astro 5 + Sanity best practices for bilingual sites: typed translation dictionaries, locale-aware data helpers, robust language switching, and localized SEO.
+
+## Background
+- `astro-app/src/pages/**` contains paired EN/FR Astro files with duplicate markup (e.g., `get-involved`, `teams`, `news`, `info`).
+- Layout/meta copy in `astro-app/src/layouts/Layout.astro` is hard-coded in English.
+- Language switcher relies on a static route lookup (`LanguageSwitcher.astro`), risking stale mappings.
+- Shared components (`HeroSlider`, `SupportSection`, nav/header/footer) default to English strings that are overridden ad hoc for French.
+- Sanity already provides localized fields (`localeString`, `localeText`, `localePortableText`, `localeSlug`), but Astro side doesn’t fully capitalize on them.
+- Goal: follow Astro 5 guidance (single template driving multiple localized pages, Route Groups, typed helpers) and Sanity recommendations (one schema with localized fields + validation).
+
+## Scope
+- Astro app only (`astro-app/**`), with documentation updates in `AGENTS.md`/`CLAUDE.md`.
+- Sanity schema changes limited to validation or helper tweaks if required (no major data model changes).
+- No deployment work; focus on code refactor + tests.
+
+## Proposed Implementation
+
+### 1. Core i18n Config
+- Create `astro-app/src/i18n/config.ts` exporting `SUPPORTED_LOCALES = ['en','fr']`, `DEFAULT_LOCALE = 'en'`.
+- Add `inferLocaleFromPath(path: string): Locale` and `getAlternatePath(path: string, targetLocale: Locale): string | null`.
+
+### 2. UI Translation Dictionary
+- Add `astro-app/src/i18n/ui.ts` with typed dictionaries for navigation labels, CTA copy, metadata fallbacks.
+  ```ts
+  type UiKey = 'nav.announcements' | 'hero.cta' | ...;
+  const uiCopy: Record<Locale, Record<UiKey, string>> = { ... };
+  export function t(locale: Locale, key: UiKey): string;
+  ```
+- Document key usage; ensure FR entries exist for every EN key.
+
+### 3. Localization Helpers
+- Build `astro-app/src/i18n/index.ts` exposing:
+  - `resolveLocale(Astro)`: respects `Astro.props.locale`, otherwise infers from path with fallback to default.
+  - `localizedPath(slugMap: LocalizedValue<string>, locale: Locale)`: favors locale-specific slug, falls back to default.
+  - Narrow types for Sanity `LocalizedValue<T>` reuse.
+
+### 4. Layout & Meta Updates
+- Update `Layout.astro`:
+  - Accept `description?: string`, `seo?: { description?: string; title?: string; image?: string }`.
+  - Default meta values via `t(locale, 'seo.siteDescription')`.
+  - Inject `<html lang>` based on resolved locale.
+- Ensure alternate links derive from shared helper.
+
+### 5. Language Switcher Rework
+- Refactor `LanguageSwitcher.astro` to:
+  - Prefer explicit `alternate` URLs.
+  - Otherwise call `getAlternatePath(currentPath, targetLocale)` and gracefully fall back to locale home if unresolved.
+  - Remove static `staticMappings`.
+  - Add warning (via `console.warn` during build) when fallback triggers to aid maintenance.
+
+### 6. Shared Page Templates
+- For each duplicated EN/FR page (Get Involved, Teams, Events, About subpages, Resources, etc.):
+  1. Extract page logic into `src/pages/shared/<name>.astro` component receiving `{ locale }`.
+  2. Replace existing English + French files with thin wrappers:
+     ```astro
+     --- // src/pages/get-involved/index.astro
+     import Page from '../shared/get-involved.astro';
+     import { resolveLocale } from '../../i18n';
+     const locale = resolveLocale(Astro); // yields 'en' here
+     ---
+     <Page locale={locale} />
+     ```
+     ```astro
+     --- // src/pages/fr/simpliquer/index.astro
+     import Page from '../../shared/get-involved.astro';
+     const locale = 'fr';
+     ---
+     <Page locale={locale} />
+     ```
+  3. Within shared template, pull localized copy from `t(locale, key)` or Sanity data; avoid in-file string duplication.
+- For dynamic routes (`news/[slug]`, `info/[slug]`, `events/[slug]`):
+  - Merge EN/FR into single file (e.g., `src/pages/news/[slug].astro`) with `getStaticPaths` returning two entries per slug:
+    ```ts
+    export async function getStaticPaths() {
+      return SUPPORTED_LOCALES.flatMap(locale => articles.map(article => ({
+        params: { slug: article.slugMap[locale] },
+        props: { locale, slugMap: article.slugMap },
+      })));
+    }
+    ```
+  - In `getNewsArticles/getInfoArticles`, return `{ slugByLocale: Record<Locale,string> }` for path generation.
+
+### 7. Sanity Data Helpers
+- Extend helpers in `astro-app/src/utils/sanity.ts` to:
+  - Return `slugMap`, `seo` localized fields, and typed structures (e.g., `NewsArticleDetail` includes `localizedTitle`, `localizedExcerpt`).
+  - Provide `locale` param defaults to `DEFAULT_LOCALE`.
+- Validate fallback `coalesce` usage to avoid missing FR content.
+- Optional: add Sanity schema validation warnings for missing translations (Rule custom message).
+
+### 8. Component Localization
+- Update `Header.astro`, `Footer.astro`, `UtilityBar.astro`, `HeroSlider.astro`, `SupportSection.astro` to use `t(locale, key)` for text.
+- Ensure CTA hrefs use `localizedPath` helper when linking to internal pages.
+
+### 9. Testing
+- Add Vitest unit tests for:
+  - `inferLocaleFromPath`, `getAlternatePath`, `t` fallback behavior.
+  - Language switcher mapping logic for known routes.
+- Playwright smoke tests (in `tests/i18n.spec.ts`):
+  - Visit `/` and `/fr/` ensure nav/hero/metadata localized.
+  - Toggle language on sample page verifies corresponding URL and copy.
+- Run `npm run build` to verify SSG outputs; optionally inspect generated HTML for hreflang.
+
+### 10. Documentation
+- Update `AGENTS.md` & `CLAUDE.md` with:
+  - i18n helper usage, translation dictionary workflow.
+  - Conventions for adding new localized routes/content.
+- Add `docs/i18n-guide.md` covering translation keys, Sanity expectations, testing steps.
+
+## Acceptance Criteria
+- No duplicate page markup for any EN/FR pair; shared component per route with locale parameter.
+- Layout/meta tags localized via translation helper or Sanity data.
+- Language switcher resolves correct counterpart path for all main routes and falls back safely.
+- Navigation/header/footer/hero/support sections render localized copy without manual overrides.
+- Build + Playwright smoke tests pass for both locales.
+- Documentation updated reflecting new workflow.
+
+## Status Notes
+- ✅ Core layout, header, footer, hero, support, and language switcher migrated to typed `t(locale, key)` helpers with shared locale detection.
+- ✅ EN/FR duplicates for Get Involved, Teams, News detail/index, and Info detail now consume shared templates under `src/pages/_shared/`.
+- ✅ Added `@/` import alias and `src/i18n` helpers; `npm run build -w astro-app` passes.
+- 🔁 Remaining localized pages (e.g., Events, Resources) still use bespoke templates—candidates for future consolidation.
+
+## Implementation Journey
+
+### Approach A — Duplicate Pages With Manual Sync (legacy)
+- **What we had:** full English and French templates living side-by-side (`astro-app/src/pages/...` vs. `.../fr/...`) with nearly identical markup and only strings/hrefs swapped.
+- **Why it failed best-practice review:** every change required editing two files, hreflang alternates drifted easily, and localized metadata quietly diverged. This prompted the refactor request.
+
+### Approach B — Shared Components under `components/pages/`
+- **Idea:** extract shared markup into Astro components inside `src/components/pages/` and import them from EN/FR routes.
+- **What happened:** `astro check` raised `Cannot find module '../components/pages/…'` for every consumer. With the default Astro strict config, `.astro` files under `components/` aren’t type-tracked unless explicitly imported elsewhere, so the generated `env.d.ts` lacked declarations.
+- **Attempts to salvage:** updated `tsconfig.json` `include` to cover `src/**/*.astro`, but the resolver still treated `components/pages/*.astro` as isolated islands, and the relative import spaghetti became unreadable.
+- **Verdict:** abandoned to avoid fragile module resolution hacks.
+
+### Approach C — Shared Templates under `src/pages/shared/`
+- **Idea:** move extracted markup into `src/pages/shared/` to stay within Astro’s page pipeline.
+- **Outcome:** Astro treated those `.astro` files as routable, triggering the GROQ build error (`shared/info-detail/index.html` unexpectedly rendered during SSG). Keeping shared code inside the `pages/` tree also invited accidental static-path generation.
+- **Verdict:** rejected after seeing spurious HTML output and inconsistent SSG behaviour.
+
+### Final Approach — `_shared` Route Fragments + Path Aliases
+- **Structure:** colocated shared templates under `astro-app/src/pages/_shared/` so Astro ignores them as routes (files prefixed with `_`). Each template accepts a `locale` prop; language-specific pages are thin wrappers that import the shared template.
+- **i18n helpers:** built `src/i18n/` (config, resolving, and typed dictionary) plus `src/lib/routes/` for locale-aware `getStaticPaths`. Added an `@/` alias in `tsconfig.json` to replace brittle relative paths.
+- **Outcome:** `astro check` and full `npm run build -w astro-app` now pass, while shared markup is maintained once.
+
+## Technical Debt / Follow-Up
+- **Translation coverage:** the `t()` dictionary currently houses only UI chrome strings (header/footer/hero/support/news). Page-specific French content is still hard-coded in `_shared/*.astro` or fed by Sanity without schema validation for missing locales. Missing copy keys fall back to English but only log in dev; default-locale leaks will go unnoticed in production.
+- **Partial consolidation:** events, resources, contact, and other sections remain duplicated. Extending the `_shared` pattern will smooth future updates but needs time.
+- **Alias adoption:** new `@/` path alias touches only files changed in this refactor. Older code still uses long relative imports and should eventually be modernized for consistency.
+- **Language switcher fallback:** `switchLocalePath` falls back to `/` or `/fr/` when alternates are missing. We log during development, but there’s no telemetry/test protecting against regressions in production builds.
+
+## Next Steps & Pitfalls
+1. **Consolidate Remaining Routes**
+   - *Action:* move events, resources, contact, support, etc., into `_shared` templates.
+   - *Pitfalls:* dynamic routes with nested params (e.g., events) require careful `getStaticPaths` updates. Forgetting to update `alternate` props reintroduces broken hreflang pairs.
+
+2. **Broaden Translation Dictionary**
+   - *Action:* audit UI strings and move them into `src/i18n/ui.ts`, or parameterize via Sanity.
+   - *Pitfalls:* large dictionaries are harder to diff/manage. A mistyped key silently returns the key name; consider a build-time linter to detect missing translations.
+
+3. **Sanity Schema Validation**
+   - *Action:* enforce localized field completeness (`Rule.required()` or custom validation) so fallback logic rarely triggers.
+   - *Pitfalls:* content editors may prefer publishing drafts with partial translations. Build in preview warnings rather than hard blocks if editorial workflow demands it.
+
+4. **Testing**
+   - *Action:* add Playwright tests that toggle languages, assert localized headings, and check `hreflang` links.
+   - *Pitfalls:* Playwright requires a running dev server; include guidance in `CLAUDE.md` to prevent flaky CI runs.
+
+5. **Cleanup Tech Debt**
+   - *Action:* remove unused keys, ensure alias adoption is comprehensive, and document the `_shared` convention in onboarding materials.
+   - *Pitfalls:* contributors may revert to copy/pasting localized pages if the shared pattern isn’t documented clearly. Update PR templates/checklists to nudge correct usage.
+
+## Risks & Mitigations
+- **Path regressions:** Introduce unit tests and manual QA for critical routes before merge.
+- **Missing translations:** `t()` helper should log missing keys and default to English; add CI lint to detect incomplete dictionaries.
+- **Sanity content gaps:** Maintain `coalesce` fallback to English while encouraging translators via Studio validation messages.
+
+## Follow-Up
+- Consider introducing localized sitemap generation once routes consolidated.
+- Explore leveraging Astro Content Collections for static copy if Sanity data remains sparse in some locales.
+
+================
+File: astro-app/src/pages/fr/info/[slug].astro
+================
+---
+import type { InferGetStaticParamsType } from "astro";
+import type { Locale } from "../../../utils/localization";
+import Page from "../../_shared/info-detail.astro";
+import { buildInfoStaticPaths } from "@/lib/routes/info";
+
+export async function getStaticPaths() {
+  return buildInfoStaticPaths("fr");
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "fr";
+---
+
+<Page locale={locale} slug={slug} />
+
+================
+File: astro-app/src/pages/fr/nouvelles/[slug].astro
+================
+---
+import type { InferGetStaticParamsType } from "astro";
+import type { Locale } from "../../../utils/localization";
+import Page from "../../_shared/news-detail.astro";
+import { buildNewsStaticPaths } from "@/lib/routes/news";
+
+export async function getStaticPaths() {
+  return buildNewsStaticPaths("fr");
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "fr";
+---
+
+<Page locale={locale} slug={slug} />
+
+================
+File: astro-app/src/pages/fr/nouvelles/index.astro
+================
+---
+import Page from "../../_shared/news-index.astro";
+---
+
+<Page locale="fr" />
+
+================
+File: astro-app/src/pages/info/[slug].astro
+================
+---
+import type { InferGetStaticParamsType } from "astro";
+import type { Locale } from "../../utils/localization";
+import Page from "../_shared/info-detail.astro";
+import { buildInfoStaticPaths } from "@/lib/routes/info";
+
+export async function getStaticPaths() {
+  return buildInfoStaticPaths("en");
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "en";
+---
+
+<Page locale={locale} slug={slug} />
+
+================
+File: astro-app/src/pages/news/[slug].astro
+================
+---
+import type { InferGetStaticParamsType } from "astro";
+import type { Locale } from "../../utils/localization";
+import Page from "../_shared/news-detail.astro";
+import { buildNewsStaticPaths } from "@/lib/routes/news";
+
+export async function getStaticPaths() {
+  return buildNewsStaticPaths("en");
+}
+
+type Params = InferGetStaticParamsType<typeof getStaticPaths>;
+const { slug } = Astro.params as Params;
+const locale: Locale = "en";
+---
+
+<Page locale={locale} slug={slug} />
+
+================
+File: astro-app/src/pages/news/index.astro
+================
+---
+import Page from "../_shared/news-index.astro";
+---
+
+<Page locale="en" />
+
+================
+File: astro-app/tsconfig.json
+================
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "strict": true,
+    "importsNotUsedAsValues": "remove",
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.astro"
+  ],
+  "exclude": ["node_modules", "dist", ".vercel"]
+}
+
+================
+File: astro-app/src/components/sections/SupportSection.astro
+================
+---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
+interface Props {
+  locale?: Locale;
+  title?: string;
+  description?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+}
+
+const props = Astro.props as Props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+
+const title = props.title ?? t(locale, "support.title");
+const description = props.description ?? t(locale, "support.description");
+const primaryCtaLabel = props.primaryCtaLabel ?? t(locale, "support.primaryCta");
+const primaryCtaHref = props.primaryCtaHref ?? "https://www.paypal.me/quidditchcanada";
+const secondaryCtaLabel = props.secondaryCtaLabel ?? t(locale, "support.secondaryCta");
+const secondaryCtaHref = props.secondaryCtaHref ?? "/support/";
+---
+<section class="support">
+  <h2>{title}</h2>
+  <p>{description}</p>
+  <div class="actions">
+    <a class="btn" href={primaryCtaHref} target="_blank" rel="noopener">{primaryCtaLabel}</a>
+    <a class="btn-secondary" href={secondaryCtaHref}>{secondaryCtaLabel}</a>
+  </div>
+</section>
+
+<style>
+  .support { padding: 24px 0; border-top: 1px solid var(--border); }
+  .actions { display: flex; gap: 12px; }
+  .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; }
+  .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+</style>
+
+================
+File: astro-app/src/components/layout/LanguageSwitcher.astro
+================
+---
+import type { Locale } from "../../utils/localization";
+import { inferLocaleFromPath, switchLocalePath } from "../../i18n";
+import { t } from "../../i18n/ui";
+
+interface Props {
+  currentPath: string;
+  alternate?: Partial<Record<Locale, string>>;
+}
+
+const props = Astro.props as Props;
+const currentPath = props.currentPath ?? Astro.url.pathname ?? "/";
+const alternate = props.alternate;
+const locale: Locale = inferLocaleFromPath(currentPath);
+const isFr = locale === "fr";
+
+function mapTo(target: Locale) {
+  try {
+    return switchLocalePath(currentPath, target, alternate);
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn(`[i18n] Failed to resolve alternate path for ${target} from ${currentPath}`, error);
+    }
+    return target === "fr" ? "/fr/" : "/";
+  }
+}
+---
+
+<nav class="lang-switcher" aria-label={t(locale, "layout.languageLabel")}>
+  <a class="lang" data-language-switch="en" href={mapTo('en')} aria-current={!isFr ? 'true' : undefined}>EN</a>
+  <span class="sep">/</span>
+  <a class="lang" data-language-switch="fr" href={mapTo('fr')} aria-current={isFr ? 'true' : undefined}>FR</a>
+  
+</nav>
+
+<style>
+  .lang-switcher { display: inline-flex; align-items: center; gap: 6px; }
+  .lang { color: var(--black); text-decoration: none; font-weight: 600; }
+  .lang[aria-current="true"] { text-decoration: underline; }
+  .sep { color: var(--gray-600); }
+</style>
+
+================
+File: astro-app/src/pages/fr/equipes/index.astro
+================
+---
+import Page from "../../_shared/teams.astro";
+---
+
+<Page locale="fr" />
+
+================
+File: astro-app/src/components/sections/HeroSlider.astro
+================
+---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
+interface Props {
+  locale?: Locale;
+  title?: string;
+  subtitle?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+
+const props = Astro.props as Props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+
+const title = props.title ?? t(locale, "hero.title");
+const subtitle = props.subtitle ?? t(locale, "hero.subtitle");
+const defaultCtaHref = locale === "fr" ? "/fr/simpliquer/" : "/get-involved/";
+const ctaHref = props.ctaHref ?? defaultCtaHref;
+const ctaLabel = props.ctaLabel ?? t(locale, "hero.cta");
+---
+<section class="hero">
+  <picture>
+    <source
+      type="image/avif"
+      srcset="/hero-cover-1280.avif 1280w, /hero-cover-1920.avif 1920w, /hero-cover-2560.avif 2560w"
+      sizes="100vw" />
+    <source
+      type="image/webp"
+      srcset="/hero-cover-1280.webp 1280w, /hero-cover-1920.webp 1920w, /hero-cover-2560.webp 2560w"
+      sizes="100vw" />
+    <img
+      class="hero__img"
+      src="/hero-cover.jpg"
+      srcset="/hero-cover-1280.jpg 1280w, /hero-cover-1920.jpg 1920w, /hero-cover-2560.jpg 2560w"
+      sizes="100vw"
+      width="1920"
+      height="1080"
+      alt="Quadball Canada cover"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async" />
+  </picture>
+  <div class="hero__overlay">
+    <div class="hero__content">
+      <h1 class="hero__title">{title}</h1>
+      <p class="hero__subtitle">{subtitle}</p>
+      <a class="btn btn--hero" href={ctaHref}>{ctaLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
+  }
+
+  .hero__img {
+    width: 100%;
+    height: 50vw;
+    max-height: 600px;
+    min-height: 400px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(95%);
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.35) 50%,
+      rgba(0,0,0,0.15) 80%,
+      rgba(0,0,0,0) 100%
+    );
+  }
+
+  .hero__content {
+    max-width: 800px;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .hero__title {
+    color: #fff;
+    font-size: clamp(36px, 7vw, 64px);
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    font-weight: 800;
+  }
+
+  .hero__subtitle {
+    color: #fff;
+    font-size: clamp(16px, 2.8vw, 22px);
+    margin: 0 0 24px;
+    opacity: 0.95;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    font-weight: 500;
+  }
+
+  .btn--hero {
+    display: inline-block;
+    background: var(--brand-primary);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn--hero:hover {
+    background: var(--brand-ink);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    text-decoration: none;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero__img {
+      height: 70vw;
+      min-height: 300px;
+    }
+
+    .hero__title {
+      font-size: clamp(28px, 8vw, 42px);
+    }
+
+    .hero__subtitle {
+      font-size: clamp(14px, 3vw, 18px);
+    }
+
+    .btn--hero {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+    }
+  }
+</style>
+
+================
+File: astro-app/src/pages/fr/simpliquer/index.astro
+================
+---
+import Page from "../../_shared/get-involved.astro";
+---
+
+<Page locale="fr" />
+
+================
+File: astro-app/src/components/layout/UtilityBar.astro
+================
+---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
+const props = Astro.props as { locale?: Locale } | undefined;
+const locale: Locale = resolveLocale(Astro, props?.locale);
+
+const socials = [
+  {
+    href: "https://www.instagram.com/quadballcanada/?hl=en",
+    label: "Instagram",
+    icon: "M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.343 3.608 1.319.975.975 1.257 2.242 1.319 3.608.058 1.266.069 1.645.069 4.84 0 3.196-.011 3.575-.069 4.84-.062 1.366-.344 2.633-1.319 3.608-.975.976-2.242 1.257-3.608 1.319-1.266.058-1.645.069-4.85.069-3.205 0-3.584-.011-4.85-.069-1.366-.062-2.633-.343-3.608-1.319-.975-.975-1.257-2.242-1.319-3.608C2.174 15.578 2.163 15.199 2.163 12c0-3.195.011-3.574.069-4.84.062-1.366.344-2.633 1.319-3.608.975-.976 2.242-1.257 3.608-1.319C8.416 2.174 8.795 2.163 12 2.163zm0-2.163C8.741 0 8.332.014 7.052.072 5.775.13 4.897.346 4.158.659c-.78.327-1.437.77-2.092 1.425C1.41 2.74.968 3.398.641 4.178.328 4.917.112 5.795.054 7.072.014 8.352 0 8.761 0 12c0 3.239.014 3.648.072 4.928.058 1.277.274 2.155.587 2.894.327.78.77 1.438 1.425 2.093.655.655 1.312 1.098 2.092 1.425.739.313 1.617.53 2.894.588C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.277-.058 2.155-.275 2.894-.588.78-.327 1.438-.77 2.093-1.425.655-.655 1.098-1.313 1.425-2.093.313-.739.53-1.617.588-2.894.058-1.28.072-1.689.072-4.928 0-3.239-.014-3.648-.072-4.928-.058-1.277-.275-2.155-.588-2.894-.327-.78-.77-1.438-1.425-2.093C21.552 1.41 20.894.968 20.114.641c-.739-.313-1.617-.53-2.894-.588C15.668.014 15.259 0 12 0zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm6.406-1.807a1.44 1.44 0 11-1.44-1.44 1.44 1.44 0 011.44 1.44z",
+    box: 24,
+  },
+  {
+    href: "https://www.tiktok.com/@quadballcanada",
+    label: "TikTok",
+    icon: "M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z",
+    box: 24,
+  },
+  {
+    href: "https://www.youtube.com/@QuadballCanada",
+    label: "YouTube",
+    icon: "M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z",
+    box: 24,
+  },
+  {
+    href: "https://www.facebook.com/QuidditchCanada/",
+    label: "Facebook",
+    icon: "M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z",
+    box: 24,
+  },
+  {
+    href: "https://discord.gg/qK2cnSWmvF",
+    label: "Discord",
+    icon: "M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z",
+    box: 24,
+  },
+];
+---
+
+<div class="utility" role="navigation" aria-label="Utility">
+  <div class="utility__inner">
+    <ul class="utility__right" role="list">
+      {socials.map((s) => (
+        <li>
+          <a target="_blank" rel="noopener" href={s.href} aria-label={s.label}>
+            <svg width="18" height="18" viewBox={`0 0 ${s.box} ${s.box}`} aria-hidden="true">
+              <path d={s.icon} fill="currentColor" />
+            </svg>
+          </a>
+        </li>
+      ))}
+      <li class="utility__search">
+        <a href="/search" aria-label={t(locale, "utility.search")}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z" />
+          </svg>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .utility {
+    background: var(--brand-primary);
+    color: #fff;
+    font-size: 0.875rem;
+    overflow-x: hidden;
+  }
+  .utility__inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px clamp(16px, 4vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+  }
+  .utility a {
+    color: #fff;
+    text-decoration: none;
+    opacity: 0.95;
+    transition: opacity 0.2s ease;
+  }
+  .utility a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+  .utility__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  .utility__right svg {
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  .utility__right a:hover svg {
+    transform: translateY(-1px);
+  }
+  .utility__right a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+  }
+  .utility__search {
+    display: inline-flex;
+  }
+  @media (max-width: 768px) {
+    .utility__inner {
+      padding: 8px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .utility__right {
+      margin-left: 0;
+    }
+  }
+</style>
+
+================
+File: astro-app/src/pages/teams/index.astro
+================
+---
+import Page from "../_shared/teams.astro";
+---
+
+<Page locale="en" />
+
+================
+File: astro-app/src/pages/get-involved/index.astro
+================
+---
+import Page from "../_shared/get-involved.astro";
+---
+
+<Page locale="en" />
+
+================
+File: astro-app/src/components/layout/Footer.astro
+================
+---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
+const props = Astro.props as { locale?: Locale } | undefined;
+const locale: Locale = resolveLocale(Astro, props?.locale);
+
+const copy = {
+  getInvolved: t(locale, "footer.getInvolved"),
+  findTeam: t(locale, "footer.findTeam"),
+  hostEvent: t(locale, "footer.hostEvent"),
+  teamCanada: t(locale, "footer.teamCanada"),
+  volunteer: t(locale, "footer.volunteer"),
+  explore: t(locale, "footer.explore"),
+  about: t(locale, "footer.about"),
+  news: t(locale, "footer.news"),
+  events: t(locale, "footer.events"),
+  rules: t(locale, "footer.rules"),
+  followUs: t(locale, "footer.followUs"),
+  contactUs: t(locale, "footer.contact"),
+};
+
+const routes = {
+  teams: locale === "fr" ? "/fr/equipes/" : "/teams/",
+  hostEvent: locale === "fr" ? "/fr/simpliquer/organiser-un-evenement/" : "/get-involved/host-an-event/",
+  teamCanada: locale === "fr" ? "/fr/equipes/equipe-nationale/" : "/teams/national-team/",
+  volunteer: locale === "fr" ? "/fr/benevolat/" : "/volunteer-opportunities/",
+  about: locale === "fr" ? "/fr/a-propos/" : "/about/",
+  news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
+  events: locale === "fr" ? "/fr/evenements/" : "/events/",
+  rules: "/play/",
+  contact: locale === "fr" ? "/fr/contact/" : "/contact/",
+};
+---
+<footer class="site-footer">
+  <div class="cols">
+    <div>
+      <h4>Quadball Canada</h4>
+      <p>© {new Date().getFullYear()} Quadball Canada</p>
+      <p>Charitable Registration Number: 820553188RR0001</p>
+      <p><a href={routes.contact}>{copy.contactUs}</a></p>
+    </div>
+    <div>
+      <h4>{copy.getInvolved}</h4>
+      <ul>
+        <li><a href={routes.teams}>{copy.findTeam}</a></li>
+        <li><a href={routes.hostEvent}>{copy.hostEvent}</a></li>
+        <li><a href={routes.teamCanada}>{copy.teamCanada}</a></li>
+        <li><a href={routes.volunteer}>{copy.volunteer}</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>{copy.explore}</h4>
+      <ul>
+        <li><a href={routes.about}>{copy.about}</a></li>
+        <li><a href={routes.news}>{copy.news}</a></li>
+        <li><a href={routes.events}>{copy.events}</a></li>
+        <li><a href={routes.rules}>{copy.rules}</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>{copy.followUs}</h4>
+      <ul>
+        <li><a target="_blank" rel="noopener" href="https://www.instagram.com/quadballcanada/?hl=en">Instagram</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.tiktok.com/@quadballcanada">TikTok</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.youtube.com/@QuadballCanada">YouTube</a></li>
+        <li><a target="_blank" rel="noopener" href="https://www.facebook.com/QuadballCanada/">Facebook</a></li>
+        <li><a target="_blank" rel="noopener" href="https://discord.gg/qK2cnSWmvF">Discord</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: 24px 0;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  h4 { margin: 0 0 8px; color: var(--text-strong); }
+  a { color: var(--brand-primary); text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: 6px 0; }
+</style>
+
+================
+File: CLAUDE.md
+================
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is an Astro + Sanity CMS monorepo with two npm workspaces:
+- **astro-app**: Static Astro frontend (SSG) deployed to Cloudflare Pages
+- **studio**: Sanity Studio for content management (React-based CMS interface)
+
+## Development Commands
+
+### Running the project
+```bash
+npm run dev  # Runs both Astro app (localhost:4321) and Studio (localhost:3333) concurrently
+```
+
+### Individual workspace commands
+```bash
+# Astro app (in astro-app/)
+npm run dev      # Start dev server on localhost:4321
+npm run build    # Type check + build for production
+npm run preview  # Preview production build
+
+# Studio (in studio/)
+npm run dev      # Start Studio dev server on localhost:3333
+npm run build    # Build Studio
+npm run deploy   # Deploy Studio to Sanity's hosted platform
+```
+
+### Common CLI Commands (Sanity + Cloudflare)
+
+Sanity (Content Lake):
+
+```
+# Query a few documents (adjust GROQ as needed)
+cd studio && npx sanity documents query '*[_type == "newsArticle"][0..5]'
+
+# Create a document from a JSON file (production dataset)
+cd studio && npx sanity documents create /path/to/doc.json --dataset production
+```
+
+Cloudflare (Pages):
+
+```
+# Check authentication / account
+cd astro-app && npx wrangler whoami
+
+# List Pages projects and deployments
+cd astro-app && npx wrangler pages project list
+cd astro-app && npx wrangler pages deployment list --project-name=quadball-canada
+
+# Deploy built assets from dist/
+cd astro-app && npm run build
+cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "Deploy from CLI" --commit-dirty=true
+
+# Optional flags used previously
+#   --branch=<name>           # set branch name for deployment metadata
+#   --commit-hash=<sha>       # set commit hash for deployment metadata
+#   --commit-message=<string> # human-readable message
+#   --commit-dirty=true       # mark workspace as dirty
+```
+
+## Architecture
+
+### Monorepo Structure
+- Root uses npm workspaces with `concurrently` to run both apps simultaneously
+- Both apps are independent but share the same Sanity project configuration
+
+### Astro App (`astro-app/`)
+- **Output mode**: Static SSG (no SSR)
+- **Hosting**: Cloudflare Pages (see `wrangler.toml` and `DEPLOYMENT.md`)
+- **Key integrations**: `@sanity/astro` for Sanity integration, `@astrojs/react` for React components
+- **Content fetching**: GROQ queries via `sanityClient` from `sanity:client` (auto-imported by Astro integration)
+- **Data layer**: `src/utils/sanity.ts` provides `getNewsArticles()` and `getNewsArticle()`
+- **Localization**: Field-level via `locale*` objects. Helpers in `studio/src/schemaTypes/helpers/localization.ts` and `astro-app/src/utils/localization.ts`.
+- **Portable Text**: Uses `astro-portabletext` to render Sanity's block content
+
+### Sanity Studio (`studio/`)
+- **Schema location**: `src/schemaTypes/` - contains document types (e.g., `newsArticle.ts`, `event.ts`, `team.ts`) and objects (e.g., `blockContent.tsx`)
+- **Schema exports**: All types must be added to `src/schemaTypes/index.ts` array
+- **Configuration**: `sanity.config.ts` uses environment variables for project ID and dataset
+- **Plugins**: Structure tool (content management UI) and Vision tool (GROQ query testing)
+
+### Environment Configuration
+Both apps require Sanity credentials configured via `.env` files:
+
+**Astro app** (`astro-app/.env`):
+```
+PUBLIC_SANITY_STUDIO_PROJECT_ID="<your-project-id>"
+PUBLIC_SANITY_STUDIO_DATASET="production"
+```
+
+**Studio** (`studio/.env`):
+```
+SANITY_STUDIO_PROJECT_ID="<your-project-id>"
+SANITY_STUDIO_DATASET="production"
+```
+
+Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client-side.
+
+## Content Schema Workflow
+
+1. Define schema types in `studio/src/schemaTypes/documents/` or `studio/src/schemaTypes/objects/`
+2. Export them in `studio/src/schemaTypes/index.ts`
+3. Add/adjust types and GROQ in `astro-app/src/utils/sanity.ts`
+4. Use locale helpers for EN/FR fields and localized slugs
+5. Studio will automatically reflect schema changes on refresh
+
+### Important: News vs. Legacy Posts
+- Use `newsArticle` instead of legacy `post`.
+- Query helpers:
+  - `getNewsArticles(locale: 'en'|'fr')`
+  - `getNewsArticle(slug: string, locale: 'en'|'fr')`
+- Astro pages:
+  - EN list/detail: `src/pages/news/index.astro`, `src/pages/news/[slug].astro`
+  - FR list/detail: `src/pages/fr/nouvelles/index.astro`, `src/pages/fr/nouvelles/[slug].astro`
+
+## Key Integration Points
+
+- **Sanity Client**: Auto-imported as `sanityClient` from `sanity:client` in Astro files (provided by `@sanity/astro`)
+- **Image URLs**: Use `@sanity/image-url` for optimized image rendering
+- **GROQ**: Query language for fetching content - can be tested in Vision tool at Studio's `/vision` route
+- **API Version**: Set in `astro.config.mjs` (currently "2024-12-08")
+
+## Playwright MCP Usage
+
+- Prefer the integrated Playwright MCP browser tools for verification (navigate, click, etc.) instead of spawning `npx playwright`.
+- Typical flow:
+  - Start servers: `npm run dev` (root) or workspace-specific.
+  - Navigate to `http://localhost:4321/`, `/news/`, `/fr/nouvelles/` to validate UI.
+  - Language switching is in the header via the `LanguageSwitcher` component; verify `data-language-switch="fr|en"` links.
+  - Studio login at `http://localhost:3333` requires human login; headless sessions do not inherit credentials.
+
+## Deployment (Cloudflare Pages)
+
+- Project: `quadball-canada` → https://quadball-canada.pages.dev
+- Config: `astro-app/wrangler.toml` (`pages_build_output_dir = "./dist"`)
+- Build and deploy:
+  - `cd astro-app && npm run build`
+  - `npx wrangler whoami`
+  - `npx wrangler pages project list`
+  - `npx wrangler pages deployment list --project-name=quadball-canada`
+  - `npx wrangler pages deploy dist --project-name=quadball-canada`
+- Known issue (2025-10-05): CF API returns 500 code 8000000 creating deployments, despite successful asset upload. If seen, try the Cloudflare Dashboard or contact support.
+
+## Localization Strategy
+
+- Field-level localization using `localeString`, `localeText`, `localeSlug`, and `localePortableText`.
+- Helpers:
+  - Studio: `studio/src/schemaTypes/helpers/localization.ts`
+  - Astro: `astro-app/src/utils/localization.ts`
+- EN routes: `/news/...`; FR routes: `/fr/nouvelles/...`.
+ - Layout: `Layout.astro` accepts an `alternate` prop `{ en, fr }`, used to render hreflang links and power the header `LanguageSwitcher`.
+
+## Migration Scripts
+
+- Location: `scripts/wp-to-sanity/`
+- Scripts:
+  - `migrate-news-articles.ts`: Migrates WordPress posts → `newsArticle` (requires `SANITY_TOKEN`).
+  - `build-redirects.ts`: Builds redirects JSON from migration output.
+- Env vars required:
+  - `SANITY_PROJECT_ID`, `SANITY_DATASET`, `SANITY_TOKEN`, `WP_XML_PATH`
+
+## Security Notes
+
+- Avoid committing tokens. Move any credentials in source (e.g., webhook proxy) to platform secrets.
+
+## Keep Docs In Sync
+
+- Update `MIGRATION_PLAN.md` and `CHECKLIST.md` when changing structure, naming, or workflows.
+
+## Recent Updates (2025-XX-XX)
+
+- Added `@/` path alias via `tsconfig.json` (maps to `astro-app/src`). Prefer this over long relative imports.
+- Introduced `src/i18n/` with `resolveLocale`, `switchLocalePath`, and `t(locale, key)` helpers plus a UI copy dictionary.
+- Extracted mixed-language page templates into `astro-app/src/pages/_shared/` components; route files now pass a `locale` prop instead of duplicating markup.
+
+## Recent Updates (2025-10-05)
+
+Visual polish applied to Astro app:
+- Header: added Donate CTA, sticky header, mobile menu toggle, aria-current on active links
+- Layout: corrected `IBM Plex Mono`, improved type scale/line-heights, global container padding, link hover underlines, preconnect to `cdn.sanity.io`
+- News cards: fixed aspect ratio, srcset/sizes, width/height to prevent CLS
+- Homepage: title set to "Quadball Canada — Official Site"
+
+Verification:
+- Confirmed local servers with `lsof -iTCP -sTCP:LISTEN -P`
+- Used Playwright MCP to validate UI at `http://localhost:4321/` (mobile menu toggle, language switcher active state, title)
+- Added `@astrojs/sitemap` integration and updated `robots.txt` to point to `/sitemap-index.xml` using `site` from config
+
+CLI used:
+- `cd astro-app && npm run build`
+- `cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --commit-message "…" --commit-dirty=true`
+- `npm i -w astro-app @astrojs/sitemap`
+- `npm i -w astro-app zod` (dev server hot reload needed to clear overlay after install)
+- `cd studio && npx sanity documents query '*[_type == "newsArticle" && slug.en.current == "test-article"][0..1]{_id, slug, title}'`
+- `npx npm-check-updates -u && npm install` (root)
+- `cd astro-app && npx npm-check-updates -u && npm install`
+- `cd studio && npx npm-check-updates -u && npm install`
+- `npm run build -w astro-app && npx wrangler pages deploy dist --project-name=quadball-canada`
+- Switched to Astro 5 ClientRouter and added `transition:animate="slide"` on `<main>`. Updated header script to rebind on `astro:page-load`.
+- Studio deploys:
+- `cd studio && npm run deploy` (moved CLI `autoUpdates` to `deployment.autoUpdates` and set `deployment.appId`)
+
+## Recent Updates (2025-10-10)
+
+- Fixed dead links to non-existent `/about/what-is-quadball/` by pointing homepage and About page CTAs to `/about/`.
+- Sorted homepage "Upcoming Events" chronologically ascending (soonest first) in `astro-app/src/components/sections/NewsGrid.astro` to avoid reverse-chronological display.
+- Header navigation now highlights About Us, Contact Us, Events, and Get Involved (with updated dropdown anchors and language toggle on the left). Sanity `siteSettings.navigation` initial value mirrors this structure to avoid dead links.
+- Added French routes for home, About, Contact, Events (and detail pages), Get Involved, and Teams with locale-aware header/footer + language toggle that keeps users on the same page.
+- Introduced `infoArticle` Sanity document for evergreen content (e.g., “What is Quadball?”) with new `/info/[slug]` and `/fr/info/[slug]` Astro routes feeding homepage content dynamically.
+
+================
+File: astro-app/src/layouts/Layout.astro
+================
+---
+// Client-side routing (Astro 5)
+import { ClientRouter } from "astro:transitions";
+import UtilityBar from "../components/layout/UtilityBar.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import type { Locale } from "../utils/localization";
+import { resolveLocale } from "../i18n";
+import { t } from "../i18n/ui";
+
+interface SeoProps {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  alternate?: Partial<Record<Locale, string>>;
+  locale?: Locale;
+  seo?: SeoProps;
+}
+
+const props = Astro.props as Props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+const metaTitle = props.seo?.title ?? props.title;
+const metaDescription =
+  props.seo?.description ?? props.description ?? t(locale, "seo.siteDescription");
+const metaImage = props.seo?.image ?? "/hero-cover.jpg";
+const { alternate } = props;
+---
+
+<!DOCTYPE html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+    <meta
+      name="generator"
+      content={Astro.generator}
+    />
+
+    <!-- Google fonts -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <!-- Preconnect to Sanity CDN for faster image loads -->
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Inter:wght@500;700;800&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <slot name="head" />
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Quadball Canada" />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={metaImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={metaImage} />
+    {alternate && (
+      <>
+        {alternate.en && <link rel="alternate" hreflang="en" href={alternate.en} />}
+        {alternate.fr && <link rel="alternate" hreflang="fr" href={alternate.fr} />}
+        {alternate.en && <link rel="alternate" hreflang="x-default" href={alternate.en} />}
+      </>
+    )}
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t(locale, "layout.skipLink")}</a>
+    <div class="site-chrome">
+      <UtilityBar locale={locale} />
+      <Header currentPath={Astro.url.pathname} alternate={alternate} locale={locale} />
+    </div>
+    <div class="container">
+      <main id="main">
+        <slot />
+      </main>
+      <Footer locale={locale} />
+    </div>
+  </body>
+</html>
+
+<style>
+  .site-chrome {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .container {
+    margin: 0 auto;
+    padding: 0 16px;
+    max-width: 1200px;
+  }
+
+  main {
+    margin-top: 45px;
+  }
+
+  @media (min-width: 575px) {
+    .container { padding: 0 var(--space-4); }
+    main { margin-top: unset; }
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .skip-link:focus {
+    left: 16px;
+    top: 16px;
+    width: auto;
+    height: auto;
+    background: #fff;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    z-index: 999;
+    text-decoration: none;
+    color: var(--text-strong);
+  }
+</style>
+
+<style is:global>
+  :root {
+    --space-0: 0;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 20px;
+    --space-5: 32px;
+    --space-6: 52px;
+    --space-7: 84px;
+    --space-8: 136px;
+    --space-9: 220px;
+
+    --font-family-sans: Inter;
+    --font-family-serif: PT Serif;
+    --font-family-mono: IBM Plex Mono;
+
+    --font-size-0: 12px;
+    --font-size-1: 14px;
+    --font-size-2: 16px;
+    --font-size-3: 18px;
+    --font-size-4: 20px;
+    --font-size-5: 24px;
+    --font-size-6: 30px;
+    --font-size-7: 36px;
+    --font-size-8: 48px;
+    --font-size-9: 60px;
+    --font-size-10: 72px;
+
+    --line-height-0: 16px;
+    --line-height-1: 20px;
+    --line-height-2: 24px;
+    --line-height-3: 28px;
+    --line-height-4: 28px;
+    --line-height-5: 32px;
+    --line-height-6: 36px;
+    --line-height-7: 40px;
+    --line-height-8: 48px;
+    --line-height-9: 60px;
+    --line-height-10: 72px;
+    --line-height-11: 96px;
+    --line-height-12: 128px;
+
+    --white: #fff;
+    --black: #101112;
+    --gray-200: #ced2d9;
+    --gray-600: #6e7683;
+    --blue-600: #1e61cd;
+    --magenta-100: #f9d7eb;
+
+    /* Brand tokens */
+    --brand-primary: #9E1703;
+    --brand-ink: #7A1302;
+    --brand-tint: #F7EAE8;
+    --text: #666666;
+    --text-strong: #222222;
+    --bg: #ffffff;
+    --border: #e5e7eb;
+
+    --max-width-0: 320px;
+    --max-width-1: 768px;
+  }
+
+  html {
+    background-color: var(--bg);
+    font-family: var(--font-family-sans), var(--font-family-serif), sans-serif;
+    color: var(--text);
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
+  a { color: var(--brand-primary); text-decoration: none; }
+  a:hover { text-decoration: underline; opacity: 1; }
+  :focus { outline: 2px solid var(--brand-primary); outline-offset: 2px; }
+
+  /* Type polish */
+  h1, h2, h3 { color: var(--text-strong); letter-spacing: -0.015em; }
+  h1 { font-size: clamp(32px, 6vw, 56px); line-height: 1.05; }
+  h2 { font-size: clamp(24px, 3.5vw, 36px); line-height: 1.1; }
+  h3 { font-size: clamp(20px, 2.8vw, 30px); line-height: 1.15; }
+  p  { font-size: 1rem; line-height: 1.65; max-width: 68ch; }
+</style>
+
+================
+File: astro-app/src/components/layout/Header.astro
+================
+---
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t, type TranslationKey } from "../../i18n/ui";
+
+interface Props {
+  currentPath: string;
+  alternate?: Partial<Record<Locale, string>>;
+  locale?: Locale;
+}
+
+const props = Astro.props as Props;
+const currentPath = props.currentPath ?? Astro.url.pathname;
+const alternate = props.alternate;
+const locale: Locale = resolveLocale(Astro, props.locale);
+const isFr = locale === "fr";
+
+type NavConfig = {
+  labelKey: TranslationKey;
+  href: Record<Locale, string>;
+  dropdown?: Array<{
+    labelKey: TranslationKey;
+    href: Record<Locale, string>;
+    external?: boolean;
+  }>;
+  external?: boolean;
+};
+
+const navConfig: NavConfig[] = [
+  {
+    labelKey: "nav.announcements",
+    href: { en: "/news/", fr: "/fr/nouvelles/" },
+  },
+  {
+    labelKey: "nav.about",
+    href: { en: "/about/", fr: "/fr/a-propos/" },
+    dropdown: [
+      {
+        labelKey: "nav.about.missionValues",
+        href: { en: "/about/mission-and-values/", fr: "/fr/a-propos/mission-et-valeurs/" },
+      },
+      {
+        labelKey: "nav.about.board",
+        href: { en: "/about/meet-the-board/", fr: "/fr/a-propos/conseil/" },
+      },
+      {
+        labelKey: "nav.about.staff",
+        href: { en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" },
+      },
+      {
+        labelKey: "nav.about.teams",
+        href: { en: "/teams/", fr: "/fr/equipes/" },
+      },
+      {
+        labelKey: "nav.about.whatIsQuadball",
+        href: { en: "/info/what-is-quadball/", fr: "/fr/info/quest-ce-que-le-quadball/" },
+      },
+    ],
+  },
+  {
+    labelKey: "nav.resources",
+    href: { en: "/resources/", fr: "/fr/ressources/" },
+    dropdown: [
+      {
+        labelKey: "nav.resources.all",
+        href: { en: "/resources/", fr: "/fr/ressources/" },
+      },
+      {
+        labelKey: "nav.resources.policies",
+        href: { en: "/resources/policies/", fr: "/fr/ressources/politiques/" },
+      },
+    ],
+  },
+  {
+    labelKey: "nav.events",
+    href: { en: "/events/", fr: "/fr/evenements/" },
+    dropdown: [
+      {
+        labelKey: "nav.events.upcoming",
+        href: { en: "/events/", fr: "/fr/evenements/" },
+      },
+      {
+        labelKey: "nav.events.host",
+        href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },
+      },
+    ],
+  },
+  {
+    labelKey: "nav.getInvolved",
+    href: { en: "/get-involved/", fr: "/fr/simpliquer/" },
+    dropdown: [
+      {
+        labelKey: "nav.getInvolved.findTeam",
+        href: { en: "/teams/", fr: "/fr/equipes/" },
+      },
+      {
+        labelKey: "nav.getInvolved.volunteer",
+        href: { en: "/volunteer-opportunities/", fr: "/fr/benevolat/" },
+      },
+      {
+        labelKey: "nav.getInvolved.host",
+        href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },
+      },
+      {
+        labelKey: "nav.getInvolved.teamCanada",
+        href: { en: "/teams/national-team/", fr: "/fr/equipes/equipe-nationale/" },
+      },
+    ],
+  },
+];
+
+const navItems = navConfig.map((item) => ({
+  label: t(locale, item.labelKey),
+  href: item.href[locale],
+  external: item.external,
+  dropdown: item.dropdown?.map((child) => ({
+    label: t(locale, child.labelKey),
+    href: child.href[locale],
+    external: child.external,
+  })),
+}));
+
+// Split nav items for desktop centered layout
+const leftNavItems = navItems.slice(0, Math.ceil(navItems.length / 2));
+const rightNavItems = navItems.slice(Math.ceil(navItems.length / 2));
+
+function isActive(href: string) {
+  if (!currentPath) return false;
+  const normalized = href.endsWith("/") ? href : `${href}/`;
+  const current = currentPath.endsWith("/") ? currentPath : `${currentPath}/`;
+  return current === normalized || current.startsWith(normalized);
+}
+
+const ctaCopy = {
+  contact: t(locale, "cta.contact"),
+  store: t(locale, "cta.store"),
+  donate: t(locale, "cta.donate"),
+};
+
+const ctaLinks = {
+  contact: isFr ? "/fr/contact/" : "/contact/",
+  store: "https://vcultimate.com/collections/quadball-canada?shpxid=72ea749d-601f-49be-94f8-23c6469b0790",
+  donate: "https://www.paypal.me/quidditchcanada",
+};
+---
+<header class="site-header">
+  <div class="site-header__bar">
+    <!-- Mobile menu drawer -->
+    <details class="drawer">
+      <summary class="nav-toggle">
+        <span class="nav-toggle__icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <span class="sr-only">Menu</span>
+      </summary>
+      <nav id="site-nav-mobile" class="drawer__panel" aria-label={isFr ? "Navigation principale" : "Primary"}>
+        {navItems.map((item) => (
+          <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
+        ))}
+        <div class="drawer__actions">
+          <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
+          <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+          <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
+        </div>
+        <div class="drawer__lang">
+          <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+        </div>
+      </nav>
+    </details>
+
+    <!-- Desktop left controls -->
+    <div class="site-header__side site-header__side--left">
+      <div class="site-header__lang">
+        <LanguageSwitcher currentPath={currentPath} alternate={alternate} />
+      </div>
+      <nav class="site-header__nav site-header__nav--left" aria-label="Primary left">
+        {leftNavItems.map((item) => (
+          item.dropdown ? (
+            <div class="nav-dropdown">
+              <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined} class="nav-dropdown__trigger">
+                {item.label}
+                <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M6 8L2 4h8z" fill="currentColor" />
+                </svg>
+              </a>
+              <div class="nav-dropdown__menu">
+                {item.dropdown.map((subItem) => (
+                  <a href={subItem.href} target={subItem.external ? "_blank" : undefined} rel={subItem.external ? "noopener" : undefined}>
+                    {subItem.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
+          )
+        ))}
+      </nav>
+    </div>
+
+    <!-- Centered logo -->
+    <a class="site-header__title" href={isFr ? "/fr/" : "/"} aria-label={isFr ? "Quadball Canada — Accueil" : "Quadball Canada — Home"}>
+      <img src="/quadball-canada-logo.jpg" alt="Quadball Canada" class="logo" />
+    </a>
+
+    <!-- Desktop right nav -->
+    <nav class="site-header__nav site-header__nav--right" aria-label={isFr ? "Navigation principale droite" : "Primary right"}>
+      {rightNavItems.map((item) => (
+        item.dropdown ? (
+          <div class="nav-dropdown">
+            <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined} class="nav-dropdown__trigger">
+              {item.label}
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M6 8L2 4h8z" fill="currentColor" />
+              </svg>
+            </a>
+            <div class="nav-dropdown__menu">
+              {item.dropdown.map((subItem) => (
+                <a href={subItem.href} target={subItem.external ? "_blank" : undefined} rel={subItem.external ? "noopener" : undefined}>
+                  {subItem.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
+        )
+      ))}
+      <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
+      <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+      <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    width: 100%;
+    backdrop-filter: saturate(140%) blur(8px);
+    background: color-mix(in oklab, var(--bg) 85%, white 15%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .site-header__bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px clamp(16px, 4vw, 40px);
+  }
+
+  .site-header__side {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .site-header__side--left {
+    justify-self: stretch;
+  }
+
+  .site-header__lang {
+    flex-shrink: 0;
+  }
+
+  .site-header__title {
+    display: inline-flex;
+    align-items: center;
+    justify-self: center;
+    text-decoration: none;
+  }
+
+  .logo {
+    height: 60px;
+    width: auto;
+    display: block;
+  }
+
+  .site-header__nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  .site-header__nav--left {
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .site-header__nav--right {
+    justify-content: flex-start;
+  }
+
+  .site-header__nav a {
+    color: var(--text-strong);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+
+  .site-header__nav a:hover {
+    color: var(--brand-primary);
+  }
+
+  .site-header__nav a[aria-current="page"] {
+    color: var(--brand-primary);
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    text-decoration: none !important;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn--primary {
+    background: var(--brand-primary);
+    color: #fff !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+
+  .btn--primary:hover {
+    background: var(--brand-ink);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,.16);
+  }
+
+  .btn--secondary {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-strong) !important;
+  }
+
+  .btn--secondary:hover {
+    border-color: var(--brand-primary);
+    color: var(--brand-primary) !important;
+  }
+
+  /* Mobile drawer */
+  .drawer {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .nav-toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-toggle__icon {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 18px;
+  }
+
+  .nav-toggle__icon span {
+    height: 2px;
+    background: var(--text-strong);
+    border-radius: 1px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .drawer[open] .nav-toggle__icon span:nth-child(1) {
+    transform: translateY(5px) rotate(45deg);
+  }
+
+  .drawer[open] .nav-toggle__icon span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .drawer[open] .nav-toggle__icon span:nth-child(3) {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  .drawer__panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    padding: 20px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  }
+
+  .drawer__panel a {
+    display: block;
+    padding: 12px 0;
+    color: var(--text-strong);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drawer__panel a:hover {
+    color: var(--brand-primary);
+  }
+
+  .drawer__panel a[aria-current="page"] {
+    color: var(--brand-primary);
+  }
+
+  .drawer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .drawer__actions .btn {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .drawer__actions .btn--primary {
+    flex: 1 1 100%;
+  }
+
+  .drawer__lang {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Dropdown menu */
+  .nav-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .nav-dropdown__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .nav-dropdown__trigger svg {
+    transition: transform 0.2s ease;
+  }
+
+  .nav-dropdown:hover .nav-dropdown__trigger svg {
+    transform: rotate(180deg);
+  }
+
+  .nav-dropdown__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 50;
+  }
+
+  .nav-dropdown:hover .nav-dropdown__menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-dropdown__menu a {
+    display: block;
+    padding: 12px 16px;
+    color: var(--text-strong);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-dropdown__menu a:last-child {
+    border-bottom: none;
+  }
+
+  .nav-dropdown__menu a:hover {
+    background: var(--brand-tint);
+    color: var(--brand-primary);
+  }
+
+  @media (max-width: 1024px) {
+    .site-header__bar {
+      grid-template-columns: auto 1fr;
+    }
+
+    .site-header__side,
+    .site-header__nav--left,
+    .site-header__nav--right {
+      display: none;
+    }
+
+    .drawer {
+      display: block;
+      justify-self: start;
+    }
+
+    .site-header__title {
+      justify-self: center;
+      margin-right: 40px; /* Balance against menu button */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logo {
+      height: 36px;
+    }
+  }
+</style>
+
+
+
+
+
+================================================================
+End of Codebase
+================================================================

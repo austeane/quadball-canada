@@ -1,17 +1,24 @@
 ---
+import type { Locale } from "../../utils/localization";
+import { resolveLocale } from "../../i18n";
+import { t } from "../../i18n/ui";
+
 interface Props {
+  locale?: Locale;
   title?: string;
   subtitle?: string;
   ctaHref?: string;
   ctaLabel?: string;
 }
 
-const {
-  title = "Quadball Canada",
-  subtitle = "Building community through sport across Canada.",
-  ctaHref = "/get-involved/",
-  ctaLabel = "Get Involved",
-} = Astro.props as Props;
+const props = Astro.props as Props;
+const locale: Locale = resolveLocale(Astro, props.locale);
+
+const title = props.title ?? t(locale, "hero.title");
+const subtitle = props.subtitle ?? t(locale, "hero.subtitle");
+const defaultCtaHref = locale === "fr" ? "/fr/simpliquer/" : "/get-involved/";
+const ctaHref = props.ctaHref ?? defaultCtaHref;
+const ctaLabel = props.ctaLabel ?? t(locale, "hero.cta");
 ---
 <section class="hero">
   <picture>
