@@ -1,15 +1,18 @@
 ---
 import { urlFor } from "../../utils/image";
 import type { ResourceArticleSummary } from "../../utils/sanity";
+import type { Locale } from "../../utils/localization";
 
 interface Props {
   resource: ResourceArticleSummary;
+  basePath?: string;
+  locale?: Locale;
 }
 
-const { resource } = Astro.props;
+const { resource, basePath } = Astro.props as Props;
 const heroImage = resource.heroImage;
 const isExternal = !!resource.externalUrl;
-const href = isExternal ? resource.externalUrl : `/resources/${resource.slug}`;
+const href = isExternal ? resource.externalUrl : `${basePath ?? "/resources/"}${resource.slug}`;
 const categoryLabel = resource.category.charAt(0).toUpperCase() + resource.category.slice(1);
 ---
 
