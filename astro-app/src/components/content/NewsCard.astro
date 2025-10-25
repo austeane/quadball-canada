@@ -2,12 +2,15 @@
 import { formatDate } from "../../utils";
 import { urlFor } from "../../utils/image";
 import type { NewsArticleSummary } from "../../utils/sanity";
+import type { Locale } from "../../utils/localization";
 
 interface Props {
   article: NewsArticleSummary;
+  locale?: Locale;
 }
 
-const { article } = Astro.props;
+const { article, locale = "en" } = Astro.props as Props;
+const basePath = locale === "fr" ? "/fr/nouvelles/" : "/news/";
 const featuredImage = article.featuredImage;
 ---
 
@@ -26,7 +29,7 @@ const featuredImage = article.featuredImage;
     <h3 class="card__title">
       <a
         class="card__link"
-        href={`/news/${article.slug}`}
+        href={`${basePath}${article.slug}/`}
       >
         {article.title}
       </a>

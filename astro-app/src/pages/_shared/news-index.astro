@@ -23,7 +23,7 @@ const alternate = {
 <Layout title={title} alternate={alternate} locale={locale}>
   <section class="news-index">
     {articles.length ? (
-      articles.map((article) => <NewsCard article={article} />)
+      articles.map((article) => <NewsCard article={article} locale={locale} />)
     ) : (
       <p class="news-index__empty">{emptyState}</p>
     )}
