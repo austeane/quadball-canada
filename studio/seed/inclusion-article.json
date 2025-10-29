@@ -1,0 +1,353 @@
+{
+  "_type": "infoArticle",
+  "title": {
+    "en": "Inclusion & Gender Equity",
+    "fr": "Inclusion et équité des genres"
+  },
+  "slug": {
+    "en": {
+      "_type": "slug",
+      "current": "inclusion"
+    },
+    "fr": {
+      "_type": "slug",
+      "current": "inclusion"
+    }
+  },
+  "excerpt": {
+    "en": "Quadball is explicitly designed to make space for trans, non-binary, and gender non-conforming athletes. Our sport is inherently accepting and does not require players to conform to the gender binary.",
+    "fr": "Le quadball est explicitement conçu pour faire de la place aux athlètes trans, non-binaires et de genre non conforme. Notre sport est intrinsèquement accueillant et n'exige pas que les joueurs se conforment au binaire de genre."
+  },
+  "content": {
+    "en": [
+      {
+        "_type": "block",
+        "_key": "intro",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "At Quadball Canada, inclusivity is not an afterthought—it's fundamental to who we are and how we play. We believe quadball is a vehicle for community building, inclusivity, and leadership development."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "explicit-design",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Designed for Everyone"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "explicit-design-p1",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Our sport is explicitly designed to make space for trans, non-binary, and gender non-conforming athletes. Quadball is inherently accepting and does not require players to conform to the gender binary. This isn't just a policy—it's woven into the very fabric of our game."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "The Gender Maximum Rule"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule-p1",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Quadball is a gender-integrated, full-contact sport. During standard play, there are six players on the field, with a maximum of three players of any one gender. This rule ensures that our sport remains truly inclusive and that players of all genders have meaningful opportunities to participate and compete."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule-p2",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Players self-identify their gender for gameplay purposes, and we trust and respect each individual's identity. This approach creates an environment where everyone can compete authentically as themselves."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "beyond-sport",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Beyond the Field"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "beyond-sport-p1",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Our commitment to inclusion extends beyond the playing field. Quadball Canada actively works to:"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-1",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Create safe and welcoming spaces for all athletes, regardless of gender identity, sexual orientation, race, ability, or background"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-2",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Provide leadership development opportunities that empower athletes from diverse communities"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-3",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Foster community building through our sport and organizational activities"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-4",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Advocate for gender equity and LGBTQ+ inclusion in sports"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "join-us",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Join Our Community"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "join-us-p1",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Whether you're an experienced athlete or new to competitive sports, quadball welcomes you. Our sport is chaotic, exciting, strategic, and fun to watch and play—but most importantly, it's a place where you can be yourself."
+          }
+        ]
+      }
+    ],
+    "fr": [
+      {
+        "_type": "block",
+        "_key": "intro-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Chez Quadball Canada, l'inclusivité n'est pas une réflexion après coup—c'est fondamental à qui nous sommes et comment nous jouons. Nous croyons que le quadball est un véhicule pour le renforcement de la communauté, l'inclusivité et le développement du leadership."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "explicit-design-fr",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Conçu pour tout le monde"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "explicit-design-p1-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Notre sport est explicitement conçu pour faire de la place aux athlètes trans, non-binaires et de genre non conforme. Le quadball est intrinsèquement accueillant et n'exige pas que les joueurs se conforment au binaire de genre. Ce n'est pas qu'une politique—c'est tissé dans le tissu même de notre jeu."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule-fr",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "La règle du maximum de genre"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule-p1-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Le quadball est un sport de contact complet et intégré au genre. Pendant le jeu standard, il y a six joueurs sur le terrain, avec un maximum de trois joueurs d'un même genre. Cette règle garantit que notre sport reste véritablement inclusif et que les joueurs de tous les genres ont des opportunités significatives de participer et de compétitionner."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "gender-rule-p2-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Les joueurs s'identifient eux-mêmes leur genre aux fins du jeu, et nous faisons confiance et respectons l'identité de chaque individu. Cette approche crée un environnement où chacun peut concourir de manière authentique en tant que soi-même."
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "beyond-sport-fr",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Au-delà du terrain"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "beyond-sport-p1-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Notre engagement envers l'inclusion s'étend au-delà du terrain de jeu. Quadball Canada travaille activement à :"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-1-fr",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Créer des espaces sûrs et accueillants pour tous les athlètes, quels que soient leur identité de genre, leur orientation sexuelle, leur race, leurs capacités ou leurs antécédents"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-2-fr",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Offrir des opportunités de développement du leadership qui autonomisent les athlètes de communautés diverses"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-3-fr",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Favoriser le renforcement de la communauté à travers notre sport et nos activités organisationnelles"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "list-item-4-fr",
+        "style": "normal",
+        "listItem": "bullet",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Plaider pour l'équité des genres et l'inclusion LGBTQ+ dans les sports"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "join-us-fr",
+        "style": "h2",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Rejoignez notre communauté"
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "join-us-p1-fr",
+        "style": "normal",
+        "children": [
+          {
+            "_type": "span",
+            "text": "Que vous soyez un athlète expérimenté ou nouveau dans les sports de compétition, le quadball vous accueille. Notre sport est chaotique, excitant, stratégique et amusant à regarder et à jouer—mais surtout, c'est un endroit où vous pouvez être vous-même."
+          }
+        ]
+      }
+    ]
+  },
+  "seo": {
+    "metaTitle": {
+      "en": "Inclusion & Gender Equity | Quadball Canada",
+      "fr": "Inclusion et équité des genres | Quadball Canada"
+    },
+    "metaDescription": {
+      "en": "Quadball is explicitly designed to make space for trans, non-binary, and gender non-conforming athletes. Learn about our commitment to inclusion and gender equity in sport.",
+      "fr": "Le quadball est explicitement conçu pour faire de la place aux athlètes trans, non-binaires et de genre non conforme. Découvrez notre engagement envers l'inclusion et l'équité des genres dans le sport."
+    }
+  }
+}
