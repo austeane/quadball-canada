@@ -1,0 +1,136 @@
+{
+  "_id": "landingSection-about",
+  "_type": "landingSection",
+  "key": "about",
+  "title": {
+    "en": "About Us",
+    "fr": "À propos"
+  },
+  "intro": {
+    "en": "Learn about our mission, meet our team, and discover more about quadball in Canada.",
+    "fr": "Découvrez notre mission, rencontrez notre équipe et apprenez-en plus sur le quadball au Canada."
+  },
+  "showContent": false,
+  "cards": [
+    {
+      "_key": "mission",
+      "title": {
+        "en": "Mission & Values",
+        "fr": "Mission et valeurs"
+      },
+      "body": {
+        "en": "Discover our commitment to inclusivity and growing the sport across Canada.",
+        "fr": "Découvrez notre engagement envers l'inclusivité et le développement du sport à travers le Canada."
+      },
+      "ctaText": {
+        "en": "Read Our Mission",
+        "fr": "Lire notre mission"
+      },
+      "href": {
+        "en": "/about/mission-and-values/",
+        "fr": "/fr/a-propos/mission-et-valeurs/"
+      },
+      "external": false
+    },
+    {
+      "_key": "inclusion",
+      "title": {
+        "en": "Inclusion & Gender Equity",
+        "fr": "Inclusion et équité des genres"
+      },
+      "body": {
+        "en": "Quadball is explicitly designed to make space for trans, non-binary, and gender non-conforming athletes.",
+        "fr": "Le quadball est explicitement conçu pour faire de la place aux athlètes trans, non-binaires et de genre non conforme."
+      },
+      "ctaText": {
+        "en": "Learn More",
+        "fr": "En savoir plus"
+      },
+      "href": {
+        "en": "/info/inclusion/",
+        "fr": "/fr/info/inclusion/"
+      },
+      "external": false
+    },
+    {
+      "_key": "board",
+      "title": {
+        "en": "Meet the Board",
+        "fr": "Conseil d'administration"
+      },
+      "body": {
+        "en": "Meet the dedicated volunteers guiding Quadball Canada into the future.",
+        "fr": "Rencontrez les bénévoles dévoués qui guident Quadball Canada vers l'avenir."
+      },
+      "ctaText": {
+        "en": "Meet the Board",
+        "fr": "Rencontrer le conseil"
+      },
+      "href": {
+        "en": "/about/meet-the-board/",
+        "fr": "/fr/a-propos/conseil/"
+      },
+      "external": false
+    },
+    {
+      "_key": "staff",
+      "title": {
+        "en": "Meet the Staff",
+        "fr": "Équipe"
+      },
+      "body": {
+        "en": "Get to know the staff working daily to support our community.",
+        "fr": "Découvrez le personnel qui travaille quotidiennement pour soutenir notre communauté."
+      },
+      "ctaText": {
+        "en": "Meet the Staff",
+        "fr": "Rencontrer l'équipe"
+      },
+      "href": {
+        "en": "/about/meet-the-staff/",
+        "fr": "/fr/a-propos/equipe/"
+      },
+      "external": false
+    },
+    {
+      "_key": "teams",
+      "title": {
+        "en": "Our Teams",
+        "fr": "Nos équipes"
+      },
+      "body": {
+        "en": "Explore quadball clubs and programs across Canada.",
+        "fr": "Explorez les clubs et programmes de quadball à travers le Canada."
+      },
+      "ctaText": {
+        "en": "View Teams",
+        "fr": "Voir les équipes"
+      },
+      "href": {
+        "en": "/teams/",
+        "fr": "/fr/equipes/"
+      },
+      "external": false
+    },
+    {
+      "_key": "whatisquadball",
+      "title": {
+        "en": "What is Quadball?",
+        "fr": "Qu'est-ce que le quadball?"
+      },
+      "body": {
+        "en": "Learn the basics and history of this dynamic, inclusive sport.",
+        "fr": "Apprenez les règles de base et l'histoire de ce sport dynamique et inclusif."
+      },
+      "ctaText": {
+        "en": "Discover the Sport",
+        "fr": "Découvrir le sport"
+      },
+      "href": {
+        "en": "/info/what-is-quadball/",
+        "fr": "/fr/info/quest-ce-que-le-quadball/"
+      },
+      "external": false
+    }
+  ]
+}
