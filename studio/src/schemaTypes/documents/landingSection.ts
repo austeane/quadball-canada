@@ -24,7 +24,7 @@ export default defineType({
       name: 'title',
       title: 'Section Title',
       type: 'localeString',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeString; French is optional for auto-translation
     }),
     defineField({
       name: 'intro',
@@ -47,21 +47,21 @@ export default defineType({
               name: 'title',
               title: 'Card Title',
               type: 'localeString',
-              validation: (Rule) => Rule.required(),
+              // English is required inside localeString; French is optional for auto-translation
             }),
             defineField({
               name: 'body',
               title: 'Card Description',
               type: 'localeText',
               rows: 3,
-              validation: (Rule) => Rule.required(),
+              // English is required inside localeText; French is optional for auto-translation
             }),
             defineField({
               name: 'ctaText',
               title: 'Call to Action Text',
               type: 'localeString',
               description: 'Text for the button/link',
-              validation: (Rule) => Rule.required(),
+              // English is required inside localeString; French is optional for auto-translation
             }),
             defineField({
               name: 'href',

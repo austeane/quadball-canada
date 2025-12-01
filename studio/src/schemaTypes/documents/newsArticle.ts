@@ -9,13 +9,13 @@ export default defineType({
       name: 'title',
       title: 'Title',
       type: 'localeString',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeString; French is optional for auto-translation
     },
     {
       name: 'slug',
       title: 'Slug',
       type: 'localeSlug',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeSlug; French is optional
     },
     {
       name: 'publishedAt',
@@ -54,7 +54,7 @@ export default defineType({
       name: 'content',
       title: 'Content',
       type: 'localePortableText',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localePortableText; French is optional for auto-translation
     },
     {
       name: 'featured',

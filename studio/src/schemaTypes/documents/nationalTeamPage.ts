@@ -9,7 +9,7 @@ export default defineType({
       name: 'title',
       title: 'Title',
       type: 'localeString',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeString; French is optional for auto-translation
     },
     {
       name: 'hero',
@@ -33,7 +33,7 @@ export default defineType({
       name: 'content',
       title: 'Content',
       type: 'localePortableText',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localePortableText; French is optional for auto-translation
     },
     {
       name: 'cta',

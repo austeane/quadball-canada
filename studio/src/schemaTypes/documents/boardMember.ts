@@ -26,14 +26,14 @@ export default defineType({
       title: 'Role / Title',
       type: 'localeString',
       description: 'e.g., "President", "Treasurer", "Director"',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeString; French is optional for auto-translation
     }),
     defineField({
       name: 'bio',
       title: 'Bio',
       type: 'localeText',
       description: 'Brief biography of the board member',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeText; French is optional for auto-translation
     }),
     defineField({
       name: 'headshot',

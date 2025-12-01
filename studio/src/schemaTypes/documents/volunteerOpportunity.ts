@@ -25,7 +25,7 @@ export default defineType({
       name: 'title',
       title: 'Title',
       type: 'localeString',
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeString; French is optional for auto-translation
     }),
     defineField({
       name: 'slug',
@@ -42,7 +42,7 @@ export default defineType({
       title: 'Summary',
       type: 'localeText',
       rows: 3,
-      validation: (Rule) => Rule.required(),
+      // English is required inside localeText; French is optional for auto-translation
     }),
     defineField({
       name: 'roleType',
