@@ -47,8 +47,22 @@ export default defineType({
     {
       name: 'excerpt',
       title: 'Excerpt',
-      type: 'localeText',
-      validation: (Rule) => Rule.max(200),
+      type: 'object',
+      fields: [
+        {
+          title: 'English',
+          name: 'en',
+          type: 'text',
+          validation: (Rule) => Rule.required().max(200),
+        },
+        {
+          title: 'French',
+          name: 'fr',
+          type: 'text',
+          description: 'Optional — will be auto-translated if left empty',
+          validation: (Rule) => Rule.max(200),
+        },
+      ],
     },
     {
       name: 'content',
