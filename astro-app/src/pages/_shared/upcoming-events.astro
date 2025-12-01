@@ -46,7 +46,7 @@ function formatEventDate(start: string, end?: string): string {
   const startDate = new Date(start);
   const endDate = end ? new Date(end) : null;
 
-  if (endDate && startDate.toDateString() !== endDate.toDateString()) {
+  if (endDate && end && startDate.toDateString() !== endDate.toDateString()) {
     return `${formatDate(start, locale)} — ${formatDate(end, locale)}`;
   }
   return formatDate(start, locale);
