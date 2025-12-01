@@ -42,7 +42,7 @@ export default defineType({
       title: 'Summary',
       type: 'localeText',
       rows: 3,
-      validation: (Rule) => Rule.required().min(20).error('Provide a short description that encourages people to apply.'),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'roleType',
@@ -105,7 +105,7 @@ export default defineType({
       name: 'applicationUrl',
       title: 'Application URL',
       type: 'url',
-      validation: (Rule) => Rule.required().uri({ allowRelative: false }),
+      validation: (Rule) => Rule.uri({ allowRelative: false }),
     }),
     defineField({
       name: 'contactEmail',

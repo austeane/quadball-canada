@@ -116,17 +116,13 @@ Return ONLY the translation, no explanations or notes.`;
 }
 
 /**
- * Fetch document from Sanity
+ * Fetch document from Sanity (no auth needed for public dataset reads)
  */
 async function fetchDocument(docId, env) {
   const query = encodeURIComponent(`*[_id == "${docId}"][0]`);
   const url = `https://${env.SANITY_PROJECT_ID}.api.sanity.io/v2024-01-01/data/query/${env.SANITY_DATASET}?query=${query}`;
 
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${env.SANITY_AUTH_TOKEN}`,
-    },
-  });
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(`Sanity fetch error: ${response.status}`);
@@ -174,7 +170,7 @@ function needsTranslation(doc) {
     return false;
   }
 
-  const fieldsToCheck = ['title', 'slug', 'excerpt', 'description', 'content'];
+  const fieldsToCheck = ['title', 'slug', 'excerpt', 'description', 'content', 'summary', 'body', 'intro'];
 
   for (const field of fieldsToCheck) {
     const value = doc[field];
@@ -214,6 +210,24 @@ async function translateDocument(doc, env) {
   if (doc.description?.en && !doc.description?.fr) {
     const translated = await translateText(doc.description.en, env.OPENAI_API_KEY);
     if (translated) updates['description.fr'] = translated;
+  }
+
+  // Summary (localeText - used by volunteerOpportunity)
+  if (doc.summary?.en && !doc.summary?.fr) {
+    const translated = await translateText(doc.summary.en, env.OPENAI_API_KEY);
+    if (translated) updates['summary.fr'] = translated;
+  }
+
+  // Body (localeText - used by resourceArticle)
+  if (doc.body?.en && !doc.body?.fr) {
+    const translated = await translateText(doc.body.en, env.OPENAI_API_KEY);
+    if (translated) updates['body.fr'] = translated;
+  }
+
+  // Intro (localeText - used by landingSection)
+  if (doc.intro?.en && !doc.intro?.fr) {
+    const translated = await translateText(doc.intro.en, env.OPENAI_API_KEY);
+    if (translated) updates['intro.fr'] = translated;
   }
 
   // Content (Portable Text)
