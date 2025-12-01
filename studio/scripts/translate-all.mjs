@@ -54,6 +54,7 @@ const LOCALIZED_DOCUMENT_TYPES = specificType ? [specificType] : [
   'resourceArticle',
   'volunteerOpportunity',
   'landingSection',
+  'boardMember',
 ]
 
 // Initialize clients
@@ -169,7 +170,7 @@ async function translateDocument(doc) {
   const updates = {}
 
   // Title (localeString)
-  if (doc.title?.en && !doc.title?.fr) {
+  if (doc.title?.en && (!doc.title?.fr || doc.title.fr === '.')) {
     console.log(`    📝 Translating title...`)
     const translated = await translateText(doc.title.en)
     if (translated) {
@@ -187,7 +188,7 @@ async function translateDocument(doc) {
   }
 
   // Excerpt (localeText)
-  if (doc.excerpt?.en && !doc.excerpt?.fr) {
+  if (doc.excerpt?.en && (!doc.excerpt?.fr || doc.excerpt.fr === '.')) {
     console.log(`    📝 Translating excerpt...`)
     const translated = await translateText(doc.excerpt.en)
     if (translated) {
@@ -196,7 +197,7 @@ async function translateDocument(doc) {
   }
 
   // Description (localeText)
-  if (doc.description?.en && !doc.description?.fr) {
+  if (doc.description?.en && (!doc.description?.fr || doc.description.fr === '.')) {
     console.log(`    📝 Translating description...`)
     const translated = await translateText(doc.description.en)
     if (translated) {
@@ -260,6 +261,24 @@ async function translateDocument(doc) {
     }
   }
 
+  // Role (localeString - for boardMember)
+  if (doc.role?.en && (!doc.role?.fr || doc.role.fr === '.')) {
+    console.log(`    📝 Translating role...`)
+    const translated = await translateText(doc.role.en)
+    if (translated) {
+      updates['role.fr'] = translated
+    }
+  }
+
+  // Bio (localeText - for boardMember)
+  if (doc.bio?.en && (!doc.bio?.fr || doc.bio.fr === '.')) {
+    console.log(`    📝 Translating bio...`)
+    const translated = await translateText(doc.bio.en)
+    if (translated) {
+      updates['bio.fr'] = translated
+    }
+  }
+
   return updates
 }
 
@@ -301,16 +320,18 @@ async function main() {
   // Build GROQ query to find documents needing translation
   const typeFilter = LOCALIZED_DOCUMENT_TYPES.map(t => `_type == "${t}"`).join(' || ')
 
-  // Find documents that have English but missing French in key fields
+  // Find documents that have English but missing French (or "." placeholder) in key fields
   const query = `*[
     (${typeFilter}) &&
     !(_id in path("drafts.**")) &&
     (
-      (defined(title.en) && !defined(title.fr)) ||
+      (defined(title.en) && (!defined(title.fr) || title.fr == ".")) ||
       (defined(slug.en.current) && !defined(slug.fr.current)) ||
-      (defined(excerpt.en) && !defined(excerpt.fr)) ||
-      (defined(description.en) && !defined(description.fr)) ||
-      (defined(content.en) && !defined(content.fr))
+      (defined(excerpt.en) && (!defined(excerpt.fr) || excerpt.fr == ".")) ||
+      (defined(description.en) && (!defined(description.fr) || description.fr == ".")) ||
+      (defined(content.en) && !defined(content.fr)) ||
+      (defined(role.en) && (!defined(role.fr) || role.fr == ".")) ||
+      (defined(bio.en) && (!defined(bio.fr) || bio.fr == "."))
     )
   ]${limit ? `[0...${limit}]` : ''} {
     _id,
@@ -323,7 +344,10 @@ async function main() {
     seo,
     location,
     featuredImage,
-    heroImage
+    heroImage,
+    role,
+    bio,
+    name
   }`
 
   console.log('🔍 Finding documents needing translation...')
@@ -341,7 +365,8 @@ async function main() {
   let failed = 0
 
   for (const doc of documents) {
-    console.log(`\n[${translated + failed + 1}/${documents.length}] ${doc._type}: ${doc.title?.en || doc._id}`)
+    const docName = doc.title?.en || doc.name || doc._id
+    console.log(`\n[${translated + failed + 1}/${documents.length}] ${doc._type}: ${docName}`)
 
     try {
       const updates = await translateDocument(doc)
