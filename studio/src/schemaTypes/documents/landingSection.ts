@@ -1,5 +1,4 @@
 import { defineField, defineType } from 'sanity'
-import { localeString, localeText } from '../helpers/localization'
 
 export default defineType({
   name: 'landingSection',
@@ -21,21 +20,19 @@ export default defineType({
         ],
       },
     }),
-    defineField(
-      localeString({
-        name: 'title',
-        title: 'Section Title',
-        validation: (Rule) => Rule.required(),
-      })
-    ),
-    defineField(
-      localeText({
-        name: 'intro',
-        title: 'Introduction Text',
-        description: 'Paragraph that appears below the title',
-        rows: 3,
-      })
-    ),
+    defineField({
+      name: 'title',
+      title: 'Section Title',
+      type: 'localeString',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'intro',
+      title: 'Introduction Text',
+      type: 'localeText',
+      description: 'Paragraph that appears below the title',
+      rows: 3,
+    }),
     defineField({
       name: 'cards',
       title: 'Section Cards',
@@ -46,29 +43,26 @@ export default defineType({
           name: 'card',
           title: 'Card',
           fields: [
-            defineField(
-              localeString({
-                name: 'title',
-                title: 'Card Title',
-                validation: (Rule) => Rule.required(),
-              })
-            ),
-            defineField(
-              localeText({
-                name: 'body',
-                title: 'Card Description',
-                rows: 3,
-                validation: (Rule) => Rule.required(),
-              })
-            ),
-            defineField(
-              localeString({
-                name: 'ctaText',
-                title: 'Call to Action Text',
-                description: 'Text for the button/link',
-                validation: (Rule) => Rule.required(),
-              })
-            ),
+            defineField({
+              name: 'title',
+              title: 'Card Title',
+              type: 'localeString',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'body',
+              title: 'Card Description',
+              type: 'localeText',
+              rows: 3,
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'ctaText',
+              title: 'Call to Action Text',
+              type: 'localeString',
+              description: 'Text for the button/link',
+              validation: (Rule) => Rule.required(),
+            }),
             defineField({
               name: 'href',
               title: 'Link',
@@ -136,7 +130,7 @@ export default defineType({
       return {
         title: titleEn || titleFr || 'Untitled Section',
         subtitle: `Landing Section: ${key}`,
-        media: <span style={{ fontSize: '1.5rem' }}>{titles[key] || '📄'}</span>,
+        media: titles[key] || '📄',
       }
     },
   },

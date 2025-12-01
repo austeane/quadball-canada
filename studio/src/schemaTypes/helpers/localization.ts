@@ -15,7 +15,7 @@ export const localeString = {
       title: 'French',
       name: 'fr',
       type: 'string',
-      validation: (Rule: any) => Rule.required(),
+      description: 'Optional — will be auto-translated if left empty',
     },
   ],
 };
@@ -35,7 +35,7 @@ export const localeText = {
       title: 'French',
       name: 'fr',
       type: 'text',
-      validation: (Rule: any) => Rule.required(),
+      description: 'Optional — will be auto-translated if left empty',
     },
   ],
 };
@@ -60,10 +60,10 @@ export const localeSlug = {
       name: 'fr',
       type: 'slug',
       options: {
-        source: 'title.fr',
+        source: 'title.en', // Falls back to English slug
         maxLength: 96,
       },
-      validation: (Rule: any) => Rule.required(),
+      description: 'Optional — will use English slug if left empty',
     },
   ],
 };
@@ -83,7 +83,7 @@ export const localePortableText = {
       title: 'French',
       name: 'fr',
       type: 'blockContent',
-      validation: (Rule: any) => Rule.required(),
+      description: 'Optional — will be auto-translated if left empty',
     },
   ],
 };

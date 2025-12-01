@@ -147,11 +147,40 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 ## Localization Strategy
 
 - Field-level localization using `localeString`, `localeText`, `localeSlug`, and `localePortableText`.
+- **French fields are optional** — only English is required. Missing French content is auto-translated.
 - Helpers:
   - Studio: `studio/src/schemaTypes/helpers/localization.ts`
   - Astro: `astro-app/src/utils/localization.ts`
 - EN routes: `/news/...`; FR routes: `/fr/nouvelles/...`.
- - Layout: `Layout.astro` accepts an `alternate` prop `{ en, fr }`, used to render hreflang links and power the header `LanguageSwitcher`.
+- Layout: `Layout.astro` accepts an `alternate` prop `{ en, fr }`, used to render hreflang links and power the header `LanguageSwitcher`.
+
+### Auto-Translation
+
+Documents missing French translations are automatically translated using OpenAI.
+
+**Setup:**
+1. Get a Sanity write token from https://www.sanity.io/manage → API → Tokens
+2. Add to `studio/.env`:
+   ```
+   SANITY_AUTH_TOKEN="your-token"
+   OPENAI_API_KEY="your-key"
+   ```
+
+**Commands:**
+```bash
+# Start background listener (translates on publish)
+cd studio && npm run translate:listen
+
+# Translate all existing documents missing French
+cd studio && npm run translate:all
+
+# Options for translate:all
+cd studio && npm run translate:all -- --dry-run        # Preview without changes
+cd studio && npm run translate:all -- --type=newsArticle  # Only translate news
+cd studio && npm run translate:all -- --limit=5        # Process only 5 docs
+```
+
+**Supported document types:** newsArticle, infoArticle, event, resourceArticle, volunteerOpportunity, landingSection
 
 ## Migration Scripts
 
