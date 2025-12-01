@@ -3,6 +3,10 @@
  *
  * Receives webhooks from Sanity when documents are published,
  * translates missing French content using OpenAI, and updates the document.
+ *
+ * Uses OpenAI Responses API with:
+ * - gpt-5.1-2025-11-13 (latest model)
+ * - Structured Outputs for reliable JSON responses
  */
 
 // Document types that support localization
@@ -78,41 +82,69 @@ function plainTextToPortableText(text, originalBlocks) {
 }
 
 /**
- * Translate text using OpenAI
+ * Translate text using OpenAI Responses API with Structured Outputs
+ * Uses gpt-5.1-2025-11-13 (latest model) with JSON schema for reliable output
  */
 async function translateText(text, openaiApiKey) {
   if (!text || (typeof text === 'string' && !text.trim())) {
     return text;
   }
 
-  const systemPrompt = `You are a professional translator for Quadball Canada, translating from English to French.
+  const instructions = `You are a professional translator for Quadball Canada, translating from English to French.
 Maintain the same tone, style, and formatting as the original.
 Keep proper nouns, brand names, and technical terms (like "quadball", "quaffle", "bludger", "snitch") in their original form unless there's a well-established French equivalent.
-Translate naturally for a Canadian French audience.
-Return ONLY the translation, no explanations or notes.`;
+Translate naturally for a Canadian French audience.`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${openaiApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Translate the following to French:\n\n${text}` },
-      ],
-      temperature: 0.3,
+      model: 'gpt-5.1-2025-11-13',
+      instructions: instructions,
+      input: `Translate the following text to French:\n\n${text}`,
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'translation',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              translation: {
+                type: 'string',
+                description: 'The French translation of the input text'
+              }
+            },
+            required: ['translation'],
+            additionalProperties: false
+          }
+        }
+      }
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content?.trim() || text;
+
+  // Parse the structured output
+  try {
+    const outputText = data.output_text || data.output?.[0]?.content?.[0]?.text;
+    if (outputText) {
+      const parsed = JSON.parse(outputText);
+      return parsed.translation || text;
+    }
+  } catch (e) {
+    console.error('Failed to parse translation response:', e);
+  }
+
+  return text;
 }
 
 /**
