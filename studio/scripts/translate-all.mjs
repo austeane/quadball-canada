@@ -55,6 +55,8 @@ const LOCALIZED_DOCUMENT_TYPES = specificType ? [specificType] : [
   'volunteerOpportunity',
   'landingSection',
   'boardMember',
+  'staffMember',
+  'team',
 ]
 
 // Initialize clients
