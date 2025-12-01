@@ -28,7 +28,6 @@ const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quad
 <Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
   <section class="info-article">
     <h1>{article.title}</h1>
-    {article.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
     <PortableText value={article.content} />
   </section>
 </Layout>
@@ -38,12 +37,6 @@ const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quad
     padding: 48px 0;
     display: grid;
     gap: 24px;
-  }
-
-  .info-article__excerpt {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: var(--gray-600);
   }
 
   .info-article :global(h2) {
