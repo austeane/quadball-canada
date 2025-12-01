@@ -13,32 +13,83 @@ const props = Astro.props as Props;
 const locale = props.locale ?? resolveLocale(Astro);
 const articles = await getNewsArticles(locale);
 const title = t(locale, "news.title");
+const subtitle = t(locale, "news.subtitle");
 const emptyState = t(locale, "news.empty");
 const alternate = {
   en: "/news/",
   fr: "/fr/nouvelles/",
 };
+
+// Split articles into featured (first) and rest
+const featuredArticle = articles.length > 0 ? articles[0] : null;
+const remainingArticles = articles.slice(1);
 ---
 
 <Layout title={title} alternate={alternate} locale={locale}>
-  <section class="news-index">
+  <section class="news-page">
+    <header class="news-header">
+      <h1>{title}</h1>
+      <p class="news-subtitle">{subtitle}</p>
+    </header>
+
     {articles.length ? (
-      articles.map((article) => <NewsCard article={article} locale={locale} />)
+      <div class="news-content">
+        {featuredArticle && (
+          <div class="featured-article">
+            <NewsCard article={featuredArticle} locale={locale} featured />
+          </div>
+        )}
+        {remainingArticles.length > 0 && (
+          <div class="news-grid">
+            {remainingArticles.map((article) => (
+              <NewsCard article={article} locale={locale} />
+            ))}
+          </div>
+        )}
+      </div>
     ) : (
-      <p class="news-index__empty">{emptyState}</p>
+      <p class="news-empty">{emptyState}</p>
     )}
   </section>
 </Layout>
 
 <style>
-  .news-index {
-    display: grid;
-    gap: var(--space-4);
-    padding: var(--space-4) 0;
+  .news-page {
+    padding: 3rem 0;
   }
 
-  .news-index__empty {
+  .news-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .news-header h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .news-subtitle {
+    font-size: var(--font-size-5);
+    color: var(--gray-600);
     margin: 0;
+  }
+
+  .news-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .featured-article {
+    margin-bottom: 1rem;
+  }
+
+  .news-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .news-empty {
+    text-align: center;
     color: var(--gray-600);
   }
 </style>

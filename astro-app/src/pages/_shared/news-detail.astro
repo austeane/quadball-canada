@@ -4,7 +4,8 @@ import type { Locale } from "@/utils/localization";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils";
 import { urlFor } from "@/utils/image";
-import { getNewsArticle } from "@/utils/sanity";
+import { getNewsArticle, getRelatedNewsArticles } from "@/utils/sanity";
+import { t } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -18,6 +19,8 @@ if (!article) {
   throw new Error(`Article not found: ${slug} (${locale})`);
 }
 
+const relatedArticles = await getRelatedNewsArticles(article._id, locale, 3);
+
 const alternate = {
   en: article.slugEn ? `/news/${article.slugEn}` : undefined,
   fr: article.slugFr ? `/fr/nouvelles/${article.slugFr}` : undefined,
@@ -28,10 +31,47 @@ const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "";
 const ogImage = article.featuredImage
   ? urlFor(article.featuredImage).width(1200).height(630).url()
   : undefined;
+
+// Calculate reading time (roughly 200 words per minute)
+const contentText = article.content
+  .filter((block: any) => block._type === "block")
+  .map((block: any) => block.children?.map((child: any) => child.text).join("") ?? "")
+  .join(" ");
+const wordCount = contentText.split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+const basePath = locale === "fr" ? "/fr/nouvelles/" : "/news/";
+const backToNewsLabel = t(locale, "news.backToNews");
+const shareLabel = t(locale, "news.share");
+const copyLinkLabel = t(locale, "news.copyLink");
+const linkCopiedLabel = t(locale, "news.linkCopied");
+const relatedLabel = t(locale, "news.relatedArticles");
+const minReadLabel = t(locale, "news.minRead");
+
+// Current page URL for sharing
+const currentUrl = Astro.url.href;
+const encodedUrl = encodeURIComponent(currentUrl);
+const encodedTitle = encodeURIComponent(article.title);
 ---
 
 <Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription, image: ogImage }}>
-  <section class="post">
+  <article class="post">
+    <nav class="post__nav">
+      <a href={basePath} class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        {backToNewsLabel}
+      </a>
+    </nav>
+
+    <header class="post__header">
+      <h1 class="post__title">{article.title}</h1>
+      <div class="post__meta">
+        <time datetime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+        <span class="meta-divider">·</span>
+        <span>{readingTime} {minReadLabel}</span>
+      </div>
+    </header>
+
     {
       article.featuredImage ? (
         <img
@@ -40,116 +80,384 @@ const ogImage = article.featuredImage
           alt={article.featuredImage.alt || ""}
         />
       ) : (
-        <div class="post__cover--none" />
+        <div class="post__cover--none" aria-hidden="true" />
       )
     }
+
     <div class="post__container">
-      <h1 class="post__title">{article.title}</h1>
       {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
-      <p class="post__date">{formatDate(article.publishedAt)}</p>
+
       <div class="post__content">
         <PortableText value={article.content} />
       </div>
+
+      <div class="post__share">
+        <span class="share-label">{shareLabel}:</span>
+        <div class="share-buttons">
+          <a
+            href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="share-btn"
+            aria-label="Share on X (Twitter)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="share-btn"
+            aria-label="Share on Facebook"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a
+            href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="share-btn"
+            aria-label="Share on LinkedIn"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <button
+            class="share-btn copy-link-btn"
+            data-url={currentUrl}
+            data-copied-label={linkCopiedLabel}
+            aria-label={copyLinkLabel}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span class="copy-label">{copyLinkLabel}</span>
+          </button>
+        </div>
+      </div>
     </div>
-  </section>
+
+    {relatedArticles.length > 0 && (
+      <section class="related">
+        <h2>{relatedLabel}</h2>
+        <div class="related__grid">
+          {relatedArticles.map((related) => (
+            <a href={`${basePath}${related.slug}/`} class="related__card">
+              {related.featuredImage ? (
+                <img
+                  class="related__image"
+                  src={urlFor(related.featuredImage).width(400).height(240).auto('format').url()}
+                  alt={related.featuredImage.alt || ""}
+                  loading="lazy"
+                />
+              ) : (
+                <div class="related__image related__image--none" aria-hidden="true" />
+              )}
+              <div class="related__content">
+                <h3>{related.title}</h3>
+                <time datetime={related.publishedAt}>{formatDate(related.publishedAt)}</time>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
 </Layout>
+
+<script>
+  document.querySelectorAll('.copy-link-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-url');
+      const copiedLabel = btn.getAttribute('data-copied-label');
+      const labelSpan = btn.querySelector('.copy-label');
+      const originalLabel = labelSpan?.textContent;
+
+      if (url) {
+        await navigator.clipboard.writeText(url);
+        if (labelSpan && copiedLabel) {
+          labelSpan.textContent = copiedLabel;
+          setTimeout(() => {
+            labelSpan.textContent = originalLabel ?? '';
+          }, 2000);
+        }
+      }
+    });
+  });
+</script>
 
 <style>
   .post {
     width: 100%;
-    margin: var(--space-1) 0 var(--space-4);
+    max-width: 800px;
+    margin: var(--space-4) auto;
+    padding: 0 var(--space-3);
+  }
 
-    & .post__cover,
-    & .post__cover--none {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
+  .post__nav {
+    margin-bottom: var(--space-4);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--font-size-3);
+    transition: gap 0.2s ease;
+  }
+
+  .back-link:hover {
+    gap: 0.75rem;
+  }
+
+  .back-link svg {
+    transition: transform 0.2s ease;
+  }
+
+  .back-link:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .post__header {
+    margin-bottom: var(--space-4);
+  }
+
+  .post__title {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-8);
+    line-height: var(--line-height-7);
+    margin: 0 0 var(--space-3);
+    font-weight: 800;
+  }
+
+  .post__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-600);
+    font-size: var(--font-size-3);
+    font-weight: 500;
+  }
+
+  .meta-divider {
+    color: var(--gray-400);
+  }
+
+  .post__cover,
+  .post__cover--none {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: var(--space-4);
+  }
+
+  .post__cover--none {
+    background: linear-gradient(135deg,
+      color-mix(in oklab, var(--brand-primary) 80%, black) 0%,
+      var(--brand-primary) 50%,
+      color-mix(in oklab, var(--brand-primary) 70%, white) 100%
+    );
+  }
+
+  .post__container {
+    max-width: 680px;
+  }
+
+  .post__excerpt {
+    font-family: var(--font-family-serif);
+    font-size: var(--font-size-5);
+    line-height: var(--line-height-4);
+    margin: 0 0 var(--space-4);
+    font-weight: 500;
+    color: var(--gray-700);
+  }
+
+  .post__content {
+    font-family: var(--font-family-serif);
+    font-weight: 400;
+    font-size: var(--font-size-4);
+    line-height: var(--line-height-5);
+    letter-spacing: -0.02em;
+
+    & blockquote {
+      border-left: 5px solid var(--brand-primary);
+      padding-left: var(--space-3);
+      margin-left: 0;
+      margin-right: 0;
+      font-style: italic;
+      color: var(--gray-700);
     }
 
-    & .post__cover--none {
-      background: var(--black);
+    & a {
+      color: var(--brand-primary);
+      text-decoration: underline;
     }
 
-    & .post__container {
-      padding: 0 var(--space-3);
-    }
-
-    & .post__content {
-      font-family: var(--font-family-serif);
-      font-weight: 400;
-      font-size: var(--font-size-4);
-      line-height: var(--line-height-5);
-      letter-spacing: -0.02em;
+    & h2, & h3, & h4 {
+      font-family: var(--font-family-sans);
       margin-top: var(--space-6);
-
-      & blockquote {
-        border-left: 5px solid var(--black);
-        padding-left: var(--space-3);
-        margin-left: var(--space-4);
-      }
-
-      & a {
-        color: var(--blue-600);
-        text-decoration: none;
-      }
     }
 
-    & .post__title {
-      font-family: var(--font-family-sans);
-      font-size: var(--font-size-7);
-      line-height: var(--line-height-6);
-      margin: var(--space-4) 0;
-      font-weight: 800;
+    & img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+  }
+
+  .post__share {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: var(--space-4) 0;
+    margin-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+
+  .share-label {
+    font-weight: 600;
+    font-size: var(--font-size-3);
+    color: var(--gray-600);
+  }
+
+  .share-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: var(--bg-secondary, #f8f9fa);
+    color: var(--text);
+    text-decoration: none;
+    font-size: var(--font-size-2);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .share-btn:hover {
+    background: var(--brand-primary);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .copy-label {
+    display: none;
+  }
+
+  @media (min-width: 600px) {
+    .copy-label {
+      display: inline;
+    }
+  }
+
+  .related {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+
+  .related h2 {
+    font-size: var(--font-size-6);
+    margin-bottom: var(--space-4);
+  }
+
+  .related__grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .related__card {
+    display: flex;
+    gap: 1rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .related__card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .related__image,
+  .related__image--none {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .related__image--none {
+    background: linear-gradient(135deg,
+      color-mix(in oklab, var(--brand-primary) 80%, black) 0%,
+      var(--brand-primary) 50%,
+      color-mix(in oklab, var(--brand-primary) 70%, white) 100%
+    );
+  }
+
+  .related__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .related__content h3 {
+    font-size: var(--font-size-4);
+    line-height: var(--line-height-3);
+    margin: 0;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .related__content time {
+    font-size: var(--font-size-2);
+    color: var(--gray-600);
+  }
+
+  @media (min-width: 600px) {
+    .related__grid {
+      grid-template-columns: repeat(3, 1fr);
     }
 
-    & .post__excerpt {
-      font-family: var(--font-family-serif);
-      font-size: var(--font-size-5);
-      line-height: var(--line-height-4);
-      margin-top: 0;
-      font-weight: 400;
+    .related__card {
+      flex-direction: column;
     }
 
-    & .post__date {
-      font-family: var(--font-family-sans);
-      font-weight: 600;
-      font-size: var(--font-size-1);
-      line-height: var(--line-height-1);
-      margin-top: var(--space-4);
+    .related__image,
+    .related__image--none {
+      width: 100%;
+      height: 140px;
     }
   }
 
   @media (min-width: 800px) {
-    .post {
-      & .post__cover,
-      & .post__cover--none {
-        width: 750px;
-        height: 380px;
-      }
+    .post__title {
+      font-size: var(--font-size-10);
+      line-height: var(--line-height-10);
+      letter-spacing: -0.025em;
+    }
 
-      & .post__title {
-        font-size: var(--font-size-10);
-        line-height: var(--line-height-10);
-        margin: var(--space-6) 0 0;
-        letter-spacing: -0.025em;
-      }
+    .post__cover,
+    .post__cover--none {
+      height: 400px;
+    }
 
-      & .post__excerpt {
-        font-size: var(--font-size-5);
-        line-height: var(--line-height-5);
-        margin-top: var(--space-3);
-        margin-bottom: var(--space-3);
-      }
-
-      & .post__date {
-        font-size: var(--font-size-3);
-        line-height: var(--line-height-2);
-        margin-top: var(--space-0);
-      }
-
-      & .post__content {
-        margin-top: var(--space-7);
-      }
+    .post__excerpt {
+      font-size: var(--font-size-6);
+      line-height: var(--line-height-5);
     }
   }
 </style>

@@ -7,24 +7,27 @@ import type { Locale } from "../../utils/localization";
 interface Props {
   article: NewsArticleSummary;
   locale?: Locale;
+  featured?: boolean;
 }
 
-const { article, locale = "en" } = Astro.props as Props;
+const { article, locale = "en", featured = false } = Astro.props as Props;
 const basePath = locale === "fr" ? "/fr/nouvelles/" : "/news/";
 const featuredImage = article.featuredImage;
 ---
 
-<article class="card">
-  {featuredImage ? (
-    <img
-      class="card__cover"
-      src={urlFor(featuredImage).width(600).height(360).auto('format').url()}
-      srcset={`${urlFor(featuredImage).width(400).height(240).auto('format').url()} 400w,\n               ${urlFor(featuredImage).width(600).height(360).auto('format').url()} 600w,\n               ${urlFor(featuredImage).width(900).height(540).auto('format').url()} 900w`}
-      sizes="(max-width: 800px) 100vw, 366px"
-      width="600" height="360" loading="lazy" decoding="async"
-      alt={featuredImage.alt || ""}
-    />
-  ) : <div class="card__cover--none" aria-hidden="true" />}
+<article class:list={["card", { "card--featured": featured }]}>
+  <a href={`${basePath}${article.slug}/`} class="card__image-link">
+    {featuredImage ? (
+      <img
+        class="card__cover"
+        src={urlFor(featuredImage).width(featured ? 900 : 600).height(featured ? 500 : 360).auto('format').url()}
+        srcset={`${urlFor(featuredImage).width(400).height(240).auto('format').url()} 400w,\n               ${urlFor(featuredImage).width(600).height(360).auto('format').url()} 600w,\n               ${urlFor(featuredImage).width(900).height(540).auto('format').url()} 900w`}
+        sizes={featured ? "(max-width: 800px) 100vw, 900px" : "(max-width: 800px) 100vw, 366px"}
+        width={featured ? "900" : "600"} height={featured ? "500" : "360"} loading="lazy" decoding="async"
+        alt={featuredImage.alt || ""}
+      />
+    ) : <div class="card__cover--none" aria-hidden="true" />}
+  </a>
   <div class="card__container">
     <h3 class="card__title">
       <a
@@ -48,6 +51,13 @@ const featuredImage = article.featuredImage;
     padding: var(--space-2);
     position: relative;
     border-bottom: 1px solid #ced2d9;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+    & .card__image-link {
+      display: block;
+      overflow: hidden;
+      border-radius: 8px;
+    }
 
     & .card__container {
       margin: 0 var(--space-1) 0;
@@ -58,7 +68,20 @@ const featuredImage = article.featuredImage;
       width: 100%;
       aspect-ratio: 25 / 16;
       object-fit: cover;
-      background: #1b1b1b;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    & .card__cover--none {
+      background: linear-gradient(135deg,
+        color-mix(in oklab, var(--brand-primary) 80%, black) 0%,
+        var(--brand-primary) 50%,
+        color-mix(in oklab, var(--brand-primary) 70%, white) 100%
+      );
+    }
+
+    & .card__image-link:hover .card__cover {
+      transform: scale(1.03);
     }
 
     & .card__title {
@@ -99,8 +122,33 @@ const featuredImage = article.featuredImage;
     }
   }
 
+  /* Featured card styling */
+  .card--featured {
+    padding: var(--space-3);
+    border: 1px solid #ced2d9;
+    border-radius: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+
+    & .card__cover,
+    & .card__cover--none {
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+      max-height: 300px;
+    }
+
+    & .card__title {
+      font-size: var(--font-size-6);
+      line-height: var(--line-height-5);
+    }
+
+    & .card__excerpt {
+      font-size: var(--font-size-4);
+      line-height: var(--line-height-3);
+    }
+  }
+
   @media (min-width: 575px) {
-    .card {
+    .card:not(.card--featured) {
       border: 1px solid #ced2d9;
       border-bottom: none;
 
@@ -115,7 +163,7 @@ const featuredImage = article.featuredImage;
   }
 
   @media (min-width: 800px) {
-    .card {
+    .card:not(.card--featured) {
       flex-direction: row;
 
       & .card__container {
@@ -127,6 +175,18 @@ const featuredImage = article.featuredImage;
         min-width: 366.5px;
         max-width: 366.5px;
         max-height: 231px;
+      }
+    }
+
+    .card--featured {
+      & .card__cover,
+      & .card__cover--none {
+        max-height: 350px;
+      }
+
+      & .card__title {
+        font-size: var(--font-size-7);
+        line-height: var(--line-height-6);
       }
     }
   }

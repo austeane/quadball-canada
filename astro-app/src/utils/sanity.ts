@@ -75,11 +75,25 @@ export interface EventSummary {
   timezone?: string;
 }
 
+export interface UpcomingEventSummary extends EventSummary {
+  description?: string;
+  location?: {
+    name?: string;
+    address?: string;
+    type?: "physical" | "virtual" | "hybrid";
+  };
+}
+
 export interface EventDetail extends EventSummary {
   description?: string;
   content?: PortableTextBlock[];
   slugEn?: string;
   slugFr?: string;
+  location?: {
+    name?: string;
+    address?: string;
+    type?: "physical" | "virtual" | "hybrid";
+  };
 }
 
 export interface TeamSummary {
@@ -296,6 +310,27 @@ export async function getNewsArticle(
   };
 }
 
+export async function getRelatedNewsArticles(
+  excludeId: string,
+  locale: Locale = "en",
+  limit: number = 3
+): Promise<NewsArticleSummary[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "newsArticle" && _id != $excludeId && defined(slug[$locale].current)] | order(publishedAt desc)[0...$limit] {
+      _id,
+      publishedAt,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      "excerpt": coalesce(excerpt[$locale], excerpt.en),
+      "featuredImage": featuredImage{
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      }
+    }`,
+    { excludeId, locale, limit: limit - 1 }
+  );
+}
+
 export interface NationalTeamPage {
   title: string;
   subtitle?: string;
@@ -326,6 +361,27 @@ export async function getEvents(locale: Locale = "en"): Promise<EventSummary[]> 
   );
 }
 
+export async function getUpcomingEvents(locale: Locale = "en"): Promise<UpcomingEventSummary[]> {
+  const now = new Date().toISOString();
+  return await sanityClient.fetch(
+    groq`*[_type == "event" && defined(slug[$locale].current) && startDateTime >= $now] | order(startDateTime asc) {
+      _id,
+      "title": coalesce(title[$locale], title.en),
+      "slug": slug[$locale].current,
+      startDateTime,
+      endDateTime,
+      timezone,
+      "description": coalesce(description[$locale], description.en),
+      "location": {
+        "name": coalesce(location.name[$locale], location.name.en),
+        "address": location.address,
+        "type": location.type
+      }
+    }`,
+    { locale, now }
+  );
+}
+
 export async function getEvent(slug: string, locale: Locale = "en"): Promise<EventDetail | null> {
   return await sanityClient.fetch(
     groq`*[_type == "event" && slug[$locale].current == $slug][0] {
@@ -338,7 +394,12 @@ export async function getEvent(slug: string, locale: Locale = "en"): Promise<Eve
       endDateTime,
       timezone,
       "description": coalesce(description[$locale], description.en),
-      "content": coalesce(content[$locale], content.en)
+      "content": coalesce(content[$locale], content.en),
+      "location": {
+        "name": coalesce(location.name[$locale], location.name.en),
+        "address": location.address,
+        "type": location.type
+      }
     }`,
     { slug, locale }
   );

@@ -1,9 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import type { Locale } from "@/utils/localization";
-import { getEvents, getLandingSection } from "@/utils/sanity";
+import { getUpcomingEvents, getLandingSection } from "@/utils/sanity";
 import { formatDate } from "@/utils";
-import EventCard from "@/components/content/EventCard.astro";
+import { t } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -15,13 +15,9 @@ const isFr = locale === "fr";
 // Fetch landing section content from Sanity
 const landingSection = await getLandingSection("events", locale);
 
-// Fetch events
-const events = await getEvents(locale);
-const now = new Date();
-const upcoming = [...events]
-  .filter((e) => new Date(e.startDateTime) >= now)
-  .sort((a, b) => +new Date(a.startDateTime) - +new Date(b.startDateTime));
-const featured = upcoming[0];
+// Fetch only the next 3 upcoming events for preview
+const upcomingEvents = await getUpcomingEvents(locale);
+const previewEvents = upcomingEvents.slice(0, 3);
 
 // Fallback content if Sanity data is not available
 const fallbackContent = isFr
@@ -42,18 +38,18 @@ const content = landingSection
       heading: landingSection.title,
       intro: landingSection.intro,
       cards: landingSection.cards,
-      showContent: landingSection.showContent,
     }
   : {
       ...fallbackContent,
       cards: [],
-      showContent: true,
     };
 
 const alternate = {
   en: "/events/",
   fr: "/fr/evenements/",
 };
+
+const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
 ---
 
 <Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
@@ -63,10 +59,49 @@ const alternate = {
       <p>{content.intro}</p>
     </header>
 
+    {/* Quick links section */}
+    <div class="quick-links">
+      <a href={upcomingPath} class="quick-link quick-link--primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        <span>{t(locale, "events.upcomingLink")}</span>
+      </a>
+      <a href="/events.ics" class="quick-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        <span>{t(locale, "events.calendarIcs")}</span>
+      </a>
+    </div>
+
+    {/* Preview of upcoming events */}
+    {previewEvents.length > 0 && (
+      <div class="events-preview">
+        <h2>{isFr ? "Prochains événements" : "Coming Up"}</h2>
+        <div class="events-preview__list">
+          {previewEvents.map((event) => (
+            <a href={`${isFr ? "/fr/evenements/" : "/events/"}${event.slug}`} class="event-preview-card">
+              <div class="event-preview-card__date">
+                <span class="month">{new Date(event.startDateTime).toLocaleDateString(locale, { month: 'short' }).toUpperCase()}</span>
+                <span class="day">{new Date(event.startDateTime).getDate()}</span>
+              </div>
+              <div class="event-preview-card__content">
+                <h3>{event.title}</h3>
+                {event.location?.name && <p class="location">{event.location.name}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+        <p class="view-all">
+          <a href={upcomingPath} class="btn">
+            {isFr ? "Voir tous les événements" : "View All Events"} →
+          </a>
+        </p>
+      </div>
+    )}
+
+    {/* CTA cards from Sanity */}
     {content.cards && content.cards.length > 0 && (
       <div class="grid">
         {content.cards.map((card) => (
-          <article>
+          <article class="cta-card">
             <h2>{card.title}</h2>
             <p>{card.body}</p>
             <a
@@ -82,33 +117,6 @@ const alternate = {
         ))}
       </div>
     )}
-
-    {content.showContent && (
-      <div class="events-section">
-        <h2>{isFr ? "Événements à venir" : "Upcoming Events"}</h2>
-        <p><a class="btn-secondary" href="/events.ics">{isFr ? "Ajouter au calendrier (ICS)" : "Add to Calendar (ICS)"}</a></p>
-
-        {featured && (
-          <div class="featured">
-            <div class="datechip">{formatDate(featured.startDateTime, locale)}</div>
-            <h3 class="featured__title">
-              <a href={`${isFr ? "/fr/evenements/" : "/events/"}${featured.slug}`}>{featured.title}</a>
-            </h3>
-            <p><a class="btn btn--primary" href={`${isFr ? "/fr/evenements/" : "/events/"}${featured.slug}`}>
-              {isFr ? "Détails" : "Details"}
-            </a></p>
-          </div>
-        )}
-
-        <div class="list">
-          {events.length ? (
-            events.map((e) => <EventCard event={e} locale={locale} basePath={isFr ? "/fr/evenements/" : "/events/"} />)
-          ) : (
-            <p>{isFr ? "Aucun événement pour le moment." : "No events yet."}</p>
-          )}
-        </div>
-      </div>
-    )}
   </section>
 </Layout>
 
@@ -117,78 +125,198 @@ const alternate = {
     padding: 3rem 0;
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 2.5rem;
   }
+
   .intro {
     max-width: 720px;
+    text-align: center;
+    margin: 0 auto;
   }
+
+  .intro h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .intro p {
+    color: var(--gray-600);
+    font-size: var(--font-size-5);
+    margin: 0;
+  }
+
+  .quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 999px;
+    background: var(--bg-secondary, #f8f9fa);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--font-size-3);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .quick-link:hover {
+    transform: translateY(-2px);
+  }
+
+  .quick-link--primary {
+    background: var(--brand-primary);
+    color: white;
+  }
+
+  .quick-link--primary:hover {
+    background: var(--brand-ink);
+  }
+
+  .quick-link svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .events-preview {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  .events-preview h2 {
+    font-size: var(--font-size-6);
+    margin: 0 0 1.5rem;
+  }
+
+  .events-preview__list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .event-preview-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .event-preview-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .event-preview-card__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: color-mix(in oklab, var(--brand-primary) 10%, white);
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .event-preview-card__date .month {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .event-preview-card__date .day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--brand-primary);
+    line-height: 1;
+  }
+
+  .event-preview-card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .event-preview-card__content h3 {
+    font-size: var(--font-size-4);
+    margin: 0;
+    color: var(--brand-primary);
+    font-weight: 700;
+  }
+
+  .event-preview-card__content .location {
+    font-size: var(--font-size-2);
+    color: var(--gray-600);
+    margin: 0;
+  }
+
+  .view-all {
+    margin: 1.5rem 0 0;
+    text-align: center;
+  }
+
   .grid {
     display: grid;
-    gap: 2rem;
+    gap: 1.5rem;
   }
-  article {
+
+  .cta-card {
     padding: 2rem;
     border-radius: 12px;
     background: var(--bg-secondary, #f8f9fa);
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
-  .btn,
-  .btn-secondary,
-  .btn--primary {
+
+  .cta-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .cta-card h2 {
+    font-size: var(--font-size-5);
+    margin: 0;
+  }
+
+  .cta-card p {
+    color: var(--gray-600);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .btn {
     display: inline-block;
     border-radius: 999px;
     font-weight: 700;
     padding: 0.8rem 1.6rem;
     text-decoration: none;
-  }
-  .btn {
     background: var(--brand-primary);
     color: #fff;
+    transition: background 0.2s ease;
   }
+
   .btn:hover {
     background: var(--brand-ink);
   }
-  .btn-secondary {
-    color: var(--brand-primary);
+
+  @media (min-width: 600px) {
+    .events-preview__list {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
-  .btn--primary {
-    padding: 0.5rem 0.9rem;
-    border-radius: 6px;
-    background: var(--brand-primary);
-    color: #fff;
-  }
-  .events-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .events-section h2 {
-    margin-top: 2rem;
-  }
-  .featured {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    background: #fff;
-  }
-  .datechip {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    background: color-mix(in oklab, var(--brand-primary) 10%, white);
-    color: var(--brand-primary);
-    font-weight: 700;
-    font-size: 0.8rem;
-  }
-  .featured__title {
-    margin: 0.5rem 0;
-  }
-  .list {
-    display: grid;
-    gap: 1rem;
-  }
+
   @media (min-width: 768px) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
