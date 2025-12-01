@@ -136,12 +136,39 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 
 - Project: `quadball-canada` → https://quadball-canada.pages.dev
 - Config: `astro-app/wrangler.toml` (`pages_build_output_dir = "./dist"`)
-- Build and deploy:
-  - `cd astro-app && npm run build`
-  - `npx wrangler whoami`
-  - `npx wrangler pages project list`
-  - `npx wrangler pages deployment list --project-name=quadball-canada`
-  - `npx wrangler pages deploy dist --project-name=quadball-canada`
+
+### Auto-Deploy via GitHub Actions
+
+Pushes to `main` automatically trigger deployment via `.github/workflows/deploy-on-sanity-update.yml`:
+- Runs `npm run build` (includes `astro check` for TypeScript validation)
+- Deploys to Cloudflare Pages on success
+- **Build errors will silently fail** — always check GitHub Actions if deployment seems stuck
+
+**Check deployment status:**
+```bash
+# View recent GitHub Actions runs
+gh run list --workflow=deploy-on-sanity-update.yml --limit=5
+
+# View Cloudflare deployment history
+cd astro-app && npx wrangler pages deployment list --project-name=quadball-canada
+```
+
+### Manual Deployment
+
+Use when GitHub Actions fails or for immediate deployment:
+```bash
+cd astro-app
+npm run build                    # Must pass astro check + tsc
+npx wrangler pages deploy dist --project-name=quadball-canada --commit-dirty=true
+```
+
+### Troubleshooting Failed Deploys
+
+1. Check GitHub Actions: `gh run list --workflow=deploy-on-sanity-update.yml`
+2. Common cause: TypeScript errors in `.astro` files (especially optional params)
+3. Test locally: `npm run build` will show the same errors
+4. After fixing, push to trigger auto-deploy or deploy manually
+
 - Known issue (2025-10-05): CF API returns 500 code 8000000 creating deployments, despite successful asset upload. If seen, try the Cloudflare Dashboard or contact support.
 
 ## Localization Strategy
