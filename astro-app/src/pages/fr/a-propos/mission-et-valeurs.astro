@@ -1,110 +1,230 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
-import { PortableText } from "astro-portabletext";
-import { getInfoArticle, type Locale } from "../../../utils/sanity";
-import { urlFor } from "../../../utils/image";
 
-const locale: Locale = "fr";
-const slug = "mission-et-valeurs";
-const article = await getInfoArticle(slug, locale);
-const title = article?.title ?? "Mission et valeurs";
+const values = [
+  {
+    title: "Jeu équitable et respectueux",
+    description: "Nous jouons avec intégrité et respect, peu importe le résultat",
+  },
+  {
+    title: "Communauté inclusive",
+    description: "Créer des liens grâce à un amour partagé du sport et s'assurer que notre communauté est sécuritaire, accessible et inclusive pour tous",
+  },
+  {
+    title: "Leadership partagé",
+    description: "Travailler en collaboration avec nos membres pour atteindre nos objectifs collectivement et faire de la place pour que chacun puisse contribuer",
+  },
+  {
+    title: "Sécurité",
+    description: "Le bien-être physique, culturel et émotionnel de nos membres et bénévoles est primordial dans chaque événement de quadball",
+  },
+  {
+    title: "Anti-oppression",
+    description: "Travailler activement à combattre l'oppression et le racisme dans notre sport et la communauté au sens large",
+  },
+  {
+    title: "Plaisir",
+    description: "Insuffler l'esprit joyeux et aventureux qui attire les gens à jouer au quadball dans tout ce que nous faisons",
+  },
+];
+
 const alternate = {
   en: "/about/mission-and-values/",
-  fr: `/fr/a-propos/mission-et-valeurs/`,
+  fr: "/fr/a-propos/mission-et-valeurs/",
 };
-
-const heroImage = article?.heroImage ? urlFor(article.heroImage).width(1600).height(900).fit("max").url() : undefined;
-const description =
-  article?.seo?.metaDescription ?? article?.excerpt ?? "Découvrez la mission et les valeurs de Quadball Canada.";
 ---
 
-<Layout title={article?.seo?.metaTitle ?? title} alternate={alternate} locale="fr">
-  <meta slot="head" name="description" content={description} />
-  <section class="info-article">
-    <header class="info-article__header">
-      <h1>{title}</h1>
-      {article?.excerpt && <p class="info-article__excerpt">{article.excerpt}</p>}
-      {!article && (
-        <div class="info-article__placeholder">
-          <p>
-            Le contenu « Mission et valeurs » n'est pas encore publié. Ajoutez un article
-            d'information dans Sanity avec le slug <code>mission-et-valeurs</code> pour alimenter
-            cette page.
-          </p>
+<Layout title="Mission et valeurs — Quadball Canada" alternate={alternate} locale="fr">
+  <meta slot="head" name="description" content="Découvrez la mission de Quadball Canada de diriger, développer et promouvoir le sport du quadball au Canada, ainsi que les valeurs qui guident tout ce que nous faisons." />
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Mission et valeurs</h1>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+    <section class="mission-section">
+      <div class="mission-card">
+        <span class="badge">Mission</span>
+        <p class="mission-text">Diriger, développer et promouvoir le sport du quadball au Canada.</p>
+      </div>
+    </section>
+
+    <section class="values-section">
+      <div class="values-container">
+        <div class="values-header">
+          <span class="badge badge-values">Valeurs</span>
         </div>
-      )}
-      {article && heroImage && (
-        <figure class="info-article__hero">
-          <img src={heroImage} alt={article.heroImage?.alt ?? ""} loading="lazy" decoding="async" />
-        </figure>
-      )}
-    </header>
-    {article && <PortableText value={article.content} />}
-  </section>
+        <div class="values-grid">
+          {values.map((value) => (
+            <article class="value-card">
+              <h3>{value.title}</h3>
+              <p>{value.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
-  .info-article {
-    padding: 48px 0;
-    display: grid;
-    gap: 32px;
+  .hero {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, #7A1302 100%);
+    margin: 0 calc(-50vw + 50%);
+    padding: 3.5rem 1rem;
+    text-align: center;
   }
 
-  .info-article__header {
-    display: grid;
-    gap: 1.25rem;
+  .hero-content {
+    max-width: 900px;
+    margin: 0 auto;
   }
 
-  .info-article__header h1 {
+  .hero h1 {
+    color: white;
     margin: 0;
+    font-size: clamp(2.75rem, 10vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   }
 
-  .info-article__excerpt {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: var(--gray-600);
-    margin: 0;
+  .page-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
   }
 
-  .info-article__placeholder {
-    padding: 1.5rem;
-    border-radius: 1rem;
-    background: rgba(32, 75, 165, 0.12);
-    color: rgba(15, 23, 42, 0.75);
+  .badge {
+    display: inline-block;
+    background: var(--brand-primary);
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(158, 23, 3, 0.3);
   }
 
-  .info-article__placeholder code {
-    font-family: var(--font-mono, "IBM Plex Mono", monospace);
-    font-weight: 600;
+  /* Mission Section */
+  .mission-section {
+    padding: 2.5rem 0;
+    display: flex;
+    justify-content: center;
   }
 
-  .info-article__hero {
-    margin: 0;
-    border-radius: 1.5rem;
-    overflow: hidden;
-    background: rgba(15, 23, 42, 0.05);
-  }
-
-  .info-article__hero img {
+  .mission-card {
+    background: white;
+    border: 3px solid var(--brand-primary);
+    border-radius: 20px;
+    padding: 2rem 2rem;
+    text-align: center;
+    max-width: 800px;
     width: 100%;
-    height: auto;
-    display: block;
-    object-fit: cover;
+    box-shadow: 0 8px 40px rgba(158, 23, 3, 0.1);
   }
 
-  .info-article :global(h2) {
-    margin-top: 2.5rem;
+  .mission-card .badge {
+    margin-bottom: 1.25rem;
   }
 
-  .info-article :global(p + ul),
-  .info-article :global(p + ol) {
-    margin-top: 1rem;
+  .mission-text {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.35;
+    color: var(--text-strong);
+    margin: 0;
+    font-weight: 500;
+    max-width: none;
   }
 
-  .info-article :global(blockquote) {
-    border-left: 4px solid var(--brand-primary);
-    padding-left: 1rem;
-    font-style: italic;
-    color: rgba(15, 23, 42, 0.75);
+  /* Values Section */
+  .values-section {
+    background: linear-gradient(180deg, var(--brand-tint) 0%, #fff 100%);
+    margin: 0 calc(-50vw + 50%);
+    padding: 2.5rem 1rem 3rem;
+  }
+
+  .values-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .values-header {
+    width: 100%;
+    text-align: center;
+  }
+
+  .badge-values {
+    font-size: 1.125rem;
+    padding: 0.875rem 2.5rem;
+  }
+
+  .values-grid {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .value-card {
+    background: white;
+    border: 3px solid var(--brand-primary);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 24px rgba(158, 23, 3, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(158, 23, 3, 0.15);
+  }
+
+  .value-card h3 {
+    color: var(--brand-primary);
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .value-card p {
+    color: var(--text);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    margin: 0;
+    max-width: none;
+  }
+
+  @media (min-width: 640px) {
+    .values-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mission-card {
+      padding: 2.5rem 3rem;
+    }
+
+    .values-section {
+      padding: 3rem 2rem 3.5rem;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .values-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .value-card {
+      padding: 1.75rem;
+    }
   }
 </style>
