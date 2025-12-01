@@ -33,3 +33,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cloudflare workers
+workers/**/node_modules/
+workers/**/.wrangler/
+
+# extracted images (temporary)
+extracted-images/
+extracted-images.zip
+
+# test/debug scripts
+studio/env-check.js
+studio/policy-test.mjs
