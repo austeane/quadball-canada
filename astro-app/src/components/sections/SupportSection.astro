@@ -2,6 +2,7 @@
 import type { Locale } from "../../utils/localization";
 import { resolveLocale } from "../../i18n";
 import { t } from "../../i18n/ui";
+import EmailLink from "../ui/EmailLink.astro";
 
 interface Props {
   locale?: Locale;
@@ -10,7 +11,7 @@ interface Props {
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
-  secondaryCtaHref?: string;
+  secondaryCtaEmail?: string;
 }
 
 const props = Astro.props as Props;
@@ -21,20 +22,35 @@ const description = props.description ?? t(locale, "support.description");
 const primaryCtaLabel = props.primaryCtaLabel ?? t(locale, "support.primaryCta");
 const primaryCtaHref = props.primaryCtaHref ?? "https://www.paypal.me/quidditchcanada";
 const secondaryCtaLabel = props.secondaryCtaLabel ?? t(locale, "support.secondaryCta");
-const secondaryCtaHref = props.secondaryCtaHref ?? "/support/";
+const secondaryCtaEmail = props.secondaryCtaEmail ?? "sponsorship@quadballcanada.ca";
 ---
 <section class="support">
   <h2>{title}</h2>
   <p>{description}</p>
   <div class="actions">
     <a class="btn" href={primaryCtaHref} target="_blank" rel="noopener">{primaryCtaLabel}</a>
-    <a class="btn-secondary" href={secondaryCtaHref}>{secondaryCtaLabel}</a>
+    <div class="btn-email">
+      <span class="btn-email__label">{secondaryCtaLabel}:</span>
+      <EmailLink email={secondaryCtaEmail} class="btn-email__link" />
+    </div>
   </div>
 </section>
 
 <style>
   .support { padding: 24px 0; border-top: 1px solid var(--border); }
-  .actions { display: flex; gap: 12px; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
   .btn { display: inline-block; background: var(--brand-primary); color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; }
-  .btn-secondary { color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+  .btn-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary, #f8f9fa);
+    padding: 8px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .btn-email__label {
+    font-weight: 600;
+    color: var(--text);
+  }
 </style>

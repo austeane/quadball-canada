@@ -3,7 +3,10 @@ import Layout from "../../layouts/Layout.astro";
 import HeroSlider from "../../components/sections/HeroSlider.astro";
 import NewsGrid from "../../components/sections/NewsGrid.astro";
 import WhatIsQuadball from "../../components/sections/WhatIsQuadball.astro";
+import InstagramFeed from "../../components/sections/InstagramFeed.astro";
 import SupportSection from "../../components/sections/SupportSection.astro";
+
+const BEHOLD_FEED_ID = import.meta.env.PUBLIC_BEHOLD_FEED_ID;
 ---
 
 <Layout title="Quadball Canada — Site officiel" alternate={{ en: "/", fr: "/fr/" }} locale="fr">
@@ -15,12 +18,6 @@ import SupportSection from "../../components/sections/SupportSection.astro";
   />
   <WhatIsQuadball locale="fr" slug="quest-ce-que-le-quadball" />
   <NewsGrid locale="fr" />
-  <SupportSection
-    title="Soutenir Quadball Canada"
-    description="Vos contributions aident a developper le quadball au Canada et a soutenir des programmes inclusifs."
-    primaryCtaLabel="Faire un don"
-    primaryCtaHref="https://www.paypal.me/quidditchcanada"
-    secondaryCtaLabel="Commandites"
-    secondaryCtaHref="/support/"
-  />
+  {BEHOLD_FEED_ID && <InstagramFeed locale="fr" feedId={BEHOLD_FEED_ID} />}
+  <SupportSection locale="fr" />
 </Layout>
