@@ -7,7 +7,13 @@
     "start": "astro dev",
     "build": "astro check && tsc --noEmit && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test:run && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
@@ -29,13 +35,18 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@portabletext/types": "2.0.15",
     "@sanity/types": "4.10.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "eslint": "9.37.0",
+    "happy-dom": "^20.0.11",
     "prettier": "3.6.2",
     "rimraf": "6.0.1",
     "sharp": "^0.34.4",
     "typescript": "5.9.3",
-    "vite": "^7.1.9"
+    "vite": "^7.1.9",
+    "vitest": "^4.0.14"
   }
 }
