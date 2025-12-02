@@ -74,6 +74,7 @@ const uiCopy = {
     "contact.social.description": "Follow us on social media for the latest updates",
     "events.upcomingLink": "View Upcoming Events",
     "events.calendarIcs": "Add to Calendar (ICS)",
+    "instagram.title": "Follow Us on Instagram",
   },
   fr: {
     "seo.siteDescription": "Quadball Canada — site officiel. Construire une communaute sportive partout au Canada.",
@@ -147,6 +148,7 @@ const uiCopy = {
     "contact.social.description": "Suivez-nous sur les réseaux sociaux pour les dernières nouvelles",
     "events.upcomingLink": "Voir les événements à venir",
     "events.calendarIcs": "Ajouter au calendrier (ICS)",
+    "instagram.title": "Suivez-nous sur Instagram",
   },
 } as const;
 
