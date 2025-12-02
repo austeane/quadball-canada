@@ -77,6 +77,14 @@ const ctaEmail = cta?.href?.startsWith("mailto:") ? cta.href.replace("mailto:", 
         ) : null}
       </div>
     )}
+
+    <section class="national-team__fundraising">
+      <h2>Soutenez Équipe Canada</h2>
+      <p>Aidez nos athlètes à représenter le Canada aux compétitions internationales. Votre don soutient directement l'entraînement, les déplacements et l'équipement des joueurs d'Équipe Canada.</p>
+      <a class="national-team__fundraising-btn" href="https://makeachamp.com/qcteamcanada" target="_blank" rel="noopener">
+        Faire un don sur MakeAChamp
+      </a>
+    </section>
   </section>
 </Layout>
 
@@ -160,5 +168,43 @@ const ctaEmail = cta?.href?.startsWith("mailto:") ? cta.href.replace("mailto:", 
   .national-team__email-label {
     font-weight: 600;
     color: rgba(15, 23, 42, 0.7);
+  }
+
+  .national-team__fundraising {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 1.25rem;
+    background: var(--brand-tint);
+    display: grid;
+    gap: 1rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .national-team__fundraising h2 {
+    margin: 0;
+  }
+
+  .national-team__fundraising p {
+    margin: 0 auto;
+    max-width: 48ch;
+    color: rgba(15, 23, 42, 0.75);
+  }
+
+  .national-team__fundraising-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    background: var(--brand-primary);
+    color: #fff;
+    text-decoration: none;
+    margin-top: 0.5rem;
+  }
+
+  .national-team__fundraising-btn:hover {
+    background: var(--brand-ink);
   }
 </style>

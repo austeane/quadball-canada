@@ -94,6 +94,19 @@ export default defineType({
       initialValue: true,
     },
     {
+      name: 'isAffiliate',
+      title: 'Unaffiliated Off-Season Team',
+      type: 'boolean',
+      description: 'Check if this is an MLQ or other off-season team (April–August) that is NOT affiliated with Quadball Canada.',
+      initialValue: false,
+    },
+    {
+      name: 'seasonNote',
+      title: 'Season Note',
+      type: 'string',
+      description: 'E.g., "Regular Season: Sept–March" or "Off-Season: April–August"',
+    },
+    {
       name: 'logo',
       title: 'Team Logo',
       type: 'image',

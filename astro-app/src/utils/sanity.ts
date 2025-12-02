@@ -115,6 +115,8 @@ export interface TeamSummary {
     tiktok?: string | null;
   } | null;
   active?: boolean;
+  isAffiliate?: boolean;
+  seasonNote?: string | null;
 }
 
 export interface VolunteerOpportunitySummary {
@@ -425,6 +427,8 @@ export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
       email,
       website,
       active,
+      isAffiliate,
+      seasonNote,
       "description": coalesce(description[$locale], description.en),
       logo{
         ...,
