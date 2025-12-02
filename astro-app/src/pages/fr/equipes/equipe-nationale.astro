@@ -3,9 +3,12 @@ import { PortableText } from "astro-portabletext";
 import Layout from "../../../layouts/Layout.astro";
 import { getNationalTeamPage } from "../../../utils/sanity";
 import { urlFor } from "../../../utils/image";
+import EmailLink from "../../../components/ui/EmailLink.astro";
 
 const locale = "fr";
 const page = await getNationalTeamPage(locale);
+
+const fallbackEmail = "teamcanada@quadballcanada.ca";
 
 const fallback = {
   title: "Équipe Canada",
@@ -25,7 +28,7 @@ const fallback = {
   ],
   cta: {
     label: "Contacter Équipe Canada",
-    href: "mailto:teamcanada@quadballcanada.ca",
+    href: `mailto:${fallbackEmail}`,
   },
 };
 
@@ -34,6 +37,9 @@ const subtitle = page?.subtitle ?? fallback.subtitle;
 const content = page?.content?.length ? page.content : fallback.content;
 const heroImage = page?.heroImage;
 const cta = page?.cta ?? fallback.cta;
+
+// Extract email from mailto: links for hybrid display
+const ctaEmail = cta?.href?.startsWith("mailto:") ? cta.href.replace("mailto:", "") : null;
 ---
 
 <Layout title={title} alternate={{ en: "/teams/national-team/", fr: "/fr/equipes/equipe-nationale/" }} locale={locale}>
@@ -59,10 +65,17 @@ const cta = page?.cta ?? fallback.cta;
       <PortableText value={content} />
     </article>
 
-    {cta?.href && cta?.label && (
-      <p class="national-team__cta">
-        <a class="national-team__cta-btn" href={cta.href}>{cta.label}</a>
-      </p>
+    {cta?.label && (
+      <div class="national-team__cta">
+        {ctaEmail ? (
+          <div class="national-team__email">
+            <span class="national-team__email-label">{cta.label}:</span>
+            <EmailLink email={ctaEmail} />
+          </div>
+        ) : cta?.href ? (
+          <a class="national-team__cta-btn" href={cta.href}>{cta.label}</a>
+        ) : null}
+      </div>
     )}
   </section>
 </Layout>
@@ -130,5 +143,22 @@ const cta = page?.cta ?? fallback.cta;
 
   .national-team__cta-btn:hover {
     background: var(--brand-ink);
+  }
+
+  .national-team__email {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(32, 75, 165, 0.08);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .national-team__email-label {
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.7);
   }
 </style>

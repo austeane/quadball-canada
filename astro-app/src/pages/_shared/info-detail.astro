@@ -23,12 +23,29 @@ const alternate = {
 
 const metaTitle = article.seo?.metaTitle ?? article.title;
 const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quadball Canada informational article.";
+
+const copy = locale === "fr"
+  ? {
+      ctaText: "Si ce sport vous intéresse, contactez-nous pour savoir comment rejoindre une équipe près de chez vous.",
+      ctaButton: "Nous contacter",
+    }
+  : {
+      ctaText: "If this sounds like the sport for you, reach out to find out how to join a team near you.",
+      ctaButton: "Contact Us",
+    };
+
+const contactPath = locale === "fr" ? "/fr/contact/" : "/contact/";
 ---
 
 <Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
   <section class="info-article">
     <h1>{article.title}</h1>
     <PortableText value={article.content} />
+
+    <aside class="info-cta">
+      <p>{copy.ctaText}</p>
+      <a href={contactPath} class="info-cta__button">{copy.ctaButton}</a>
+    </aside>
   </section>
 </Layout>
 
@@ -46,5 +63,43 @@ const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quad
   .info-article :global(img) {
     max-width: 100%;
     border-radius: 8px;
+  }
+
+  .info-cta {
+    margin-top: 2rem;
+    padding: 1.5rem 2rem;
+    background: rgba(32, 75, 165, 0.06);
+    border-radius: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+
+  .info-cta p {
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .info-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background: var(--brand-primary);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .info-cta__button:hover,
+  .info-cta__button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(32, 75, 165, 0.25);
   }
 </style>

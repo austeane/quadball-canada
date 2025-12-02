@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import type { Locale } from "@/utils/localization";
 import { t } from "@/i18n/ui";
+import EmailLink from "@/components/ui/EmailLink.astro";
 
 interface Props {
   locale: Locale;
@@ -67,7 +68,7 @@ const alternate = {
           </div>
           <h2>{card.title}</h2>
           <p>{card.description}</p>
-          <a href={`mailto:${card.email}`} class="email-link">{card.email}</a>
+          <EmailLink email={card.email} class="contact-email" />
         </article>
       ))}
     </div>
@@ -176,15 +177,9 @@ const alternate = {
     line-height: 1.5;
   }
 
-  .email-link {
-    font-weight: 600;
-    color: var(--brand-primary);
-    text-decoration: none;
+  .contact-email {
     font-size: var(--font-size-3);
-  }
-
-  .email-link:hover {
-    text-decoration: underline;
+    margin-top: auto;
   }
 
   .divider {

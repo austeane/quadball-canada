@@ -6,6 +6,7 @@ import type {
   TeamSummary,
 } from "../../utils/sanity";
 import { urlFor } from "../../utils/image";
+import EmailLink from "../ui/EmailLink.astro";
 
 interface Props {
   teams: TeamSummary[];
@@ -260,14 +261,20 @@ if (uncategorizedTeams.length > 0) {
                       <strong>{copy.locationLabel}:</strong>{" "}{location}
                     </p>
                     <div class="team-card__actions">
-                      {contact && (
+                      {team.email && (
+                        <div class="team-card__email">
+                          <span class="team-card__email-label">{copy.contactCta}:</span>
+                          <EmailLink email={team.email} />
+                        </div>
+                      )}
+                      {!team.email && team.website && (
                         <a
                           class="team-card__contact"
-                          href={contact.href}
-                          target={contact.external ? "_blank" : undefined}
-                          rel={contact.external ? "noopener" : undefined}
+                          href={team.website}
+                          target="_blank"
+                          rel="noopener"
                         >
-                          {contact.label}
+                          {copy.visitWebsiteCta}
                         </a>
                       )}
                       {socialLinks.length > 0 && (
@@ -460,6 +467,22 @@ if (uncategorizedTeams.length > 0) {
   .team-card__contact:focus-visible {
     background: var(--brand-primary-dark, #e41f7a);
     transform: translateY(-1px);
+  }
+
+  .team-card__email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(32, 75, 165, 0.08);
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .team-card__email-label {
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.7);
   }
 
   .team-card__socials {

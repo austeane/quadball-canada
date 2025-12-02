@@ -1,5 +1,6 @@
 ---
 import type { Locale, VolunteerOpportunitySummary } from "../../utils/sanity";
+import EmailLink from "../ui/EmailLink.astro";
 
 interface Props {
   opportunities: VolunteerOpportunitySummary[];
@@ -257,18 +258,21 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
           </dl>
 
           <footer class="volunteer-card__actions">
-            <a
-              class="volunteer-card__apply"
-              href={opportunity.applicationUrl}
-              target="_blank"
-              rel="noopener"
-            >
-              {copy.applyNow}
-            </a>
-            {opportunity.contactEmail && (
-              <a class="volunteer-card__contact" href={`mailto:${opportunity.contactEmail}`}>
-                {copy.contactLabel}
+            {opportunity.applicationUrl && (
+              <a
+                class="volunteer-card__apply"
+                href={opportunity.applicationUrl}
+                target="_blank"
+                rel="noopener"
+              >
+                {copy.applyNow}
               </a>
+            )}
+            {opportunity.contactEmail && (
+              <div class="volunteer-card__contact">
+                <span class="volunteer-card__contact-label">{copy.contactLabel}:</span>
+                <EmailLink email={opportunity.contactEmail} />
+              </div>
             )}
           </footer>
         </article>
@@ -537,13 +541,19 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
   }
 
   .volunteer-card__contact {
-    background: rgba(32, 75, 165, 0.12);
-    color: var(--brand-primary);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(32, 75, 165, 0.08);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
   }
 
-  .volunteer-card__contact:hover,
-  .volunteer-card__contact:focus-visible {
-    transform: translateY(-1px);
+  .volunteer-card__contact-label {
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.7);
   }
 
   .volunteer__empty {

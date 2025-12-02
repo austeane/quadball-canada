@@ -1,0 +1,149 @@
+---
+interface Props {
+  email: string;
+  label?: string;
+  class?: string;
+}
+
+const { email, label, class: className } = Astro.props;
+const displayLabel = label ?? email;
+---
+
+<span class:list={["email-link-wrapper", className]} data-email-link>
+  <a href={`mailto:${email}`} class="email-link__address" title={`Email ${email}`}>
+    {displayLabel}
+  </a>
+  <button
+    type="button"
+    class="email-link__copy"
+    data-copy-email={email}
+    aria-label={`Copy ${email} to clipboard`}
+  >
+    <svg class="email-link__icon email-link__icon--copy" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <svg class="email-link__icon email-link__icon--check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span class="email-link__tooltip">Copied!</span>
+  </button>
+</span>
+
+<script>
+  function initEmailLinks() {
+    document.querySelectorAll('[data-copy-email]').forEach((button) => {
+      if (button.hasAttribute('data-initialized')) return;
+      button.setAttribute('data-initialized', 'true');
+
+      button.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = (button as HTMLButtonElement).dataset.copyEmail;
+        if (!email) return;
+
+        try {
+          await navigator.clipboard.writeText(email);
+          button.classList.add('is-copied');
+          setTimeout(() => button.classList.remove('is-copied'), 2000);
+        } catch {
+          // Fallback for older browsers
+          const textarea = document.createElement('textarea');
+          textarea.value = email;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          button.classList.add('is-copied');
+          setTimeout(() => button.classList.remove('is-copied'), 2000);
+        }
+      });
+    });
+  }
+
+  // Run on initial load
+  initEmailLinks();
+
+  // Re-run after page transitions (Astro View Transitions)
+  document.addEventListener('astro:page-load', initEmailLinks);
+</script>
+
+<style>
+  .email-link-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .email-link__address {
+    color: var(--brand-primary);
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  .email-link__address:hover {
+    text-decoration: underline;
+  }
+
+  .email-link__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border: none;
+    background: rgba(32, 75, 165, 0.08);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--brand-primary);
+    transition: background 150ms ease, transform 150ms ease;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .email-link__copy:hover {
+    background: rgba(32, 75, 165, 0.15);
+    transform: scale(1.05);
+  }
+
+  .email-link__copy:active {
+    transform: scale(0.95);
+  }
+
+  .email-link__icon {
+    display: block;
+  }
+
+  .email-link__icon--check {
+    display: none;
+    color: #22c55e;
+  }
+
+  .email-link__copy.is-copied .email-link__icon--copy {
+    display: none;
+  }
+
+  .email-link__copy.is-copied .email-link__icon--check {
+    display: block;
+  }
+
+  .email-link__tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 0.25rem 0.5rem;
+    background: #1e293b;
+    color: #fff;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease;
+  }
+
+  .email-link__copy.is-copied .email-link__tooltip {
+    opacity: 1;
+  }
+</style>

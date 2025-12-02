@@ -29,7 +29,7 @@ const routes = {
   about: locale === "fr" ? "/fr/a-propos/" : "/about/",
   news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
   events: locale === "fr" ? "/fr/evenements/" : "/events/",
-  rules: locale === "fr" ? "/fr/info/quest-ce-que-le-quadball/" : "/info/what-is-quadball/",
+  rules: "https://docs.google.com/document/d/1xyBZHdchrsNmDNDhMFml34Iz2XFp0CAYA8-oVG9lY9Q/",
   contact: locale === "fr" ? "/fr/contact/" : "/contact/",
 };
 ---
@@ -56,7 +56,7 @@ const routes = {
         <li><a href={routes.about}>{copy.about}</a></li>
         <li><a href={routes.news}>{copy.news}</a></li>
         <li><a href={routes.events}>{copy.events}</a></li>
-        <li><a href={routes.rules}>{copy.rules}</a></li>
+        <li><a href={routes.rules} target="_blank" rel="noopener">{copy.rules}</a></li>
       </ul>
     </div>
     <div>
