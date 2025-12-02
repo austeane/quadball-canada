@@ -47,26 +47,32 @@ const featuredImage = article.featuredImage;
 <style>
   .card {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding: var(--space-2);
     position: relative;
     border-bottom: 1px solid #ced2d9;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    gap: var(--space-3);
 
     & .card__image-link {
       display: block;
       overflow: hidden;
       border-radius: 8px;
+      flex-shrink: 0;
     }
 
     & .card__container {
-      margin: 0 var(--space-1) 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     & .card__cover,
     & .card__cover--none {
-      width: 100%;
-      aspect-ratio: 25 / 16;
+      width: 120px;
+      height: 120px;
+      aspect-ratio: 1 / 1;
       object-fit: cover;
       border-radius: 8px;
       transition: transform 0.3s ease;
@@ -87,9 +93,9 @@ const featuredImage = article.featuredImage;
     & .card__title {
       font-family: var(--font-family-sans);
       font-weight: 800;
-      font-size: var(--font-size-7);
-      line-height: var(--line-height-6);
-      margin: var(--space-3) 0;
+      font-size: var(--font-size-5);
+      line-height: var(--line-height-5);
+      margin: 0 0 var(--space-1) 0;
     }
 
     & .card__excerpt {
@@ -104,7 +110,7 @@ const featuredImage = article.featuredImage;
       font-weight: 600;
       font-family: var(--font-family-sans);
       font-size: var(--font-size-1);
-      margin-top: var(--space-4);
+      margin-top: var(--space-2);
       color: var(--gray-600);
     }
 
@@ -147,34 +153,39 @@ const featuredImage = article.featuredImage;
     }
   }
 
+  @media (min-width: 480px) {
+    .card:not(.card--featured) {
+      & .card__cover,
+      & .card__cover--none {
+        width: 160px;
+        height: 160px;
+      }
+    }
+  }
+
   @media (min-width: 575px) {
     .card:not(.card--featured) {
       border: 1px solid #ced2d9;
       border-bottom: none;
 
-      & .card__title {
-        margin-top: var(--space-4);
-      }
-
       &:last-child {
         border-bottom: 1px solid #ced2d9;
+      }
+
+      & .card__cover,
+      & .card__cover--none {
+        width: 180px;
+        height: 180px;
       }
     }
   }
 
   @media (min-width: 800px) {
     .card:not(.card--featured) {
-      flex-direction: row;
-
-      & .card__container {
-        margin: 0 var(--space-4) 0;
-      }
-
       & .card__cover,
       & .card__cover--none {
-        min-width: 366.5px;
-        max-width: 366.5px;
-        max-height: 231px;
+        width: 200px;
+        height: 200px;
       }
     }
 
