@@ -998,7 +998,7 @@ function escapeText(s: string) {
 
 <file path="astro-app/src/pages/robots.txt.ts">
 export const GET = async () => {
-  const body = `User-agent: *\nAllow: /\nSitemap: https://quadball-canada.pages.dev/sitemap.xml`;
+  const body = `User-agent: *\nAllow: /\nSitemap: https://www.quadballcanada.ca/sitemap.xml`;
   return new Response(body, { headers: { 'Content-Type': 'text/plain' } });
 };
 </file>
@@ -4558,7 +4558,7 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 
 ## Deployment (Cloudflare Pages)
 
-- Project: `quadball-canada` → https://quadball-canada.pages.dev
+- Project: `quadball-canada` → https://www.quadballcanada.ca
 - Config: `astro-app/wrangler.toml` (`pages_build_output_dir = "./dist"`)
 - Build and deploy:
   - `cd astro-app && npm run build`
@@ -5059,7 +5059,7 @@ This is a fully automated Astro + Sanity CMS website with continuous deployment.
 
 ## Live URLs
 
-- **Production Site**: https://quadball-canada.pages.dev
+- **Production Site**: https://www.quadballcanada.ca
 - **Sanity Studio**: https://quadball-canada.sanity.studio
 - **Webhook Proxy**: https://sanity-webhook-proxy.austeane.workers.dev
 
@@ -5157,7 +5157,7 @@ npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
 ## Deployment URLs
 
 Each deployment creates two URLs:
-1. **Production URL**: `https://quadball-canada.pages.dev` - Always shows latest deployment
+1. **Production URL**: `https://www.quadballcanada.ca` - Always shows latest deployment
 2. **Preview URL**: `https://[hash].quadball-canada.pages.dev` - Unique URL for each deployment (useful for rollbacks)
 
 ## Monitoring Deployments

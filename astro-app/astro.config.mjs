@@ -19,7 +19,7 @@ import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://quadball-canada.pages.dev",
+  site: "https://www.quadballcanada.ca",
   output: "static",
   integrations: [
     sanity({

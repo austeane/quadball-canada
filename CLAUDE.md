@@ -134,7 +134,7 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 
 ## Deployment (Cloudflare Pages)
 
-- Project: `quadball-canada` → https://quadball-canada.pages.dev
+- Project: `quadball-canada` → https://www.quadballcanada.ca
 - Config: `astro-app/wrangler.toml` (`pages_build_output_dir = "./dist"`)
 
 ### Auto-Deploy via GitHub Actions

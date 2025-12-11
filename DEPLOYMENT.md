@@ -14,7 +14,7 @@ This is a fully automated Astro + Sanity CMS website with continuous deployment.
 
 ## Live URLs
 
-- **Production Site**: https://quadball-canada.pages.dev
+- **Production Site**: https://www.quadballcanada.ca
 - **Sanity Studio**: https://quadball-canada.sanity.studio
 - **Webhook Proxy**: https://sanity-webhook-proxy.austeane.workers.dev
 
@@ -112,7 +112,7 @@ npx wrangler pages deploy astro-app/dist --project-name=quadball-canada
 ## Deployment URLs
 
 Each deployment creates two URLs:
-1. **Production URL**: `https://quadball-canada.pages.dev` - Always shows latest deployment
+1. **Production URL**: `https://www.quadballcanada.ca` - Always shows latest deployment
 2. **Preview URL**: `https://[hash].quadball-canada.pages.dev` - Unique URL for each deployment (useful for rollbacks)
 
 ## Monitoring Deployments
