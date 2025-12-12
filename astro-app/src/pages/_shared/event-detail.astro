@@ -120,7 +120,7 @@ const googleMapsUrl = event.location?.address
           </div>
           <div class="meta-card__content">
             <h3>{content.where}</h3>
-            {event.location.type === "virtual" && (
+            {event.location.type === "online" && (
               <span class="location-badge">{content.virtual}</span>
             )}
             {event.location.type === "hybrid" && (
@@ -128,7 +128,7 @@ const googleMapsUrl = event.location?.address
             )}
             {event.location.name && <p class="location-name">{event.location.name}</p>}
             {event.location.address && <p class="location-address">{event.location.address}</p>}
-            {googleMapsUrl && event.location.type !== "virtual" && (
+            {googleMapsUrl && event.location.type !== "online" && (
               <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" class="directions-link">
                 {content.getDirections}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

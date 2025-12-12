@@ -80,7 +80,7 @@ export interface UpcomingEventSummary extends EventSummary {
   location?: {
     name?: string;
     address?: string;
-    type?: "physical" | "virtual" | "hybrid";
+    type?: "physical" | "online" | "hybrid";
   };
 }
 
@@ -92,7 +92,7 @@ export interface EventDetail extends EventSummary {
   location?: {
     name?: string;
     address?: string;
-    type?: "physical" | "virtual" | "hybrid";
+    type?: "physical" | "online" | "hybrid";
   };
 }
 
@@ -329,7 +329,7 @@ export async function getRelatedNewsArticles(
         "alt": coalesce(alt[$locale], alt.en)
       }
     }`,
-    { excludeId, locale, limit: limit - 1 }
+    { excludeId, locale, limit }
   );
 }
 
@@ -791,14 +791,15 @@ export interface Policy {
 
 export async function getPolicies(locale: Locale = "en"): Promise<Policy[]> {
   return await sanityClient.fetch(
-    groq`*[_type == "policy" && isActive == true] | order(category asc, order asc, title.${locale} asc) {
+    groq`*[_type == "policy" && isActive == true] | order(category asc, order asc, coalesce(title[$locale], title.en) asc) {
       _id,
-      "title": title.${locale},
+      "title": coalesce(title[$locale], title.en),
       category,
       url,
-      "description": description.${locale},
+      "description": coalesce(description[$locale], description.en),
       order
-    }`
+    }`,
+    { locale }
   );
 }
 
@@ -828,14 +829,14 @@ export async function getLandingSection(key: string, locale: Locale): Promise<La
     *[_type == "landingSection" && key == $key][0] {
       _id,
       key,
-      "title": title[$locale],
-      "intro": intro[$locale],
+      "title": coalesce(title[$locale], title.en),
+      "intro": coalesce(intro[$locale], intro.en),
       showContent,
       cards[] {
-        "title": title[$locale],
-        "body": body[$locale],
-        "ctaText": ctaText[$locale],
-        "href": href[$locale],
+        "title": coalesce(title[$locale], title.en),
+        "body": coalesce(body[$locale], body.en),
+        "ctaText": coalesce(ctaText[$locale], ctaText.en),
+        "href": coalesce(href[$locale], href.en),
         external
       }
     }

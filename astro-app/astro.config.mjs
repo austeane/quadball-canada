@@ -21,6 +21,7 @@ import react from "@astrojs/react";
 export default defineConfig({
   site: "https://www.quadballcanada.ca",
   output: "static",
+  trailingSlash: "always",
   integrations: [
     sanity({
       projectId,

@@ -27,7 +27,13 @@ const locale: Locale = resolveLocale(Astro, props.locale);
 const metaTitle = props.seo?.title ?? props.title;
 const metaDescription =
   props.seo?.description ?? props.description ?? t(locale, "seo.siteDescription");
-const metaImage = props.seo?.image ?? "/hero-cover.jpg";
+const metaImagePath = props.seo?.image ?? "/hero-cover.jpg";
+// Make image URL absolute for social sharing
+const metaImage = metaImagePath.startsWith("http")
+  ? metaImagePath
+  : new URL(metaImagePath, Astro.site).toString();
+// Canonical URL for SEO
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 const { alternate } = props;
 ---
 
@@ -66,8 +72,8 @@ const { alternate } = props;
       rel="stylesheet"
     />
 
-    <slot name="head" />
     <title>{metaTitle}</title>
+    <link rel="canonical" href={canonicalUrl} />
     <meta name="description" content={metaDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Quadball Canada" />
@@ -86,6 +92,7 @@ const { alternate } = props;
       </>
     )}
     <ClientRouter />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">{t(locale, "layout.skipLink")}</a>

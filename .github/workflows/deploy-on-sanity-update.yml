@@ -13,6 +13,16 @@ on:
     branches:
       - main
 
+  # Scheduled rebuild to keep time-sensitive content fresh (upcoming events, etc.)
+  schedule:
+    # Run daily at 6:00 AM UTC (1:00 AM EST / 2:00 AM EDT)
+    - cron: '0 6 * * *'
+
+# Prevent concurrent deployments to avoid race conditions
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

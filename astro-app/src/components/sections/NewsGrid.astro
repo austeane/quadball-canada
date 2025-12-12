@@ -37,7 +37,7 @@ const dateLocale = locale === "fr" ? "fr-CA" : "en-CA";
     {upcomingEvents.length ? (
       upcomingEvents.map((event) => (
         <article class="event-card">
-          <h3><a href={`${detailBasePath}${event.slug}`}>{event.title}</a></h3>
+          <h3><a href={`${detailBasePath}${event.slug}/`}>{event.title}</a></h3>
           <time datetime={event.startDateTime}>
             {new Date(event.startDateTime).toLocaleDateString(dateLocale, {
               year: 'numeric',

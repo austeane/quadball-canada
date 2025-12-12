@@ -22,8 +22,8 @@ if (!article) {
 const relatedArticles = await getRelatedNewsArticles(article._id, locale, 3);
 
 const alternate = {
-  en: article.slugEn ? `/news/${article.slugEn}` : undefined,
-  fr: article.slugFr ? `/fr/nouvelles/${article.slugFr}` : undefined,
+  en: article.slugEn ? `/news/${article.slugEn}/` : undefined,
+  fr: article.slugFr ? `/fr/nouvelles/${article.slugFr}/` : undefined,
 };
 
 const metaTitle = article.seo?.metaTitle ?? article.title;
@@ -66,7 +66,7 @@ const encodedTitle = encodeURIComponent(article.title);
     <header class="post__header">
       <h1 class="post__title">{article.title}</h1>
       <div class="post__meta">
-        <time datetime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+        <time datetime={article.publishedAt}>{formatDate(article.publishedAt, locale)}</time>
         <span class="meta-divider">·</span>
         <span>{readingTime} {minReadLabel}</span>
       </div>
@@ -76,8 +76,15 @@ const encodedTitle = encodeURIComponent(article.title);
       article.featuredImage ? (
         <img
           class="post__cover"
-          src={urlFor(article.featuredImage).url()}
+          src={urlFor(article.featuredImage).width(1200).height(630).auto('format').url()}
+          srcset={`${urlFor(article.featuredImage).width(600).height(315).auto('format').url()} 600w,
+                   ${urlFor(article.featuredImage).width(900).height(473).auto('format').url()} 900w,
+                   ${urlFor(article.featuredImage).width(1200).height(630).auto('format').url()} 1200w`}
+          sizes="(max-width: 800px) 100vw, 800px"
+          width="1200"
+          height="630"
           alt={article.featuredImage.alt || ""}
+          loading="eager"
         />
       ) : (
         <div class="post__cover--none" aria-hidden="true" />
@@ -152,7 +159,7 @@ const encodedTitle = encodeURIComponent(article.title);
               )}
               <div class="related__content">
                 <h3>{related.title}</h3>
-                <time datetime={related.publishedAt}>{formatDate(related.publishedAt)}</time>
+                <time datetime={related.publishedAt}>{formatDate(related.publishedAt, locale)}</time>
               </div>
             </a>
           ))}
@@ -163,24 +170,39 @@ const encodedTitle = encodeURIComponent(article.title);
 </Layout>
 
 <script>
-  document.querySelectorAll('.copy-link-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const url = btn.getAttribute('data-url');
-      const copiedLabel = btn.getAttribute('data-copied-label');
-      const labelSpan = btn.querySelector('.copy-label');
-      const originalLabel = labelSpan?.textContent;
+  function bindCopyLinks() {
+    document.querySelectorAll<HTMLButtonElement>('.copy-link-btn').forEach((btn) => {
+      // Prevent double-binding after client-side navigation
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
 
-      if (url) {
-        await navigator.clipboard.writeText(url);
-        if (labelSpan && copiedLabel) {
-          labelSpan.textContent = copiedLabel;
-          setTimeout(() => {
-            labelSpan.textContent = originalLabel ?? '';
-          }, 2000);
+      btn.addEventListener('click', async () => {
+        try {
+          const url = btn.getAttribute('data-url');
+          const copiedLabel = btn.getAttribute('data-copied-label');
+          const labelSpan = btn.querySelector('.copy-label');
+          const originalLabel = labelSpan?.textContent;
+
+          if (!url) return;
+          await navigator.clipboard.writeText(url);
+
+          if (labelSpan && copiedLabel) {
+            labelSpan.textContent = copiedLabel;
+            setTimeout(() => {
+              labelSpan.textContent = originalLabel ?? '';
+            }, 2000);
+          }
+        } catch (e) {
+          // Clipboard API may fail in some contexts
+          console.warn('Failed to copy to clipboard:', e);
         }
-      }
+      });
     });
-  });
+  }
+
+  // Rebind on client-side navigation (Astro ClientRouter)
+  document.addEventListener('astro:page-load', bindCopyLinks);
+  bindCopyLinks();
 </script>
 
 <style>

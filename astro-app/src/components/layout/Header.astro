@@ -503,7 +503,8 @@ const ctaLinks = {
     z-index: 50;
   }
 
-  .nav-dropdown:hover .nav-dropdown__menu {
+  .nav-dropdown:hover .nav-dropdown__menu,
+  .nav-dropdown:focus-within .nav-dropdown__menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);

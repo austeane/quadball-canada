@@ -67,18 +67,27 @@ export default defineType({
               name: 'href',
               title: 'Link',
               type: 'object',
+              description: 'Use relative paths for internal links (e.g., /about/) or full URLs for external (https://...)',
               fields: [
                 {
                   name: 'en',
                   title: 'English URL',
-                  type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  type: 'url',
+                  validation: (Rule) =>
+                    Rule.required().uri({
+                      allowRelative: true,
+                      scheme: ['http', 'https', 'mailto', 'tel'],
+                    }),
                 },
                 {
                   name: 'fr',
                   title: 'French URL',
-                  type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  type: 'url',
+                  validation: (Rule) =>
+                    Rule.required().uri({
+                      allowRelative: true,
+                      scheme: ['http', 'https', 'mailto', 'tel'],
+                    }),
                 },
               ],
             }),

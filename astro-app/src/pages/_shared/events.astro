@@ -77,7 +77,7 @@ const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
         <h2>{isFr ? "Prochains événements" : "Coming Up"}</h2>
         <div class="events-preview__list">
           {previewEvents.map((event) => (
-            <a href={`${isFr ? "/fr/evenements/" : "/events/"}${event.slug}`} class="event-preview-card">
+            <a href={`${isFr ? "/fr/evenements/" : "/events/"}${event.slug}/`} class="event-preview-card">
               <div class="event-preview-card__date">
                 <span class="month">{new Date(event.startDateTime).toLocaleDateString(locale, { month: 'short' }).toUpperCase()}</span>
                 <span class="day">{new Date(event.startDateTime).getDate()}</span>

@@ -18,7 +18,7 @@ const basePath = (props.basePath ?? (locale === "fr" ? "/fr/evenements/" : "/eve
 <article class="card">
   <div class="card__container">
     <h3 class="card__title">
-      <a class="card__link" href={`${basePath}${event.slug}`}>{event.title}</a>
+      <a class="card__link" href={`${basePath}${event.slug}/`}>{event.title}</a>
     </h3>
     <p class="card__date">{formatDate(event.startDateTime, locale)}</p>
   </div>

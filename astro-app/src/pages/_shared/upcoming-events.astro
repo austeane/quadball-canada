@@ -89,7 +89,7 @@ function formatEventDate(start: string, end?: string): string {
             </div>
             <div class="event-card__content">
               <h2 class="event-card__title">
-                <a href={`${basePath}${event.slug}`}>{event.title}</a>
+                <a href={`${basePath}${event.slug}/`}>{event.title}</a>
               </h2>
               <p class="event-card__datetime">{formatEventDate(event.startDateTime, event.endDateTime)}</p>
               {event.location && (
@@ -98,7 +98,7 @@ function formatEventDate(start: string, end?: string): string {
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                   </svg>
-                  {event.location.type === "virtual" ? (
+                  {event.location.type === "online" ? (
                     <span class="event-card__badge">{content.virtual}</span>
                   ) : event.location.type === "hybrid" ? (
                     <span class="event-card__badge">{content.hybrid}</span>
@@ -109,7 +109,7 @@ function formatEventDate(start: string, end?: string): string {
               {event.description && (
                 <p class="event-card__desc">{event.description.length > 150 ? event.description.slice(0, 150) + "..." : event.description}</p>
               )}
-              <a class="event-card__link" href={`${basePath}${event.slug}`}>
+              <a class="event-card__link" href={`${basePath}${event.slug}/`}>
                 {content.details}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="5" y1="12" x2="19" y2="12"></line>

@@ -39,7 +39,7 @@ const featuredImage = article.featuredImage;
     </h3>
     {article.excerpt && <p class="card__excerpt">{article.excerpt}</p>}
     <p class="card__date">
-      {formatDate(article.publishedAt)}
+      {formatDate(article.publishedAt, locale)}
     </p>
   </div>
 </article>

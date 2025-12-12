@@ -12,7 +12,8 @@ interface Props {
 const { resource, basePath } = Astro.props as Props;
 const heroImage = resource.heroImage;
 const isExternal = !!resource.externalUrl;
-const href = isExternal ? resource.externalUrl : `${basePath ?? "/resources/"}${resource.slug}`;
+const base = (basePath ?? "/resources/").replace(/\/?$/, "/");
+const href = isExternal ? resource.externalUrl : `${base}${resource.slug}/`;
 const categoryLabel = resource.category.charAt(0).toUpperCase() + resource.category.slice(1);
 ---
 
