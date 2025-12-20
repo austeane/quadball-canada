@@ -159,7 +159,7 @@ describe('sanity.ts', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('_id != $excludeId'),
-        { excludeId: 'news-1', locale: 'en', limit: 2 }
+        { excludeId: 'news-1', locale: 'en', limit: 3 }
       );
       expect(result).toHaveLength(2);
     });
@@ -172,7 +172,7 @@ describe('sanity.ts', () => {
       expect(mockFetch).toHaveBeenCalledWith(expect.any(String), {
         excludeId: 'news-1',
         locale: 'en',
-        limit: 1, // limit - 1 due to GROQ slice behavior
+        limit: 2,
       });
     });
   });

@@ -48,7 +48,7 @@ describe('EventCard', () => {
         props: { event: mockEvent },
       });
 
-      expect(html).toContain('href="/events/nationals-2025"');
+      expect(html).toContain('href="/events/nationals-2025/"');
     });
 
     it('links to French events path when locale is fr', async () => {
@@ -56,7 +56,7 @@ describe('EventCard', () => {
         props: { event: mockEvent, locale: 'fr' },
       });
 
-      expect(html).toContain('href="/fr/evenements/nationals-2025"');
+      expect(html).toContain('href="/fr/evenements/nationals-2025/"');
     });
 
     it('uses custom basePath when provided', async () => {
@@ -64,7 +64,7 @@ describe('EventCard', () => {
         props: { event: mockEvent, basePath: '/custom/path/' },
       });
 
-      expect(html).toContain('href="/custom/path/nationals-2025"');
+      expect(html).toContain('href="/custom/path/nationals-2025/"');
     });
 
     it('normalizes basePath with trailing slash', async () => {
@@ -72,7 +72,7 @@ describe('EventCard', () => {
         props: { event: mockEvent, basePath: '/custom/path' },
       });
 
-      expect(html).toContain('href="/custom/path/nationals-2025"');
+      expect(html).toContain('href="/custom/path/nationals-2025/"');
     });
   });
 
