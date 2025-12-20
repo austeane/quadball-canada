@@ -1,9 +1,16 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import PageHero from "../../../components/sections/PageHero.astro";
 import VolunteerList from "../../../components/volunteer/VolunteerList.astro";
-import { getVolunteerOpportunities } from "../../../utils/sanity";
+import { getVolunteerOpportunities, getPageSettings } from "../../../utils/sanity";
 
-const opportunities = await getVolunteerOpportunities("fr");
+const [opportunities, pageSettings] = await Promise.all([
+  getVolunteerOpportunities("fr"),
+  getPageSettings(),
+]);
+
+const heroSubtitle =
+  "Quadball Canada offre des occasions de bénévolat pour soutenir des événements, des programmes locaux et des initiatives nationales. Utilisez les filtres pour trouver un rôle qui correspond à vos intérêts et à votre disponibilité.";
 ---
 
 <Layout
@@ -11,5 +18,10 @@ const opportunities = await getVolunteerOpportunities("fr");
   alternate={{ en: "/volunteer-opportunities/", fr: "/fr/benevolat/" }}
   locale="fr"
 >
-  <VolunteerList opportunities={opportunities} locale="fr" />
+  <PageHero
+    title="Occasions de bénévolat"
+    subtitle={heroSubtitle}
+    image={pageSettings?.volunteerHeroImage ?? pageSettings?.defaultHeroImage}
+  />
+  <VolunteerList opportunities={opportunities} locale="fr" showIntro={false} />
 </Layout>

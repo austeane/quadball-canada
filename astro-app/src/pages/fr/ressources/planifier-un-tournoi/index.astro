@@ -1,15 +1,22 @@
 ---
 import Layout from "../../../../layouts/Layout.astro";
+import PageHero from "../../../../components/sections/PageHero.astro";
+import { getPageSettings } from "../../../../utils/sanity";
 
 const alternate = {
   en: "/resources/planning-a-tournament/",
   fr: "/fr/ressources/planifier-un-tournoi/",
 };
+
+const pageSettings = await getPageSettings();
 ---
 
 <Layout title="Planifier un tournoi — Quadball Canada" alternate={alternate} locale="fr">
+  <PageHero
+    title="Planifier un tournoi"
+    image={pageSettings?.planningTournamentHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section style="padding: 3rem 0;">
-    <h1>Planifier un tournoi</h1>
     <p>Prêt à organiser un tournoi de quadball ? Nous avons compilé des ressources pour vous aider à organiser un événement réussi.</p>
 
     <div style="padding: 2rem; background: var(--bg-secondary); border-radius: 8px; margin: 2rem 0;">

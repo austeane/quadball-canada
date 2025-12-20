@@ -1,5 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/sections/PageHero.astro";
+import { getPageSettings } from "../../utils/sanity";
+
+const pageSettings = await getPageSettings();
 ---
 
 <Layout
@@ -7,8 +11,11 @@ import Layout from "../../layouts/Layout.astro";
   alternate={{ en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" }}
   locale="en"
 >
+  <PageHero
+    title="Host a Quadball Event"
+    image={pageSettings?.hostEventHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section class="section">
-    <h1>Host a Quadball Event</h1>
     <p>
       Bring quadball to your community with support from Quadball Canada. We help organizers deliver
       high quality tournaments, clinics, camps, and exhibition games that are safe, inclusive, and fun.

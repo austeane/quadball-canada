@@ -1,7 +1,8 @@
 ---
 import { PortableText } from "astro-portabletext";
 import Layout from "@/layouts/Layout.astro";
-import { getTeams, getTeamsPage } from "@/utils/sanity";
+import PageHero from "@/components/sections/PageHero.astro";
+import { getTeams, getTeamsPage, getPageSettings } from "@/utils/sanity";
 import TeamLevels from "@/components/team/TeamLevels.astro";
 import TeamSections from "@/components/team/TeamSections.astro";
 import type { Locale } from "@/utils/localization";
@@ -11,7 +12,11 @@ interface Props {
 }
 
 const { locale } = Astro.props as Props;
-const [teams, teamsPage] = await Promise.all([getTeams(locale), getTeamsPage(locale)]);
+const [teams, teamsPage, pageSettings] = await Promise.all([
+  getTeams(locale),
+  getTeamsPage(locale),
+  getPageSettings(),
+]);
 
 const isFr = locale === "fr";
 
@@ -64,9 +69,12 @@ const alternate = {
 ---
 
 <Layout title={pageTitle} alternate={alternate} locale={locale}>
+  <PageHero
+    title={pageTitle}
+    image={pageSettings?.teamsHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section class="teams">
     <header class="teams__intro">
-      <h1>{pageTitle}</h1>
       {introBlocks.length ? (
         <div class="teams__intro-content">
           <PortableText value={introBlocks} />
@@ -114,10 +122,6 @@ const alternate = {
     display: grid;
     gap: 1rem;
     max-width: 720px;
-  }
-
-  .teams__intro h1 {
-    margin: 0;
   }
 
   .teams__intro-content :global(p) {

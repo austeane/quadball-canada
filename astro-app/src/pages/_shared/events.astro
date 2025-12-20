@@ -1,7 +1,8 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getUpcomingEvents, getLandingSection } from "@/utils/sanity";
+import { getUpcomingEvents, getLandingSection, getPageSettings } from "@/utils/sanity";
 import { formatDate } from "@/utils";
 import { t } from "@/i18n/ui";
 
@@ -14,6 +15,7 @@ const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
 const landingSection = await getLandingSection("events", locale);
+const pageSettings = await getPageSettings();
 
 // Fetch only the next 3 upcoming events for preview
 const upcomingEvents = await getUpcomingEvents(locale);
@@ -53,12 +55,12 @@ const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
 ---
 
 <Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+  <PageHero
+    title={content.heading}
+    subtitle={content.intro}
+    image={pageSettings?.eventsHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section class="section">
-    <header class="intro">
-      <h1>{content.heading}</h1>
-      <p>{content.intro}</p>
-    </header>
-
     {/* Quick links section */}
     <div class="quick-links">
       <a href={upcomingPath} class="quick-link quick-link--primary">
@@ -126,22 +128,6 @@ const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
-  }
-
-  .intro {
-    max-width: 720px;
-    text-align: center;
-    margin: 0 auto;
-  }
-
-  .intro h1 {
-    margin-bottom: 0.5rem;
-  }
-
-  .intro p {
-    color: var(--gray-600);
-    font-size: var(--font-size-5);
-    margin: 0;
   }
 
   .quick-links {

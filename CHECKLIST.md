@@ -100,6 +100,7 @@
 - [x] News cards: aspect-ratio, srcset/sizes, width/height for CLS
 - [x] Global type rhythm + corrected `IBM Plex Mono`
 - [x] Global container padding across breakpoints
+- [x] Page hero images added via Sanity `pageSettings` and `infoArticle` hero fields
 
 ### IA and SEO updates (completed)
 - [x] Navigation expanded: Get Involved, Media, Support, Contact, Store

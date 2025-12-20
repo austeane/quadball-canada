@@ -1,15 +1,22 @@
 ---
 import Layout from "../../../../layouts/Layout.astro";
+import PageHero from "../../../../components/sections/PageHero.astro";
+import { getPageSettings } from "../../../../utils/sanity";
 
 const alternate = {
   en: "/resources/starting-a-team/",
   fr: "/fr/ressources/demarrer-une-equipe/",
 };
+
+const pageSettings = await getPageSettings();
 ---
 
 <Layout title="Démarrer une équipe — Quadball Canada" alternate={alternate} locale="fr">
+  <PageHero
+    title="Démarrer une équipe"
+    image={pageSettings?.startingTeamHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section style="padding: 3rem 0;">
-    <h1>Démarrer une équipe</h1>
     <p>Prêt à apporter le quadball dans votre communauté ? Ce guide vous aidera à démarrer.</p>
 
     <div style="padding: 2rem; background: var(--bg-secondary); border-radius: 8px; margin: 2rem 0;">

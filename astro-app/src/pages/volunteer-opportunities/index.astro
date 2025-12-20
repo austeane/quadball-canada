@@ -1,9 +1,16 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/sections/PageHero.astro";
 import VolunteerList from "../../components/volunteer/VolunteerList.astro";
-import { getVolunteerOpportunities } from "../../utils/sanity";
+import { getVolunteerOpportunities, getPageSettings } from "../../utils/sanity";
 
-const opportunities = await getVolunteerOpportunities("en");
+const [opportunities, pageSettings] = await Promise.all([
+  getVolunteerOpportunities("en"),
+  getPageSettings(),
+]);
+
+const heroSubtitle =
+  "Quadball Canada relies on volunteers to power events, local programs, and national initiatives. Use the filters to find a role that matches your interests and availability.";
 ---
 
 <Layout
@@ -11,5 +18,10 @@ const opportunities = await getVolunteerOpportunities("en");
   alternate={{ en: "/volunteer-opportunities/", fr: "/fr/benevolat/" }}
   locale="en"
 >
-  <VolunteerList opportunities={opportunities} locale="en" />
+  <PageHero
+    title="Volunteer Opportunities"
+    subtitle={heroSubtitle}
+    image={pageSettings?.volunteerHeroImage ?? pageSettings?.defaultHeroImage}
+  />
+  <VolunteerList opportunities={opportunities} locale="en" showIntro={false} />
 </Layout>

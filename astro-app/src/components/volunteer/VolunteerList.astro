@@ -5,9 +5,10 @@ import EmailLink from "../ui/EmailLink.astro";
 interface Props {
   opportunities: VolunteerOpportunitySummary[];
   locale: Locale;
+  showIntro?: boolean;
 }
 
-const { opportunities = [], locale }: Props = Astro.props;
+const { opportunities = [], locale, showIntro = true }: Props = Astro.props;
 
 const copy =
   locale === "fr"
@@ -158,10 +159,12 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
 
 {hasOpportunities ? (
   <div class="volunteer">
-    <header class="volunteer__intro">
-      <h1>{copy.heading}</h1>
-      <p>{copy.intro}</p>
-    </header>
+    {showIntro && (
+      <header class="volunteer__intro">
+        <h1>{copy.heading}</h1>
+        <p>{copy.intro}</p>
+      </header>
+    )}
 
     <div class="volunteer__filters">
       {uniqueRoles.length > 1 && (
@@ -302,10 +305,12 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
   </div>
 ) : (
   <div class="volunteer volunteer--empty">
-    <header class="volunteer__intro">
-      <h1>{copy.heading}</h1>
-      <p>{copy.intro}</p>
-    </header>
+    {showIntro && (
+      <header class="volunteer__intro">
+        <h1>{copy.heading}</h1>
+        <p>{copy.intro}</p>
+      </header>
+    )}
     <p>{copy.noItems}</p>
 
     <section class="volunteer__discord">

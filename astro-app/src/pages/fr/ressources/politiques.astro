@@ -28,7 +28,7 @@ const categoryOrder: PolicyCategory[] = ['rules', 'general', 'events', 'gameplay
   <PageHero
     title="Politiques"
     subtitle="Politiques et documents officiels régissant les opérations, les événements et le jeu de Quadball Canada."
-    image={pageSettings?.defaultHeroImage}
+    image={pageSettings?.policiesHeroImage ?? pageSettings?.defaultHeroImage}
   />
 
   <section class="policies">

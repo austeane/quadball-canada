@@ -1,7 +1,8 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
 import NewsCard from "@/components/content/NewsCard.astro";
-import { getNewsArticles, type Locale } from "@/utils/sanity";
+import { getNewsArticles, getPageSettings, type Locale } from "@/utils/sanity";
 import { resolveLocale } from "@/i18n";
 import { t } from "@/i18n/ui";
 
@@ -11,7 +12,7 @@ interface Props {
 
 const props = Astro.props as Props;
 const locale = props.locale ?? resolveLocale(Astro);
-const articles = await getNewsArticles(locale);
+const [articles, pageSettings] = await Promise.all([getNewsArticles(locale), getPageSettings()]);
 const title = t(locale, "news.title");
 const subtitle = t(locale, "news.subtitle");
 const emptyState = t(locale, "news.empty");
@@ -26,12 +27,12 @@ const remainingArticles = articles.slice(1);
 ---
 
 <Layout title={title} alternate={alternate} locale={locale}>
+  <PageHero
+    title={title}
+    subtitle={subtitle}
+    image={pageSettings?.newsHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section class="news-page">
-    <header class="news-header">
-      <h1>{title}</h1>
-      <p class="news-subtitle">{subtitle}</p>
-    </header>
-
     {articles.length ? (
       <div class="news-content">
         {featuredArticle && (
@@ -56,21 +57,6 @@ const remainingArticles = articles.slice(1);
 <style>
   .news-page {
     padding: 3rem 0;
-  }
-
-  .news-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .news-header h1 {
-    margin-bottom: 0.5rem;
-  }
-
-  .news-subtitle {
-    font-size: var(--font-size-5);
-    color: var(--gray-600);
-    margin: 0;
   }
 
   .news-content {

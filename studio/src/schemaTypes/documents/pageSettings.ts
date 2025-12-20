@@ -60,6 +60,60 @@ export default defineType({
       description: 'Hero image for /news/ and /fr/nouvelles/ pages',
     },
     {
+      name: 'resourcesHeroImage',
+      title: 'Resources Page Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /resources/ and /fr/ressources/ pages',
+    },
+    {
+      name: 'policiesHeroImage',
+      title: 'Policies Page Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /resources/policies/ and /fr/ressources/politiques/ pages',
+    },
+    {
+      name: 'startingTeamHeroImage',
+      title: 'Starting a Team Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /resources/starting-a-team/ and /fr/ressources/demarrer-une-equipe/ pages',
+    },
+    {
+      name: 'planningTournamentHeroImage',
+      title: 'Planning a Tournament Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /resources/planning-a-tournament/ and /fr/ressources/planifier-un-tournoi/ pages',
+    },
+    {
+      name: 'hostEventHeroImage',
+      title: 'Host an Event Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /get-involved/host-an-event/ and /fr/simpliquer/organiser-un-evenement/ pages',
+    },
+    {
+      name: 'volunteerHeroImage',
+      title: 'Volunteer Opportunities Hero Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Hero image for /volunteer-opportunities/ and /fr/benevolat/ pages',
+    },
+    {
       name: 'boardHeroImage',
       title: 'Board Page Hero Image',
       type: 'image',

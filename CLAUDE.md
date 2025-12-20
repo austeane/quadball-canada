@@ -38,6 +38,9 @@ cd studio && npx sanity documents query '*[_type == "newsArticle"][0..5]'
 
 # Create a document from a JSON file (production dataset)
 cd studio && npx sanity documents create /path/to/doc.json --dataset production
+
+# Attach Website2025 hero images via CLI script (uses SANITY_AUTH_TOKEN from studio/.env)
+cd studio && npx sanity exec scripts/attach-hero-images.mjs
 ```
 
 Cloudflare (Pages):
@@ -221,10 +224,6 @@ cd studio && npm run translate:all -- --limit=5        # Process only 5 docs
 ## Security Notes
 
 - Avoid committing tokens. Move any credentials in source (e.g., webhook proxy) to platform secrets.
-
-## Keep Docs In Sync
-
-- Update `MIGRATION_PLAN.md` and `CHECKLIST.md` when changing structure, naming, or workflows.
 
 ## Recent Updates (2025-XX-XX)
 

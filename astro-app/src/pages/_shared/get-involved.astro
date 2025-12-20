@@ -1,7 +1,8 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getLandingSection } from "@/utils/sanity";
+import { getLandingSection, getPageSettings } from "@/utils/sanity";
 
 interface Props {
   locale: Locale;
@@ -12,6 +13,7 @@ const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
 const landingSection = await getLandingSection("getInvolved", locale);
+const pageSettings = await getPageSettings();
 
 // Fallback content if Sanity data is not available
 const fallbackContent = isFr
@@ -44,12 +46,12 @@ const alternate = {
 ---
 
 <Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+  <PageHero
+    title={content.heading}
+    subtitle={content.intro}
+    image={pageSettings?.getInvolvedHeroImage ?? pageSettings?.defaultHeroImage}
+  />
   <section class="section">
-    <header class="intro">
-      <h1>{content.heading}</h1>
-      <p>{content.intro}</p>
-    </header>
-
     {content.cards && content.cards.length > 0 && (
       <div class="grid">
         {content.cards.map((card) => (
@@ -78,9 +80,6 @@ const alternate = {
     display: flex;
     flex-direction: column;
     gap: 3rem;
-  }
-  .intro {
-    max-width: 720px;
   }
   .grid {
     display: grid;
