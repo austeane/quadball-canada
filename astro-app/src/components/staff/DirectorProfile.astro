@@ -25,7 +25,7 @@ function getInitials(name: string) {
 }
 
 const headshotUrl = director.headshot?.asset
-  ? urlFor(director.headshot).width(640).height(640).fit("crop").url()
+  ? urlFor(director.headshot).width(640).height(640).fit("crop").auto("format").url()
   : null;
 const headshotAlt = director.headshot?.alt ?? `${director.name} headshot`;
 ---

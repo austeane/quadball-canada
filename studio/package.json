@@ -18,12 +18,13 @@
   ],
   "dependencies": {
     "@sanity/client": "^6.28.0",
-    "@sanity/vision": "^4.10.2",
+    "@sanity/vision": "^4.22.0",
     "openai": "^6.9.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
-    "sanity": "^4.10.2",
+    "sanity": "^4.22.0",
+    "sharp": "^0.34.5",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {

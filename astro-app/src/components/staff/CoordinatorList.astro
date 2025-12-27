@@ -23,7 +23,7 @@ function getInitials(name: string) {
     <div class="coordinator-grid">
       {coordinators.map((coord) => {
         const imageUrl = coord.headshot?.asset
-          ? urlFor(coord.headshot).width(320).height(320).fit("crop").url()
+          ? urlFor(coord.headshot).width(320).height(320).fit("crop").auto("format").url()
           : null;
         const altText = coord.headshot?.alt ?? `${coord.name} headshot`;
         return (

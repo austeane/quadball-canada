@@ -236,7 +236,7 @@ if (uncategorizedTeams.length > 0) {
               const contact = getContact(team);
               const socialLinks = getSocialLinks(team);
               const location = getLocation(team);
-              const logoUrl = team.logo ? urlFor(team.logo).width(160).height(160).fit("max").url() : undefined;
+              const logoUrl = team.logo ? urlFor(team.logo).width(160).height(160).fit("max").auto("format").url() : undefined;
               return (
                 <article class="team-card" data-team-card data-province={team.province ?? ""} data-level={group.key}>
                   <div class="team-card__media">

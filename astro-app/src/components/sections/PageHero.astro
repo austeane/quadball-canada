@@ -12,19 +12,58 @@ interface Props {
 
 const { title, subtitle, ctaText, ctaHref, image = "/hero-cover.jpg" } = Astro.props as Props;
 
-// Generate image URL
-let imageUrl = "/hero-cover.jpg";
-if (typeof image === "string") {
-  imageUrl = image;
-} else if (image) {
-  const sanityImageUrl = urlForImage(image)?.width(1920).height(560).url();
-  if (sanityImageUrl) {
-    imageUrl = sanityImageUrl;
-  }
-}
+// Generate image URL(s)
+const isSanityImage = typeof image !== "string" && image?.asset;
+const isStaticFallback = !isSanityImage;
+
+// Sanity image with auto-format (WebP/AVIF) and responsive sizes
+const sanityUrl = isSanityImage ? urlForImage(image)?.width(1920).height(560).auto("format").url() : null;
+const sanitySrcset = isSanityImage ? `
+  ${urlForImage(image)?.width(800).height(233).auto("format").url()} 800w,
+  ${urlForImage(image)?.width(1280).height(373).auto("format").url()} 1280w,
+  ${urlForImage(image)?.width(1920).height(560).auto("format").url()} 1920w
+`.trim() : null;
 ---
 <section class="pagehero">
-  <img src={imageUrl} alt="" width="1920" height="560" class="pagehero__img" decoding="async" loading="eager" />
+  {isSanityImage ? (
+    <img
+      src={sanityUrl}
+      srcset={sanitySrcset}
+      sizes="100vw"
+      alt=""
+      width="1920"
+      height="560"
+      class="pagehero__img"
+      decoding="async"
+      loading="eager"
+      fetchpriority="high"
+    />
+  ) : (
+    <picture>
+      <source
+        type="image/avif"
+        srcset="/hero-cover-800.avif 800w, /hero-cover-1280.avif 1280w, /hero-cover-1920.avif 1920w"
+        sizes="100vw"
+      />
+      <source
+        type="image/webp"
+        srcset="/hero-cover-800.webp 800w, /hero-cover-1280.webp 1280w, /hero-cover-1920.webp 1920w"
+        sizes="100vw"
+      />
+      <img
+        src="/hero-cover-1280.jpg"
+        srcset="/hero-cover-800.jpg 800w, /hero-cover-1280.jpg 1280w, /hero-cover-1920.jpg 1920w"
+        sizes="100vw"
+        alt=""
+        width="1920"
+        height="560"
+        class="pagehero__img"
+        decoding="async"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </picture>
+  )}
   <div class="pagehero__overlay">
     <div class="pagehero__content">
       <h1 class="pagehero__title">{title}</h1>

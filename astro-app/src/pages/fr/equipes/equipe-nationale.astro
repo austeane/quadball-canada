@@ -52,7 +52,7 @@ const ctaEmail = cta?.href?.startsWith("mailto:") ? cta.href.replace("mailto:", 
       {heroImage && (
         <figure class="national-team__media">
           <img
-            src={urlFor(heroImage).width(1440).height(600).fit("crop").url()}
+            src={urlFor(heroImage).width(1440).height(600).fit("crop").auto("format").url()}
             alt={heroImage.alt ?? ""}
             loading="eager"
             decoding="async"

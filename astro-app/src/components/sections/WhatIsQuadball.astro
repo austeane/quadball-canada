@@ -1,5 +1,5 @@
 ---
-import { getInfoArticle } from "../../utils/sanity";
+import { getInfoArticle, urlForImage } from "../../utils/sanity";
 import type { Locale } from "../../utils/localization";
 
 interface Props {
@@ -18,6 +18,18 @@ const heading = article.title;
 const summary = article.excerpt ?? "";
 const articleHref = locale === "fr" ? `/fr/info/${article.slug}/` : `/info/${article.slug}/`;
 const linkLabel = locale === "fr" ? "En savoir plus" : "Learn more about quadball";
+
+// Use Sanity heroImage if available, otherwise fall back to static
+const hasSanityImage = article.heroImage?.asset;
+const imageAlt = article.heroImage?.alt ?? (locale === "fr" ? "Joueurs de quadball en action" : "Quadball players in action");
+
+// Generate optimized URLs from Sanity (auto-format picks WebP/AVIF)
+const sanityUrl = hasSanityImage ? urlForImage(article.heroImage)?.width(800).height(450).auto("format").url() : null;
+const sanitySrcset = hasSanityImage ? `
+  ${urlForImage(article.heroImage)?.width(400).height(225).auto("format").url()} 400w,
+  ${urlForImage(article.heroImage)?.width(600).height(338).auto("format").url()} 600w,
+  ${urlForImage(article.heroImage)?.width(800).height(450).auto("format").url()} 800w
+`.trim() : null;
 ---
 <section class="what-is-quadball">
   <div class="content">
@@ -27,13 +39,39 @@ const linkLabel = locale === "fr" ? "En savoir plus" : "Learn more about quadbal
       <a class="btn-link" href={articleHref}>{linkLabel}</a>
     </div>
     <div class="image">
-      <img
-        src="/hero-cover.jpg"
-        alt="Quadball players in action"
-        width="600"
-        height="400"
-        loading="lazy"
-      />
+      {hasSanityImage ? (
+        <img
+          src={sanityUrl}
+          srcset={sanitySrcset}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          alt={imageAlt}
+          width="800"
+          height="450"
+          loading="lazy"
+        />
+      ) : (
+        <picture>
+          <source
+            type="image/avif"
+            srcset="/hero-cover-400.avif 400w, /hero-cover-600.avif 600w, /hero-cover-800.avif 800w"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          <source
+            type="image/webp"
+            srcset="/hero-cover-400.webp 400w, /hero-cover-600.webp 600w, /hero-cover-800.webp 800w"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          <img
+            src="/hero-cover-600.jpg"
+            srcset="/hero-cover-400.jpg 400w, /hero-cover-600.jpg 600w, /hero-cover-800.jpg 800w"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            alt={imageAlt}
+            width="800"
+            height="222"
+            loading="lazy"
+          />
+        </picture>
+      )}
     </div>
   </div>
 </section>

@@ -12,6 +12,9 @@ const publicDir = path.join(__dirname, '../public');
 const inputImage = path.join(publicDir, 'hero-cover.jpg');
 
 const sizes = [
+  { width: 400, suffix: '400' },
+  { width: 600, suffix: '600' },
+  { width: 800, suffix: '800' },
   { width: 1280, suffix: '1280' },
   { width: 1920, suffix: '1920' },
   { width: 2560, suffix: '2560' }
@@ -46,7 +49,7 @@ async function optimizeImages() {
       console.error(`Error creating WebP at ${size.width}px:`, error.message);
     }
 
-    // Create AVIF version
+    // Create AVIF version (quality 65 is optimal for AVIF - similar visual quality to JPEG 85)
     try {
       const avifOutput = path.join(publicDir, `${baseName}-${size.suffix}.avif`);
       await sharp(inputImage)
@@ -54,7 +57,7 @@ async function optimizeImages() {
           withoutEnlargement: true,
           fit: 'inside'
         })
-        .avif({ quality: 85 })
+        .avif({ quality: 65, effort: 6 })
         .toFile(avifOutput);
       console.log(`✓ Created ${path.basename(avifOutput)}`);
     } catch (error) {

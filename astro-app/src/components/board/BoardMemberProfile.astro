@@ -23,7 +23,7 @@ function getInitials(name: string) {
 }
 
 const headshotUrl = member.headshot?.asset
-  ? urlFor(member.headshot).width(640).height(640).fit("crop").url()
+  ? urlFor(member.headshot).width(640).height(640).fit("crop").auto("format").url()
   : null;
 const headshotAlt = member.headshot?.alt ?? `${member.name} headshot`;
 ---

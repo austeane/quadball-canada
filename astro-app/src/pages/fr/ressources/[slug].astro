@@ -52,7 +52,7 @@ const categoryLabel = categoryLabels[resource.category] || resource.category;
       resource.heroImage ? (
         <img
           class="resource__cover"
-          src={urlFor(resource.heroImage).url()}
+          src={urlFor(resource.heroImage).width(1200).auto("format").url()}
           alt={resource.heroImage.alt || ""}
         />
       ) : (
