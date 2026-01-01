@@ -8,6 +8,8 @@ const categories = [
   { title: 'Events', value: 'events' },
   { title: 'Gameplay', value: 'gameplay' },
   { title: 'Team Canada', value: 'team-canada' },
+  { title: 'Membership', value: 'membership' },
+  { title: 'Communication', value: 'communication' },
 ] as const;
 
 export default defineType({
