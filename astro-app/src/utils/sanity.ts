@@ -790,7 +790,7 @@ export async function getPageSettings(): Promise<PageSettings | null> {
   );
 }
 
-export type PolicyCategory = 'rules' | 'general' | 'events' | 'gameplay' | 'team-canada';
+export type PolicyCategory = 'rules' | 'general' | 'events' | 'gameplay' | 'team-canada' | 'membership' | 'communication';
 
 export interface Policy {
   _id: string;
@@ -824,6 +824,8 @@ export async function getPoliciesByCategory(locale: Locale = "en"): Promise<Reco
     'events': [],
     'gameplay': [],
     'team-canada': [],
+    'membership': [],
+    'communication': [],
   };
 
   policies.forEach(policy => {
