@@ -1,6 +1,7 @@
 ---
 import type { Locale, VolunteerOpportunitySummary } from "../../utils/sanity";
 import EmailLink from "../ui/EmailLink.astro";
+import { PortableText } from "astro-portabletext";
 
 interface Props {
   opportunities: VolunteerOpportunitySummary[];
@@ -239,7 +240,11 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
             <h2>{opportunity.title}</h2>
             {opportunity.roleLabel && <span class="volunteer-card__tag">{opportunity.roleLabel}</span>}
           </header>
-          {opportunity.summary && <p class="volunteer-card__summary">{opportunity.summary}</p>}
+          {opportunity.summary && opportunity.summary.length > 0 && (
+            <div class="volunteer-card__summary">
+              <PortableText value={opportunity.summary} />
+            </div>
+          )}
 
           <dl class="volunteer-card__meta">
             <div>
@@ -513,9 +518,25 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
   }
 
   .volunteer-card__summary {
-    margin: 0;
     color: rgba(15, 23, 42, 0.75);
     line-height: 1.6;
+  }
+
+  .volunteer-card__summary :global(p) {
+    margin: 0;
+  }
+
+  .volunteer-card__summary :global(p + p) {
+    margin-top: 0.5rem;
+  }
+
+  .volunteer-card__summary :global(a) {
+    color: var(--brand-primary);
+    text-decoration: underline;
+  }
+
+  .volunteer-card__summary :global(a:hover) {
+    text-decoration: none;
   }
 
   .volunteer-card__meta {

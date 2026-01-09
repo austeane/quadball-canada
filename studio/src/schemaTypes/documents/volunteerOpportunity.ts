@@ -40,9 +40,8 @@ export default defineType({
     defineField({
       name: 'summary',
       title: 'Summary',
-      type: 'localeText',
-      rows: 3,
-      // English is required inside localeText; French is optional for auto-translation
+      type: 'localePortableText',
+      // English is required inside localePortableText; French is optional for auto-translation
     }),
     defineField({
       name: 'roleType',

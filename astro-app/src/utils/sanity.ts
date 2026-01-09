@@ -123,7 +123,7 @@ export interface VolunteerOpportunitySummary {
   _id: string;
   slug: string;
   title: string;
-  summary?: string | null;
+  summary?: PortableTextBlock[] | null;
   roleType?: string;
   timeCommitment?: string;
   location?: string | null;
