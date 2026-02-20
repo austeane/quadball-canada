@@ -860,6 +860,9 @@ export interface EventBidsPageData {
   domesticHosts: HostAward[];
   internationalHosts: HostAward[];
   currentBids?: CurrentBids | null;
+  introImage?: SanityImageWithAlt | null;
+  selectionImage?: SanityImageWithAlt | null;
+  getInvolvedImage?: SanityImageWithAlt | null;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -870,6 +873,9 @@ export interface EventBidsPageData {
 export async function getEventBidsPage(locale: Locale = "en"): Promise<EventBidsPageData | null> {
   const page = await sanityClient.fetch(
     groq`*[_type == "eventBidsPage"][0] {
+      introImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
+      selectionImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
+      getInvolvedImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
       domesticHosts[] {
         "eventName": coalesce(eventName[$locale], eventName.en),
         hostCity,

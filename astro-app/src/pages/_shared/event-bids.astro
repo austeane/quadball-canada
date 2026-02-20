@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getEventBidsPage, getPageSettings } from "@/utils/sanity";
+import { getEventBidsPage, getPageSettings, urlForImage } from "@/utils/sanity";
 import { formatDate } from "@/utils";
 import { t } from "@/i18n/ui";
 
@@ -32,6 +32,13 @@ const whoCanBidKeys = [
   "eventBids.application.whoCanBid.tourism",
 ] as const;
 
+const steps = [
+  { key: "eventBids.howToBid.step1" as const },
+  { key: "eventBids.howToBid.step2" as const },
+  { key: "eventBids.howToBid.step3" as const },
+  { key: "eventBids.howToBid.step4" as const },
+];
+
 const selectionParagraphs = [
   "eventBids.selectionProcess.p1",
   "eventBids.selectionProcess.p2",
@@ -53,6 +60,10 @@ const statusClass =
     : page?.currentBids?.status === "coming-soon"
       ? "status-badge--coming-soon"
       : "status-badge--closed";
+
+const introImageUrl = urlForImage(page?.introImage)?.width(600).height(400).fit("crop").url();
+const selectionImageUrl = urlForImage(page?.selectionImage)?.width(600).height(400).fit("crop").url();
+const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).height(400).fit("crop").url();
 ---
 
 <Layout
@@ -71,8 +82,17 @@ const statusClass =
     <!-- 2. Intro: How Championships Find a Home -->
     <section class="section">
       <div class="content-box">
-        <h2>{isFr ? "Comment les championnats trouvent un lieu d'accueil" : "How Championships Find a Home"}</h2>
-        <p class="section-prose">{t(locale, "eventBids.intro.body")}</p>
+        <div class:list={["media-row", { "media-row--has-image": introImageUrl }]}>
+          <div>
+            <h2>{isFr ? "Comment les championnats trouvent un lieu d'accueil" : "How Championships Find a Home"}</h2>
+            <p class="section-prose">{t(locale, "eventBids.intro.body")}</p>
+          </div>
+          {introImageUrl && (
+            <div class="media-row__img">
+              <img src={introImageUrl} alt={page?.introImage?.alt ?? ""} loading="lazy" />
+            </div>
+          )}
+        </div>
       </div>
     </section>
 
@@ -97,9 +117,21 @@ const statusClass =
       </div>
     </section>
 
+    <!-- 3b. How to Submit a Bid (vertical timeline) -->
+    <section class="section">
+      <h2>{t(locale, "eventBids.howToBid.heading")}</h2>
+      <div class="timeline">
+        {steps.map((step, i) => (
+          <div class="timeline-step" data-step={String(i + 1)}>
+            <p>{t(locale, step.key)}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
     <!-- 4. Current Bid Cycle -->
     {page?.currentBids && (
-      <section class="section">
+      <section class="section section--alt">
         <h2>{t(locale, "eventBids.currentBids.heading")}</h2>
         <div class="bid-cycle">
           <div class="bid-cycle-header">
@@ -133,28 +165,37 @@ const statusClass =
     )}
 
     {!page?.currentBids && (
-      <section class="section">
+      <section class="section section--alt">
         <h2>{t(locale, "eventBids.currentBids.heading")}</h2>
         <p>{t(locale, "eventBids.noCurrentCycle")}</p>
       </section>
     )}
 
     <!-- 5. Selection Process -->
-    <section class="section section--alt">
+    <section class="section">
       <div class="content-box">
         <span class="section-badge">{t(locale, "eventBids.selectionProcess.heading")}</span>
-        <h3>{t(locale, "eventBids.selectionProcess.subheading")}</h3>
-        <div class="prose-stack">
-          {selectionParagraphs.map((key) => (
-            <p>{t(locale, key)}</p>
-          ))}
+        <div class:list={["media-row", { "media-row--has-image": selectionImageUrl }]}>
+          <div>
+            <h3>{t(locale, "eventBids.selectionProcess.subheading")}</h3>
+            <div class="prose-stack">
+              {selectionParagraphs.map((key) => (
+                <p>{t(locale, key)}</p>
+              ))}
+            </div>
+          </div>
+          {selectionImageUrl && (
+            <div class="media-row__img">
+              <img src={selectionImageUrl} alt={page?.selectionImage?.alt ?? ""} loading="lazy" />
+            </div>
+          )}
         </div>
       </div>
     </section>
 
     <!-- 6. Selected Hosts -->
     {(page?.domesticHosts.length || page?.internationalHosts.length) && (
-      <section class="section">
+      <section class="section section--alt">
         <div class="hosts-duo">
           {page.domesticHosts.length > 0 && (
             <div>
@@ -221,17 +262,26 @@ const statusClass =
     )}
 
     <!-- 7. Get Involved -->
-    <section class="section section--alt">
+    <section class="section">
       <div class="content-box">
         <span class="section-badge">{t(locale, "eventBids.getInvolved.heading")}</span>
-        <h3>{t(locale, "eventBids.getInvolved.subheading")}</h3>
-        <p class="section-prose">{t(locale, "eventBids.getInvolved.body")}</p>
-        <p class="contact-line">
-          {t(locale, "eventBids.getInvolved.contactPrompt")}{" "}
-          <a href="mailto:hailey@quadballcanada.ca">hailey@quadballcanada.ca</a>{" "}
-          &amp;{" "}
-          <a href="mailto:soleil@quadballcanada.ca">soleil@quadballcanada.ca</a>
-        </p>
+        <div class:list={["media-row", { "media-row--has-image": getInvolvedImageUrl }]}>
+          <div>
+            <h3>{t(locale, "eventBids.getInvolved.subheading")}</h3>
+            <p class="section-prose">{t(locale, "eventBids.getInvolved.body")}</p>
+            <p class="contact-line">
+              {t(locale, "eventBids.getInvolved.contactPrompt")}{" "}
+              <a href="mailto:hailey@quadballcanada.ca">hailey@quadballcanada.ca</a>{" "}
+              &amp;{" "}
+              <a href="mailto:soleil@quadballcanada.ca">soleil@quadballcanada.ca</a>
+            </p>
+          </div>
+          {getInvolvedImageUrl && (
+            <div class="media-row__img">
+              <img src={getInvolvedImageUrl} alt={page?.getInvolvedImage?.alt ?? ""} loading="lazy" />
+            </div>
+          )}
+        </div>
       </div>
     </section>
 
@@ -316,6 +366,34 @@ const statusClass =
     line-height: 1.65;
   }
 
+  /* Media row — text + optional image side-by-side */
+  .media-row {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .media-row--has-image {
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .media-row--has-image {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .media-row__img {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .media-row__img img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
   /* Two-column layout for Application Process */
   .two-col {
     display: grid;
@@ -366,6 +444,54 @@ const statusClass =
     flex-shrink: 0;
   }
 
+  /* Vertical timeline */
+  .timeline {
+    position: relative;
+    padding-left: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 640px;
+    margin-top: 1.5rem;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border, #e5e7eb);
+  }
+
+  .timeline-step {
+    position: relative;
+  }
+
+  .timeline-step::before {
+    content: attr(data-step);
+    position: absolute;
+    left: -3rem;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .timeline-step p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
   /* Current bid cycle */
   .bid-cycle {
     border: 2px solid var(--brand-primary);
@@ -374,6 +500,7 @@ const statusClass =
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    background: #fff;
   }
 
   .bid-cycle-header {
@@ -512,6 +639,7 @@ const statusClass =
     border: 1px solid var(--border, #e5e7eb);
     border-radius: 12px;
     margin-top: 1rem;
+    background: #fff;
   }
 
   .hosts-table {

@@ -6,6 +6,27 @@ export default defineType({
   type: 'document',
   fields: [
     {
+      name: 'introImage',
+      title: 'Intro Section Image',
+      type: 'image',
+      options: {hotspot: true},
+      description: 'Photo shown beside "How Championships Find a Home"',
+    },
+    {
+      name: 'selectionImage',
+      title: 'Selection Process Image',
+      type: 'image',
+      options: {hotspot: true},
+      description: 'Photo shown beside "How does your bid win?"',
+    },
+    {
+      name: 'getInvolvedImage',
+      title: 'Get Involved Image',
+      type: 'image',
+      options: {hotspot: true},
+      description: 'Photo shown beside "How do I bring an event to my community?"',
+    },
+    {
       name: 'domesticHosts',
       title: 'Selected Hosts — Domestic',
       type: 'array',
