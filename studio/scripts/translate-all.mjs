@@ -54,6 +54,7 @@ const LOCALIZED_DOCUMENT_TYPES = specificType ? [specificType] : [
   'resourceArticle',
   'volunteerOpportunity',
   'landingSection',
+  'eventBidsPage',
   'boardMember',
   'staffMember',
   'team',

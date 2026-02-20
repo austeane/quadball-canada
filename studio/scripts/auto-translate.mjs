@@ -42,6 +42,7 @@ const LOCALIZED_DOCUMENT_TYPES = [
   'resourceArticle',
   'volunteerOpportunity',
   'landingSection',
+  'eventBidsPage',
 ]
 
 // Fields that contain localized content (mapped by field type)

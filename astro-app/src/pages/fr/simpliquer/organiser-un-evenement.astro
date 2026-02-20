@@ -60,6 +60,15 @@ const pageSettings = await getPageSettings();
       </p>
       <a class="btn" href="/fr/contact/">Demander de l'aide pour l'organisation</a>
     </section>
+
+    <section class="cta cta--alt">
+      <h2>Vous souhaitez accueillir un Championnat régional ou national?</h2>
+      <p>
+        Les championnats sont attribués par un processus d'appel d'offres formel. Découvrez les critères
+        d'évaluation, les échéanciers et comment soumettre votre candidature.
+      </p>
+      <a class="btn" href="/fr/evenements/appels-doffres/">Appels d'offres</a>
+    </section>
   </section>
 </Layout>
 
@@ -105,6 +114,9 @@ const pageSettings = await getPageSettings();
     max-width: 48ch;
   }
   .cta .btn:hover { background: var(--brand-ink); }
+  .cta--alt {
+    background: var(--bg-secondary, #f1f5f9);
+  }
   ul {
     margin: 1rem 0 0;
     padding-left: 1.25rem;

@@ -837,6 +837,83 @@ export async function getPoliciesByCategory(locale: Locale = "en"): Promise<Reco
   return grouped;
 }
 
+// Event Bids Page types
+
+export interface HostAward {
+  eventName: string;
+  hostCity: string;
+  dateLabel?: string;
+  description?: string;
+  eventUrl?: string;
+}
+
+export interface CurrentBids {
+  status: "open" | "closed" | "coming-soon";
+  statusMessage?: string;
+  bidManualFile?: { asset: { url: string } } | null;
+  bidManualTitle?: string;
+  submissionUrl?: string;
+  deadline?: string;
+}
+
+export interface EventBidsPageData {
+  domesticHosts: HostAward[];
+  internationalHosts: HostAward[];
+  currentBids?: CurrentBids | null;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  } | null;
+}
+
+export async function getEventBidsPage(locale: Locale = "en"): Promise<EventBidsPageData | null> {
+  const page = await sanityClient.fetch(
+    groq`*[_type == "eventBidsPage"][0] {
+      domesticHosts[] {
+        "eventName": coalesce(eventName[$locale], eventName.en),
+        hostCity,
+        "dateLabel": coalesce(dateLabel[$locale], dateLabel.en),
+        eventUrl
+      },
+      internationalHosts[] {
+        "eventName": coalesce(eventName[$locale], eventName.en),
+        hostCity,
+        "dateLabel": coalesce(dateLabel[$locale], dateLabel.en),
+        "description": coalesce(description[$locale], description.en),
+        eventUrl
+      },
+      currentBids {
+        status,
+        "statusMessage": coalesce(statusMessage[$locale], statusMessage.en),
+        bidManualFile { asset-> { url } },
+        "bidManualTitle": coalesce(bidManualTitle[$locale], bidManualTitle.en),
+        submissionUrl,
+        deadline
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage{
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      }
+    }`,
+    { locale }
+  );
+
+  if (!page) {
+    return null;
+  }
+
+  return {
+    ...page,
+    domesticHosts: page.domesticHosts ?? [],
+    internationalHosts: page.internationalHosts ?? [],
+  };
+}
+
 // Fetch landing section data
 export async function getLandingSection(key: string, locale: Locale): Promise<LandingSection | null> {
   const query = groq`

@@ -60,6 +60,15 @@ const pageSettings = await getPageSettings();
       </p>
       <a class="btn" href="/contact/">Request Hosting Support</a>
     </section>
+
+    <section class="cta cta--alt">
+      <h2>Want to host a Regional or National Championship?</h2>
+      <p>
+        Championship events are awarded through a formal bidding process. Learn about evaluation criteria,
+        timelines, and how to submit your bid.
+      </p>
+      <a class="btn" href="/events/bids/">Event Bids</a>
+    </section>
   </section>
 </Layout>
 
@@ -105,6 +114,9 @@ const pageSettings = await getPageSettings();
     max-width: 48ch;
   }
   .cta .btn:hover { background: var(--brand-ink); }
+  .cta--alt {
+    background: var(--bg-secondary, #f1f5f9);
+  }
   ul {
     margin: 1rem 0 0;
     padding-left: 1.25rem;
