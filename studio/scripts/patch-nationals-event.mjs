@@ -43,8 +43,8 @@ const result = await client
       _type: 'eventRegistration',
       required: true,
       url: 'https://quidditchcanada.usetopscore.com/en_ca/e/2025-2026-championnat-national-championships',
-      deadline: '2026-02-15',
-      price: 300,
+      deadline: '2026-03-01',
+      price: 90,
     },
     teams: TEAM_IDS.map((id) => ({
       _type: 'reference',

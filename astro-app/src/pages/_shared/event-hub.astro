@@ -305,8 +305,23 @@ const anchors: AnchorItem[] = [
       <section class="hub-section hub-section--tint" id="venue">
         <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.venue")}</h2>
         <div class="venue-grid animate-on-scroll">
-          <div class="venue-map-placeholder">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div class="venue-map">
+            {hub.location?.address ? (
+              <iframe
+                src={`https://www.google.com/maps?q=${encodeURIComponent(hub.location.address)}&output=embed`}
+                width="100%"
+                height="100%"
+                style="border:0; border-radius:12px;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title={hub.location.name || "Venue map"}
+              ></iframe>
+            ) : (
+              <div class="venue-map-placeholder">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+            )}
           </div>
           <div class="venue-info">
             {hub.location?.name && <h3>{hub.location.name}</h3>}
@@ -340,14 +355,14 @@ const anchors: AnchorItem[] = [
         <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.teamsSection")}</h2>
         <div class="teams-grid animate-on-scroll">
           {hub.teams.map((team) => (
-            <a href={`${isFr ? "/fr/equipes/" : "/teams/"}${team.slug}/`} class="team-card">
+            <div class="team-card">
               <div class="team-name">{team.name}</div>
               {(team.city || team.province) && (
                 <div class="team-location">
                   {[team.city, team.province].filter(Boolean).join(", ")}
                 </div>
               )}
-            </a>
+            </div>
           ))}
         </div>
       </section>
@@ -1003,6 +1018,15 @@ const anchors: AnchorItem[] = [
     gap: 32px;
   }
 
+  .venue-map {
+    border-radius: 12px;
+    min-height: 280px;
+    overflow: hidden;
+  }
+  .venue-map iframe {
+    display: block;
+    min-height: 280px;
+  }
   .venue-map-placeholder {
     background: var(--bg, #fff);
     border-radius: 12px;
@@ -1083,7 +1107,6 @@ const anchors: AnchorItem[] = [
   .team-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
   }
   .team-card:hover::before { transform: scaleX(1); }
 
