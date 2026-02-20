@@ -2,6 +2,7 @@
 import type { Locale, VolunteerOpportunitySummary } from "../../utils/sanity";
 import EmailLink from "../ui/EmailLink.astro";
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 
 interface Props {
   opportunities: VolunteerOpportunitySummary[];
@@ -242,7 +243,7 @@ const hasOpportunities = opportunitiesWithMeta.length > 0;
           </header>
           {opportunity.summary && opportunity.summary.length > 0 && (
             <div class="volunteer-card__summary">
-              <PortableText value={opportunity.summary} />
+              <PortableText value={opportunity.summary} components={{ type: { image: BlockImage } }} />
             </div>
           )}
 

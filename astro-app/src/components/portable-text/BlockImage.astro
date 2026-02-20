@@ -1,0 +1,52 @@
+---
+import { urlFor } from "@/utils/image";
+
+interface Props {
+  node: {
+    asset: { _ref: string };
+    alt?: string;
+    caption?: string;
+    hotspot?: { x: number; y: number };
+  };
+}
+
+const { node } = Astro.props;
+const src = urlFor(node).width(960).auto("format").url();
+const srcset = [
+  `${urlFor(node).width(480).auto("format").url()} 480w`,
+  `${urlFor(node).width(720).auto("format").url()} 720w`,
+  `${urlFor(node).width(960).auto("format").url()} 960w`,
+].join(", ");
+---
+
+<figure class="block-image">
+  <img
+    src={src}
+    srcset={srcset}
+    sizes="(max-width: 680px) 100vw, 680px"
+    alt={node.alt || ""}
+    loading="lazy"
+  />
+  {node.caption && <figcaption>{node.caption}</figcaption>}
+</figure>
+
+<style>
+  .block-image {
+    margin: var(--space-4) 0;
+    padding: 0;
+  }
+
+  .block-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .block-image figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-2);
+    color: var(--gray-600);
+    font-style: italic;
+    text-align: center;
+  }
+</style>

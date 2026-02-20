@@ -1,6 +1,7 @@
 ---
 import type { InferGetStaticParamsType } from "astro";
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import Layout from "../../../layouts/Layout.astro";
 import { urlFor } from "../../../utils/image";
 import { getResourceArticle, getResourceArticles, type Locale } from "../../../utils/sanity";
@@ -73,7 +74,7 @@ const categoryLabel = categoryLabels[resource.category] || resource.category;
       )}
       {resource.content && resource.content.length > 0 && (
         <div class="resource__content">
-          <PortableText value={resource.content} />
+          <PortableText value={resource.content} components={{ type: { image: BlockImage } }} />
         </div>
       )}
     </div>

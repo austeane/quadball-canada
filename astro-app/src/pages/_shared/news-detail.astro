@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import type { Locale } from "@/utils/localization";
 import Layout from "@/layouts/Layout.astro";
 import { formatDate } from "@/utils";
@@ -95,7 +96,7 @@ const encodedTitle = encodeURIComponent(article.title);
       {article.excerpt && <p class="post__excerpt">{article.excerpt}</p>}
 
       <div class="post__content">
-        <PortableText value={article.content} />
+        <PortableText value={article.content} components={{ type: { image: BlockImage } }} />
       </div>
 
       <div class="post__share">

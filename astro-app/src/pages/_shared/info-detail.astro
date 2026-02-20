@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import { getInfoArticle } from "@/utils/sanity";
@@ -41,7 +42,7 @@ const contactPath = locale === "fr" ? "/fr/contact/" : "/contact/";
 <Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
   <PageHero title={article.title} subtitle={article.excerpt} image={article.heroImage} />
   <section class="info-article">
-    <PortableText value={article.content} />
+    <PortableText value={article.content} components={{ type: { image: BlockImage } }} />
 
     <aside class="info-cta">
       <p>{copy.ctaText}</p>

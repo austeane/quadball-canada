@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import type {
   Locale,
   TeamLevelIdentifier,
@@ -159,7 +160,7 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
         </div>
         {level.hasExtras ? (
           <div class="team-levels__details" data-accordion-panel hidden>
-            {level.hasDetails && <PortableText value={level.details} />}
+            {level.hasDetails && <PortableText value={level.details} components={{ type: { image: BlockImage } }} />}
             {level.hasCta && level.cta?.href && level.cta.label && (
               <p class="team-levels__cta">
                 <a href={level.cta.href}>{level.cta.label}</a>

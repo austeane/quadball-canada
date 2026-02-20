@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import { getTeams, getTeamsPage, getPageSettings } from "@/utils/sanity";
@@ -77,7 +78,7 @@ const alternate = {
     <header class="teams__intro">
       {introBlocks.length ? (
         <div class="teams__intro-content">
-          <PortableText value={introBlocks} />
+          <PortableText value={introBlocks} components={{ type: { image: BlockImage } }} />
         </div>
       ) : (
         <p>{fallbackIntro}</p>

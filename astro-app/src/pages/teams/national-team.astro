@@ -1,5 +1,6 @@
 ---
 import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
 import Layout from "../../layouts/Layout.astro";
 import { getNationalTeamPage } from "../../utils/sanity";
 import { urlFor } from "../../utils/image";
@@ -62,7 +63,7 @@ const ctaEmail = cta?.href?.startsWith("mailto:") ? cta.href.replace("mailto:", 
     </header>
 
     <article class="national-team__content">
-      <PortableText value={content} />
+      <PortableText value={content} components={{ type: { image: BlockImage } }} />
     </article>
 
     {cta?.label && (
