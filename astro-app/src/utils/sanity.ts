@@ -940,6 +940,7 @@ export interface EventHubSponsor {
   name: string;
   logo?: SanityImageWithAlt | null;
   url?: string;
+  message?: string;
   tier?: string;
 }
 
@@ -1074,6 +1075,7 @@ export async function getEventHub(
         name,
         logo,
         url,
+        "message": coalesce(message[$locale], message.en),
         tier
       },
       contactEmails[] {

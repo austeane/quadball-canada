@@ -427,22 +427,44 @@ const anchors: AnchorItem[] = [
     </section>
 
     <!-- Sponsors -->
-    {hub.sponsors && hub.sponsors.length > 0 && (
-      <section class="hub-section" id="sponsors">
-        <h2 class="section-title animate-on-scroll" style="text-align:center;padding-left:0;">{t(locale, "eventHub.sponsors")}</h2>
-        <div class="sponsors-grid animate-on-scroll">
-          {hub.sponsors.map((s) => (
-            <a href={s.url || "#"} class="sponsor-box" target="_blank" rel="noopener noreferrer">
-              {s.logo ? (
-                <img src={urlForImage(s.logo)?.width(160).height(80).auto("format").url() || ""} alt={s.name} loading="lazy" />
-              ) : (
-                <span>{s.name}</span>
-              )}
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
+    {hub.sponsors && hub.sponsors.length > 0 && (() => {
+      const titleSponsors = hub.sponsors.filter((s) => s.tier === 'title');
+      const otherSponsors = hub.sponsors.filter((s) => s.tier !== 'title');
+      return (
+        <section class="hub-section" id="sponsors">
+          <h2 class="section-title animate-on-scroll" style="text-align:center;padding-left:0;">{t(locale, "eventHub.sponsors")}</h2>
+          {titleSponsors.length > 0 && (
+            <div class="title-sponsors animate-on-scroll">
+              {titleSponsors.map((s) => (
+                <div class="title-sponsor">
+                  <a href={s.url || "#"} target="_blank" rel="noopener noreferrer">
+                    {s.logo ? (
+                      <img src={urlForImage(s.logo)?.width(400).height(160).auto("format").url() || ""} alt={s.name} loading="lazy" />
+                    ) : (
+                      <span class="title-sponsor-name">{s.name}</span>
+                    )}
+                  </a>
+                  {s.message && <p class="title-sponsor-message">{s.message}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+          {otherSponsors.length > 0 && (
+            <div class="sponsors-grid animate-on-scroll">
+              {otherSponsors.map((s) => (
+                <a href={s.url || "#"} class="sponsor-box" target="_blank" rel="noopener noreferrer">
+                  {s.logo ? (
+                    <img src={urlForImage(s.logo)?.width(160).height(80).auto("format").url() || ""} alt={s.name} loading="lazy" />
+                  ) : (
+                    <span>{s.name}</span>
+                  )}
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+      );
+    })()}
 
     <!-- Contact -->
     {hub.contactEmails && hub.contactEmails.length > 0 && (
@@ -1237,6 +1259,36 @@ const anchors: AnchorItem[] = [
   .share-btn :global(svg) { width: 16px; height: 16px; }
 
   /* ===== SPONSORS ===== */
+  .title-sponsors {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .title-sponsor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .title-sponsor a {
+    display: inline-block;
+  }
+  .title-sponsor img {
+    max-height: 100px;
+    max-width: 320px;
+    object-fit: contain;
+  }
+  .title-sponsor-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .title-sponsor-message {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 0.95rem;
+    color: var(--text-secondary, #666);
+    line-height: 1.6;
+    font-style: italic;
+  }
   .sponsors-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);

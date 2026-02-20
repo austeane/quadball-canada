@@ -213,6 +213,7 @@ export default defineType({
             {name: 'name', title: 'Name', type: 'string', validation: (Rule) => Rule.required()},
             {name: 'logo', title: 'Logo', type: 'image'},
             {name: 'url', title: 'Website', type: 'url'},
+            {name: 'message', title: 'Message', type: 'localeText', description: 'Optional thank-you or acknowledgment text displayed below the logo'},
             {
               name: 'tier',
               title: 'Tier',
