@@ -914,6 +914,226 @@ export async function getEventBidsPage(locale: Locale = "en"): Promise<EventBids
   };
 }
 
+// Event Hub types
+
+export interface ScheduleItem {
+  time: string;
+  label: string;
+  description?: string;
+  highlight?: boolean;
+}
+
+export interface ScheduleDay {
+  dayLabel: string;
+  daySubtitle?: string;
+  date?: string;
+  items: ScheduleItem[];
+}
+
+export interface WatchChannel {
+  name: string;
+  url?: string;
+  platform?: string;
+}
+
+export interface EventHubSponsor {
+  name: string;
+  logo?: SanityImageWithAlt | null;
+  url?: string;
+  tier?: string;
+}
+
+export interface EventHubDetail {
+  _id: string;
+  slug: string;
+  slugEn?: string;
+  slugFr?: string;
+  title: string;
+  heroLabel?: string;
+  heroSubtitle?: string;
+  heroCtaPrimary?: { label?: string; href?: string };
+  heroCtaSecondary?: { label?: string; href?: string };
+  aboutContent?: PortableTextBlock[];
+  formatBadges?: string[];
+  admissionNote?: string;
+  registrationNote?: string;
+  registrationIncludes?: string[];
+  quickLinks?: { label: string; url: string }[];
+  schedulePublished?: boolean;
+  schedule?: ScheduleDay[];
+  venue?: {
+    travelInfo?: PortableTextBlock[];
+    hotels?: PortableTextBlock[];
+    mapUrl?: string;
+    directionsUrl?: string;
+  };
+  howToWatch?: {
+    description?: string;
+    channels?: WatchChannel[];
+  };
+  sponsors?: EventHubSponsor[];
+  contactEmails?: { label?: string; email?: string }[];
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: SanityImageWithAlt | null;
+  };
+  // Inherited from event reference
+  startDateTime: string;
+  endDateTime?: string;
+  timezone?: string;
+  location?: {
+    name?: string;
+    address?: string;
+    type?: "physical" | "online" | "hybrid";
+    mapUrl?: string;
+  };
+  registration?: {
+    required?: boolean;
+    url?: string;
+    deadline?: string;
+    capacity?: number;
+    price?: number;
+  };
+  teams?: TeamSummary[];
+  documents?: {
+    title?: string;
+    category?: string;
+    asset?: { url: string; originalFilename?: string; size?: number };
+  }[];
+  featuredImage?: SanityImageWithAlt | null;
+}
+
+export async function getEventHubSlugs(locale: Locale = "en"): Promise<{ slug: string; eventSlug: string }[]> {
+  return await sanityClient.fetch(
+    groq`*[_type == "eventHub" && defined(slug[$locale].current)] {
+      "slug": slug[$locale].current,
+      "eventSlug": event->slug[$locale].current
+    }`,
+    { locale }
+  );
+}
+
+export async function getEventHub(
+  slug: string,
+  locale: Locale = "en"
+): Promise<EventHubDetail | null> {
+  return await sanityClient.fetch(
+    groq`*[_type == "eventHub" && slug[$locale].current == $slug][0] {
+      _id,
+      "slug": slug[$locale].current,
+      "slugEn": slug.en.current,
+      "slugFr": slug.fr.current,
+      "title": coalesce(title[$locale], title.en),
+      "heroLabel": coalesce(heroLabel[$locale], heroLabel.en),
+      "heroSubtitle": coalesce(heroSubtitle[$locale], heroSubtitle.en),
+      heroCtaPrimary {
+        "label": coalesce(label[$locale], label.en),
+        href
+      },
+      heroCtaSecondary {
+        "label": coalesce(label[$locale], label.en),
+        href
+      },
+      "aboutContent": coalesce(aboutContent[$locale], aboutContent.en),
+      "formatBadges": formatBadges[].[$locale],
+      "admissionNote": coalesce(admissionNote[$locale], admissionNote.en),
+      "registrationNote": coalesce(registrationNote[$locale], registrationNote.en),
+      "registrationIncludes": registrationIncludes[].[$locale],
+      "quickLinks": quickLinks[] {
+        "label": coalesce(label[$locale], label.en),
+        url
+      },
+      schedulePublished,
+      schedule[] {
+        "dayLabel": coalesce(dayLabel[$locale], dayLabel.en),
+        "daySubtitle": coalesce(daySubtitle[$locale], daySubtitle.en),
+        date,
+        items[] {
+          time,
+          "label": coalesce(label[$locale], label.en),
+          "description": coalesce(description[$locale], description.en),
+          highlight
+        }
+      },
+      venue {
+        "travelInfo": coalesce(travelInfo[$locale], travelInfo.en),
+        "hotels": coalesce(hotels[$locale], hotels.en),
+        mapUrl,
+        directionsUrl
+      },
+      howToWatch {
+        "description": coalesce(description[$locale], description.en),
+        channels[] {
+          name,
+          url,
+          platform
+        }
+      },
+      sponsors[] {
+        name,
+        logo,
+        url,
+        tier
+      },
+      contactEmails[] {
+        "label": coalesce(label[$locale], label.en),
+        email
+      },
+      seo {
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
+        ogImage {
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      },
+      // Inherited from event
+      "startDateTime": event->startDateTime,
+      "endDateTime": event->endDateTime,
+      "timezone": event->timezone,
+      "location": {
+        "name": coalesce(event->location.name[$locale], event->location.name.en),
+        "address": event->location.address,
+        "type": event->location.type,
+        "mapUrl": event->location.mapUrl
+      },
+      "registration": event->registration {
+        required,
+        url,
+        deadline,
+        capacity,
+        price
+      },
+      "teams": event->teams[]-> {
+        _id,
+        name,
+        "slug": slug.current,
+        city,
+        province,
+        logo {
+          ...,
+          "alt": coalesce(alt[$locale], alt.en)
+        }
+      },
+      "documents": event->documents[] {
+        "title": coalesce(title[$locale], title.en),
+        category,
+        "asset": asset-> {
+          url,
+          originalFilename,
+          size
+        }
+      },
+      "featuredImage": event->featuredImage {
+        ...,
+        "alt": coalesce(alt[$locale], alt.en)
+      }
+    }`,
+    { slug, locale }
+  );
+}
+
 // Fetch landing section data
 export async function getLandingSection(key: string, locale: Locale): Promise<LandingSection | null> {
   const query = groq`

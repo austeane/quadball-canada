@@ -1,0 +1,265 @@
+{
+  "_id": "eventHub-nationals-2026",
+  "_type": "eventHub",
+  "event": {
+    "_type": "reference",
+    "_ref": "88Y7jbGjEH6vX81gXW3HcK"
+  },
+  "slug": {
+    "_type": "localeSlug",
+    "en": { "_type": "slug", "current": "nationals-2026" },
+    "fr": { "_type": "slug", "current": "nationaux-2026" }
+  },
+  "title": {
+    "_type": "localeString",
+    "en": "National Championship 2026",
+    "fr": "Championnat national 2026"
+  },
+  "heroLabel": {
+    "_type": "localeString",
+    "en": "Quadball Canada Presents",
+    "fr": "Quadball Canada presente"
+  },
+  "heroSubtitle": {
+    "_type": "localeString",
+    "en": "March 14–15, 2026 · Oshawa, Ontario",
+    "fr": "14–15 mars 2026 · Oshawa, Ontario"
+  },
+  "heroCtaPrimary": {
+    "label": {
+      "_type": "localeString",
+      "en": "Register Now",
+      "fr": "S'inscrire"
+    },
+    "href": "https://quidditchcanada.usetopscore.com/en_ca/e/2025-2026-championnat-national-championships"
+  },
+  "heroCtaSecondary": {
+    "label": {
+      "_type": "localeString",
+      "en": "View Schedule",
+      "fr": "Voir l'horaire"
+    },
+    "href": "#schedule"
+  },
+  "aboutContent": {
+    "_type": "localePortableText",
+    "en": [
+      {
+        "_type": "block",
+        "_key": "about1",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "s1",
+            "text": "The 2026 Quadball Canada National Championship is the premier competitive quadball event in the country. Eight of Canada's top club teams will battle over two days of intense, full-contact play for the right to be crowned national champions.",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "about2",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "s2",
+            "text": "Hosted at the Civic Recreation Complex in Oshawa, this year's tournament takes place on two indoor turf pitches. The format features round-robin pool play followed by a single-elimination bracket. Whether you're a die-hard fan or discovering quadball for the first time, Nationals is the best way to experience the sport at its highest level.",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "fr": [
+      {
+        "_type": "block",
+        "_key": "about1fr",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "s1fr",
+            "text": "Le Championnat national de Quadball Canada 2026 est l'evenement competitif de quadball le plus important au pays. Huit des meilleures equipes de clubs du Canada s'affronteront pendant deux jours de jeu intense et a contact complet pour le titre de champion national.",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_type": "block",
+        "_key": "about2fr",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "s2fr",
+            "text": "Se deroulant au Complexe recreatif civique d'Oshawa, le tournoi de cette annee se joue sur deux terrains de gazon synthetique interieur. Le format propose des poules suivies d'un tableau a elimination directe. Que vous soyez un fan de longue date ou que vous decouvriez le quadball pour la premiere fois, les Nationaux sont la meilleure facon de vivre le sport a son plus haut niveau.",
+            "marks": []
+          }
+        ]
+      }
+    ]
+  },
+  "formatBadges": [
+    { "_type": "localeString", "_key": "fb1", "en": "Pool Play + Bracket", "fr": "Poules + Tableau" },
+    { "_type": "localeString", "_key": "fb2", "en": "Full Contact", "fr": "Contact complet" },
+    { "_type": "localeString", "_key": "fb3", "en": "Gender Maximum Rule", "fr": "Regle du maximum de genre" },
+    { "_type": "localeString", "_key": "fb4", "en": "USQ Rulebook 15", "fr": "Reglement USQ 15" }
+  ],
+  "quickLinks": [
+    {
+      "_type": "quickLink",
+      "_key": "ql1",
+      "label": { "_type": "localeString", "en": "Information Package", "fr": "Dossier d'information" },
+      "url": "https://docs.google.com/document/d/1D9IxTe2H1MzouutXZT9-J5u3mxWekhS40QHeeFpo1is/edit"
+    },
+    {
+      "_type": "quickLink",
+      "_key": "ql2",
+      "label": { "_type": "localeString", "en": "TopScore Event Page", "fr": "Page de l'evenement TopScore" },
+      "url": "https://quidditchcanada.usetopscore.com/en_ca/e/2025-2026-championnat-national-championships"
+    }
+  ],
+  "schedulePublished": false,
+  "admissionNote": {
+    "_type": "localeString",
+    "en": "Free",
+    "fr": "Gratuit"
+  },
+  "registrationNote": {
+    "_type": "localeText",
+    "en": "Team registration deadline: February 15, 2026. Player registration deadline: March 1, 2026.",
+    "fr": "Date limite d'inscription des equipes : 15 fevrier 2026. Date limite d'inscription des joueurs : 1er mars 2026."
+  },
+  "registrationIncludes": [
+    { "_type": "localeString", "_key": "ri1", "en": "Tournament entry ($300/team)", "fr": "Inscription au tournoi (300$/equipe)" },
+    { "_type": "localeString", "_key": "ri2", "en": "Player fee ($90/player)", "fr": "Frais de joueur (90$/joueur)" },
+    { "_type": "localeString", "_key": "ri3", "en": "Indoor turf rental", "fr": "Location de gazon interieur" },
+    { "_type": "localeString", "_key": "ri4", "en": "Referee & snitch fees", "fr": "Frais d'arbitrage et de vif d'or" }
+  ],
+  "schedule": [
+    {
+      "_type": "scheduleDay",
+      "_key": "day1",
+      "dayLabel": { "_type": "localeString", "en": "Day 1 — Pool Play", "fr": "Jour 1 — Phase de poules" },
+      "daySubtitle": { "_type": "localeString", "en": "Saturday, March 14", "fr": "Samedi 14 mars" },
+      "date": "2026-03-14",
+      "items": [
+        { "_type": "scheduleItem", "_key": "d1i1", "time": "8:00 AM", "label": { "_type": "localeString", "en": "Check-in & Warm-ups", "fr": "Inscription et echauffements" }, "description": { "_type": "localeString", "en": "All teams report to registration", "fr": "Toutes les equipes se presentent a l'inscription" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d1i2", "time": "9:00 AM", "label": { "_type": "localeString", "en": "Opening Ceremony", "fr": "Ceremonie d'ouverture" }, "description": { "_type": "localeString", "en": "Welcome address & team introductions", "fr": "Mot de bienvenue et presentations des equipes" }, "highlight": true },
+        { "_type": "scheduleItem", "_key": "d1i3", "time": "9:30 AM", "label": { "_type": "localeString", "en": "Pool Play (Rounds 1–3)", "fr": "Phase de poules (Rondes 1 a 3)" }, "description": { "_type": "localeString", "en": "Round-robin group stage", "fr": "Phase de groupes" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d1i4", "time": "12:30 PM", "label": { "_type": "localeString", "en": "Lunch Break", "fr": "Pause diner" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d1i5", "time": "1:30 PM", "label": { "_type": "localeString", "en": "Pool Play (Rounds 4–6)", "fr": "Phase de poules (Rondes 4 a 6)" }, "description": { "_type": "localeString", "en": "Round-robin group stage continues", "fr": "Suite de la phase de groupes" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d1i6", "time": "6:00 PM", "label": { "_type": "localeString", "en": "Social Event (TBA)", "fr": "Soiree sociale (a confirmer)" }, "description": { "_type": "localeString", "en": "Details to be announced", "fr": "Details a venir" }, "highlight": false }
+      ]
+    },
+    {
+      "_type": "scheduleDay",
+      "_key": "day2",
+      "dayLabel": { "_type": "localeString", "en": "Day 2 — Bracket Play", "fr": "Jour 2 — Tableau eliminatoire" },
+      "daySubtitle": { "_type": "localeString", "en": "Sunday, March 15", "fr": "Dimanche 15 mars" },
+      "date": "2026-03-15",
+      "items": [
+        { "_type": "scheduleItem", "_key": "d2i1", "time": "9:00 AM", "label": { "_type": "localeString", "en": "Quarterfinals", "fr": "Quarts de finale" }, "description": { "_type": "localeString", "en": "Top 8 single elimination", "fr": "Elimination directe des 8 meilleures equipes" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d2i2", "time": "11:00 AM", "label": { "_type": "localeString", "en": "Semifinals", "fr": "Demi-finales" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d2i3", "time": "1:00 PM", "label": { "_type": "localeString", "en": "3rd Place Match", "fr": "Match pour la 3e place" }, "highlight": false },
+        { "_type": "scheduleItem", "_key": "d2i4", "time": "2:30 PM", "label": { "_type": "localeString", "en": "National Championship Final", "fr": "Finale du Championnat national" }, "description": { "_type": "localeString", "en": "Livestreamed on YouTube (Pitch 1)", "fr": "Diffuse en direct sur YouTube (Terrain 1)" }, "highlight": true },
+        { "_type": "scheduleItem", "_key": "d2i5", "time": "4:00 PM", "label": { "_type": "localeString", "en": "Awards Ceremony", "fr": "Ceremonie de remise des prix" }, "description": { "_type": "localeString", "en": "Trophies & individual awards", "fr": "Trophees et prix individuels" }, "highlight": false }
+      ]
+    }
+  ],
+  "venue": {
+    "travelInfo": {
+      "_type": "localePortableText",
+      "en": [
+        {
+          "_type": "block",
+          "_key": "vi1",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            { "_type": "span", "_key": "vs1", "text": "Driving: 45 min from Toronto via 401 East. Transit: GO Train to Oshawa Station, then short taxi/bus ride. Parking: Free at the facility.", "marks": [] }
+          ]
+        }
+      ],
+      "fr": [
+        {
+          "_type": "block",
+          "_key": "vi1fr",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            { "_type": "span", "_key": "vs1fr", "text": "En voiture : 45 min de Toronto via la 401 Est. Transport en commun : train GO jusqu'a la gare d'Oshawa, puis court trajet en taxi ou autobus. Stationnement : gratuit sur place.", "marks": [] }
+          ]
+        }
+      ]
+    },
+    "hotels": {
+      "_type": "localePortableText",
+      "en": [
+        {
+          "_type": "block",
+          "_key": "h1",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            { "_type": "span", "_key": "hs1", "text": "A Stay and Play Policy is in effect for rostered athletes. Hotel booking deadline: February 20, 2026. Please refer to the information package for hotel details and group rates.", "marks": [] }
+          ]
+        }
+      ],
+      "fr": [
+        {
+          "_type": "block",
+          "_key": "h1fr",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            { "_type": "span", "_key": "hs1fr", "text": "Une politique de sejour et de jeu est en vigueur pour les athletes inscrits. Date limite de reservation d'hotel : 20 fevrier 2026. Veuillez consulter le dossier d'information pour les details et tarifs de groupe.", "marks": [] }
+          ]
+        }
+      ]
+    },
+    "directionsUrl": "https://www.google.com/maps/search/?api=1&query=Civic+Recreation+Complex+99+Thornton+Rd+S+Oshawa+ON"
+  },
+  "howToWatch": {
+    "description": {
+      "_type": "localeText",
+      "en": "Admission to the tournament is completely free. All games will be filmed; Pitch 1 games will be livestreamed. Come watch live or catch the action from home on our official YouTube channel.",
+      "fr": "L'admission au tournoi est entierement gratuite. Tous les matchs seront filmes; les matchs du terrain 1 seront diffuses en direct. Venez assister aux matchs en personne ou suivez l'action depuis chez vous sur notre chaine YouTube officielle."
+    },
+    "channels": [
+      { "_type": "watchChannel", "_key": "ch1", "name": "YouTube @QuadballCanada", "url": "https://www.youtube.com/@QuadballCanada", "platform": "youtube" },
+      { "_type": "watchChannel", "_key": "ch2", "name": "@QuadballCanada", "url": "https://www.instagram.com/quadballcanada/", "platform": "instagram" }
+    ]
+  },
+  "contactEmails": [
+    {
+      "_type": "contactEmail",
+      "_key": "ce1",
+      "label": { "_type": "localeString", "en": "Tournament inquiries", "fr": "Demandes relatives au tournoi" },
+      "email": "tournaments@quadballcanada.ca"
+    },
+    {
+      "_type": "contactEmail",
+      "_key": "ce2",
+      "label": { "_type": "localeString", "en": "General info", "fr": "Informations generales" },
+      "email": "info@quadballcanada.ca"
+    }
+  ],
+  "seo": {
+    "metaTitle": {
+      "_type": "localeString",
+      "en": "National Championship 2026 — Quadball Canada",
+      "fr": "Championnat national 2026 — Quadball Canada"
+    },
+    "metaDescription": {
+      "_type": "localeText",
+      "en": "Join us March 14-15, 2026 in Oshawa, Ontario for the Quadball Canada National Championship. Eight teams, two days, one champion.",
+      "fr": "Rejoignez-nous les 14-15 mars 2026 a Oshawa, Ontario pour le Championnat national de Quadball Canada. Huit equipes, deux jours, un champion."
+    }
+  }
+}

@@ -1,15 +1,37 @@
 ---
 import type { InferGetStaticParamsType } from "astro";
-import { getEvents } from "@/utils/sanity";
+import { getEvents, getEventHubSlugs } from "@/utils/sanity";
 import EventDetail from "../_shared/event-detail.astro";
+import EventHub from "../_shared/event-hub.astro";
 
 export async function getStaticPaths() {
-  const events = await getEvents("en");
-  return events.map((e) => ({ params: { slug: e.slug } }));
+  const [events, hubSlugs] = await Promise.all([
+    getEvents("en"),
+    getEventHubSlugs("en"),
+  ]);
+
+  // Hub slugs take priority — exclude events whose slug matches a hub
+  const hubSlugSet = new Set(hubSlugs.map((h) => h.eventSlug));
+
+  const eventPaths = events
+    .filter((e) => !hubSlugSet.has(e.slug))
+    .map((e) => ({ params: { slug: e.slug }, props: { type: "event" as const } }));
+
+  const hubPaths = hubSlugs.map((h) => ({
+    params: { slug: h.slug },
+    props: { type: "hub" as const },
+  }));
+
+  return [...eventPaths, ...hubPaths];
 }
 
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
 const { slug } = Astro.params as Params;
+const { type } = Astro.props;
 ---
 
-<EventDetail slug={slug} locale="en" />
+{type === "hub" ? (
+  <EventHub slug={slug} locale="en" />
+) : (
+  <EventDetail slug={slug} locale="en" />
+)}

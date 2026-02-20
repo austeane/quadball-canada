@@ -1,0 +1,1438 @@
+---
+import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
+import Layout from "@/layouts/Layout.astro";
+import { getEventHub, urlForImage, type Locale, type EventHubDetail } from "@/utils/sanity";
+import { t } from "@/i18n/ui";
+
+interface Props {
+  slug: string;
+  locale: Locale;
+}
+
+const { slug, locale } = Astro.props;
+const isFr = locale === "fr";
+const hub = await getEventHub(slug, locale);
+
+if (!hub) throw new Error(`Event hub not found: ${slug}`);
+
+const eventsPath = isFr ? "/fr/evenements/" : "/events/";
+const pageTitle = hub.seo?.metaTitle || `${hub.title} — Quadball Canada`;
+const pageDescription = hub.seo?.metaDescription || hub.heroSubtitle || "";
+
+const heroImageUrl = hub.featuredImage
+  ? urlForImage(hub.featuredImage)?.width(1920).height(560).auto("format").url()
+  : null;
+
+// Format dates for quick facts
+function formatDateRange(start: string, end?: string): string {
+  const startDate = new Date(start);
+  const endDate = end ? new Date(end) : null;
+  const opts: Intl.DateTimeFormatOptions = { month: "long", day: "numeric", year: "numeric" };
+  const loc = isFr ? "fr-CA" : "en-CA";
+  if (endDate && startDate.toDateString() !== endDate.toDateString()) {
+    const startOpts: Intl.DateTimeFormatOptions = { month: "long", day: "numeric" };
+    return `${startDate.toLocaleDateString(loc, startOpts)}–${endDate.toLocaleDateString(loc, opts)}`;
+  }
+  return startDate.toLocaleDateString(loc, opts);
+}
+
+function formatFileSize(bytes?: number): string {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1048576).toFixed(1)} MB`;
+}
+
+const locationDisplay = hub.location?.name || hub.location?.address || "";
+const teamCount = hub.teams?.length ?? 0;
+const admissionText = hub.admissionNote || t(locale, "eventHub.freeAdmission");
+const registrationDeadline = hub.registration?.deadline
+  ? (() => {
+      // Append T12:00 to avoid UTC midnight → previous-day shift in local timezone
+      const d = new Date(hub.registration.deadline + "T12:00:00");
+      return d.toLocaleDateString(isFr ? "fr-CA" : "en-CA", { month: "long", day: "numeric", year: "numeric" });
+    })()
+  : null;
+const registrationPrice = hub.registration?.price
+  ? `$${hub.registration.price}`
+  : null;
+
+// Directions URL
+const directionsUrl = hub.venue?.directionsUrl
+  || hub.location?.mapUrl
+  || (hub.location?.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hub.location.address)}`
+    : null);
+
+// Build anchor nav items based on available content
+type AnchorItem = { id: string; label: string };
+const anchors: AnchorItem[] = [
+  { id: "quick-facts", label: t(locale, "eventHub.when") },
+  ...(hub.aboutContent && hub.aboutContent.length > 0 ? [{ id: "about", label: t(locale, "eventHub.about") }] : []),
+  ...(hub.registration?.required ? [{ id: "registration", label: t(locale, "eventHub.registration") }] : []),
+  ...(hub.schedule && hub.schedule.length > 0 ? [{ id: "schedule", label: t(locale, "eventHub.schedule") }] : []),
+  ...(hub.location?.address || hub.venue?.travelInfo ? [{ id: "venue", label: t(locale, "eventHub.venue") }] : []),
+  ...(teamCount > 0 ? [{ id: "teams", label: t(locale, "eventHub.teamsSection") }] : []),
+  ...(hub.documents && hub.documents.length > 0 ? [{ id: "downloads", label: t(locale, "eventHub.downloads") }] : []),
+  ...(hub.howToWatch?.channels && hub.howToWatch.channels.length > 0 ? [{ id: "watch", label: t(locale, "eventHub.watch") }] : []),
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  alternate={{ en: `/events/${hub.slugEn}/`, fr: `/fr/evenements/${hub.slugFr ?? hub.slugEn}/` }}
+  locale={locale}
+>
+  <!-- Hero (full-width breakout) -->
+  <section
+    class="hub-hero"
+    style={heroImageUrl ? `background-image: url('${heroImageUrl}');` : ""}
+  >
+    <div class="hub-hero__overlay">
+      <div class="hub-hero__content">
+        {hub.heroLabel && <div class="hub-hero__label">{hub.heroLabel}</div>}
+        <h1 class="hub-hero__title">{hub.title}</h1>
+        {hub.heroSubtitle && <div class="hub-hero__sub">{hub.heroSubtitle}</div>}
+        <div class="hub-hero__ctas">
+          {hub.heroCtaPrimary?.label && hub.heroCtaPrimary.href && (
+            <a href={hub.heroCtaPrimary.href} class="btn-hero-primary">
+              {hub.heroCtaPrimary.label} &rarr;
+            </a>
+          )}
+          {hub.heroCtaSecondary?.label && hub.heroCtaSecondary.href && (
+            <a href={hub.heroCtaSecondary.href} class="btn-hero-secondary">
+              {hub.heroCtaSecondary.label}
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Countdown Strip -->
+  <div class="countdown-strip" id="countdown" data-target={hub.startDateTime} data-end={hub.endDateTime || ""}>
+    <div class="countdown-inner">
+      <span class="countdown-label">{t(locale, "eventHub.beginsIn")}</span>
+      <div class="countdown-units" id="countdown-units"
+        data-in-progress={t(locale, "eventHub.inProgress")}
+        data-complete={t(locale, "eventHub.complete")}
+      >
+        <div class="countdown-unit">
+          <span class="countdown-number" data-cd="days">--</span>
+          <div class="countdown-unit-label">{t(locale, "eventHub.days")}</div>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-number" data-cd="hours">--</span>
+          <div class="countdown-unit-label">{t(locale, "eventHub.hours")}</div>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-number" data-cd="mins">--</span>
+          <div class="countdown-unit-label">{t(locale, "eventHub.min")}</div>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-number" data-cd="secs">--</span>
+          <div class="countdown-unit-label">{t(locale, "eventHub.sec")}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anchor Nav -->
+  <nav class="hub-anchor-nav" id="hub-anchor-nav" aria-label="Page sections">
+    <div class="hub-anchor-nav__inner">
+      {anchors.map((a) => (
+        <a class="hub-anchor-nav__link" href={`#${a.id}`}>{a.label}</a>
+      ))}
+    </div>
+  </nav>
+
+  <div class="hub-body">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href={eventsPath}>&larr; {t(locale, "eventHub.backToEvents")}</a>
+    </nav>
+
+    <!-- Quick Facts -->
+    <section class="hub-section hub-section--tint" id="quick-facts">
+      <div class="quick-facts-grid animate-on-scroll">
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="fact-label">{t(locale, "eventHub.when")}</div>
+          <div class="fact-value">{formatDateRange(hub.startDateTime, hub.endDateTime)}</div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="fact-label">{t(locale, "eventHub.where")}</div>
+          <div class="fact-value">{locationDisplay}</div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="fact-label">{t(locale, "eventHub.teams")}</div>
+          <div class="fact-value">{teamCount} {t(locale, "eventHub.teamsCount")}</div>
+        </div>
+        <div class="fact-card">
+          <div class="fact-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="fact-label">{t(locale, "eventHub.admission")}</div>
+          <div class="fact-value">{admissionText}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    {hub.aboutContent && hub.aboutContent.length > 0 && (
+      <section class="hub-section" id="about">
+        <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.about")}</h2>
+        <div class="about-content animate-on-scroll">
+          <PortableText value={hub.aboutContent} components={{ type: { image: BlockImage } }} />
+          {hub.formatBadges && hub.formatBadges.length > 0 && (
+            <div class="format-badges">
+              {hub.formatBadges.map((badge) => (
+                <span class="format-badge">{badge}</span>
+              ))}
+            </div>
+          )}
+          {hub.quickLinks && hub.quickLinks.length > 0 && (
+            <div class="quick-links">
+              {hub.quickLinks.map((link) => (
+                <a href={link.url} class="quick-link" target="_blank" rel="noopener noreferrer">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Registration -->
+    {hub.registration?.required && (
+      <section class="hub-section hub-section--tint" id="registration">
+        <h2 class="section-title animate-on-scroll" style="text-align:center;padding-left:0;">
+          {t(locale, "eventHub.registration")}
+        </h2>
+        <div class="registration-card animate-on-scroll">
+          {registrationDeadline && (
+            <div class="reg-deadline">{t(locale, "eventHub.regDeadline")}: {registrationDeadline}</div>
+          )}
+          {registrationPrice && (
+            <>
+              <div class="reg-price">{registrationPrice}</div>
+              <div class="reg-price-note">{t(locale, "eventHub.perTeam")}</div>
+            </>
+          )}
+          {hub.registration.url && (
+            <a href={hub.registration.url} class="btn-register" target="_blank" rel="noopener noreferrer">
+              {t(locale, "eventHub.registerCta")} &rarr;
+            </a>
+          )}
+          {hub.registrationIncludes && hub.registrationIncludes.length > 0 && (
+            <div class="reg-includes">
+              <div class="reg-includes__heading">{t(locale, "eventHub.includes")}</div>
+              <ul>
+                {hub.registrationIncludes.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {hub.registrationNote && (
+            <p class="reg-note">{hub.registrationNote}</p>
+          )}
+        </div>
+      </section>
+    )}
+
+    <!-- Schedule -->
+    {hub.schedule && hub.schedule.length > 0 && (
+      <section class="hub-section" id="schedule">
+        <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.schedule")}</h2>
+        {hub.schedulePublished ? (
+          <div class="schedule-grid animate-on-scroll">
+            {hub.schedule.map((day) => {
+              const dayDate = day.date ? new Date(day.date + "T00:00:00") : null;
+              return (
+                <div class="schedule-card">
+                  <div class="schedule-card__header">
+                    {dayDate && (
+                      <div class="date-badge">
+                        <span class="date-badge__month">
+                          {dayDate.toLocaleDateString(isFr ? "fr-CA" : "en-CA", { month: "short" })}
+                        </span>
+                        <span class="date-badge__day">{dayDate.getDate()}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p class="schedule-card__title">{day.dayLabel}</p>
+                      {day.daySubtitle && <p class="schedule-card__sub">{day.daySubtitle}</p>}
+                    </div>
+                  </div>
+                  <div class="timeline">
+                    {day.items?.map((item) => (
+                      <div class:list={["timeline__item", { "timeline__item--highlight": item.highlight }]}>
+                        <span class="timeline__time">{item.time}</span>
+                        <span class="timeline__event">
+                          {item.label}
+                          {item.description && <small>{item.description}</small>}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div class="schedule-tba animate-on-scroll">
+            <p>{t(locale, "eventHub.scheduleTBA")}</p>
+          </div>
+        )}
+      </section>
+    )}
+
+    <!-- Venue & Travel -->
+    {(hub.location?.address || hub.venue?.travelInfo) && (
+      <section class="hub-section hub-section--tint" id="venue">
+        <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.venue")}</h2>
+        <div class="venue-grid animate-on-scroll">
+          <div class="venue-map-placeholder">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="venue-info">
+            {hub.location?.name && <h3>{hub.location.name}</h3>}
+            {hub.location?.address && <p class="venue-address">{hub.location.address}</p>}
+            {directionsUrl && (
+              <a class="directions-link" href={directionsUrl} target="_blank" rel="noopener noreferrer">
+                {t(locale, "eventHub.getDirections")}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            )}
+            {hub.venue?.travelInfo && hub.venue.travelInfo.length > 0 && (
+              <div class="venue-detail-group">
+                <h4>{t(locale, "eventHub.gettingThere")}</h4>
+                <PortableText value={hub.venue.travelInfo} components={{ type: { image: BlockImage } }} />
+              </div>
+            )}
+            {hub.venue?.hotels && hub.venue.hotels.length > 0 && (
+              <div class="venue-detail-group">
+                <h4>{t(locale, "eventHub.nearbyHotels")}</h4>
+                <PortableText value={hub.venue.hotels} components={{ type: { image: BlockImage } }} />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Teams -->
+    {hub.teams && hub.teams.length > 0 && (
+      <section class="hub-section" id="teams">
+        <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.teamsSection")}</h2>
+        <div class="teams-grid animate-on-scroll">
+          {hub.teams.map((team) => (
+            <a href={`${isFr ? "/fr/equipes/" : "/teams/"}${team.slug}/`} class="team-card">
+              <div class="team-name">{team.name}</div>
+              {(team.city || team.province) && (
+                <div class="team-location">
+                  {[team.city, team.province].filter(Boolean).join(", ")}
+                </div>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Downloads -->
+    {hub.documents && hub.documents.length > 0 && (
+      <section class="hub-section" id="downloads" style="border-top:1px solid var(--border);">
+        <h2 class="section-title animate-on-scroll">{t(locale, "eventHub.downloads")}</h2>
+        <div class="downloads-grid animate-on-scroll">
+          {hub.documents.map((doc) => (
+            <a href={doc.asset?.url || "#"} class="download-card" target="_blank" rel="noopener noreferrer">
+              <div class="download-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+              </div>
+              <div class="download-info">
+                <div class="download-name">{doc.title || doc.asset?.originalFilename || "Document"}</div>
+                {doc.asset?.size && (
+                  <div class="download-size">PDF &middot; {formatFileSize(doc.asset.size)}</div>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- How to Watch -->
+    {hub.howToWatch?.channels && hub.howToWatch.channels.length > 0 && (
+      <section class="hub-section hub-section--tint" id="watch">
+        <h2 class="section-title animate-on-scroll" style="text-align:center;padding-left:0;">{t(locale, "eventHub.watch")}</h2>
+        <div class="watch-content animate-on-scroll">
+          {hub.howToWatch.description && <p>{hub.howToWatch.description}</p>}
+          <div class="watch-badges">
+            {hub.howToWatch.channels.map((ch) => (
+              <a href={ch.url || "#"} class="watch-badge" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                {ch.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Share -->
+    <section class="hub-section" style="padding:0;">
+      <div class="share-row">
+        <button class="share-btn" id="copy-link-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span data-copy-text={t(locale, "eventHub.copyLink")} data-copied-text={t(locale, "eventHub.copied")}>{t(locale, "eventHub.copyLink")}</span>
+        </button>
+        <a href="#" class="share-btn" data-share="twitter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 12 7.5v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+          {t(locale, "eventHub.shareTwitter")}
+        </a>
+        <a href="#" class="share-btn" data-share="facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          {t(locale, "eventHub.shareFacebook")}
+        </a>
+      </div>
+    </section>
+
+    <!-- Sponsors -->
+    {hub.sponsors && hub.sponsors.length > 0 && (
+      <section class="hub-section" id="sponsors">
+        <h2 class="section-title animate-on-scroll" style="text-align:center;padding-left:0;">{t(locale, "eventHub.sponsors")}</h2>
+        <div class="sponsors-grid animate-on-scroll">
+          {hub.sponsors.map((s) => (
+            <a href={s.url || "#"} class="sponsor-box" target="_blank" rel="noopener noreferrer">
+              {s.logo ? (
+                <img src={urlForImage(s.logo)?.width(160).height(80).auto("format").url() || ""} alt={s.name} loading="lazy" />
+              ) : (
+                <span>{s.name}</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Contact -->
+    {hub.contactEmails && hub.contactEmails.length > 0 && (
+      <section class="hub-section contact-section" id="contact">
+        <h3 class="animate-on-scroll">{t(locale, "eventHub.contact")}</h3>
+        <p class="animate-on-scroll" style="margin-top:12px;">{t(locale, "eventHub.contactSubtitle")}</p>
+        <div class="contact-emails animate-on-scroll">
+          {hub.contactEmails.map((c) => (
+            <a href={`mailto:${c.email}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+              {c.label ? `${c.label}: ${c.email}` : c.email}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  /* ===== HERO (full-width breakout) ===== */
+  .hub-hero {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    margin-left: -50vw;
+    height: 50vw;
+    max-height: 500px;
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #3a1a2e 40%, #8B1A1A 100%);
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+  }
+
+  .hub-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .hub-hero__content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    padding: var(--space-4);
+    max-width: 720px;
+  }
+
+  .hub-hero__label {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: clamp(11px, 1.5vw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: var(--space-3, 12px);
+    opacity: 0.85;
+  }
+
+  .hub-hero__title {
+    color: #fff;
+    font-size: clamp(36px, 7vw, 64px);
+    margin-bottom: var(--space-3, 12px);
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+    font-weight: 800;
+  }
+
+  .hub-hero__sub {
+    font-family: var(--font-family-serif, 'PT Serif', Georgia, serif);
+    font-size: clamp(16px, 2.5vw, 22px);
+    opacity: 0.9;
+    margin-bottom: var(--space-5, 32px);
+  }
+
+  .hub-hero__ctas {
+    display: flex;
+    gap: var(--space-3, 12px);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--brand-primary);
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    border: 2px solid var(--brand-primary);
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-hero-primary:hover { background: #b81e08; transform: translateY(-1px); text-decoration: none; }
+
+  .btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .btn-hero-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; transform: translateY(-1px); text-decoration: none; }
+
+  /* ===== COUNTDOWN ===== */
+  .countdown-strip {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    background: var(--brand-primary);
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .countdown-inner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .countdown-label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+  }
+
+  .countdown-units {
+    display: flex;
+    gap: 20px;
+  }
+
+  .countdown-unit { text-align: center; }
+
+  .countdown-number {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1;
+    display: block;
+  }
+
+  .countdown-unit-label {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+    margin-top: 4px;
+  }
+
+  .countdown-message {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: clamp(16px, 2.5vw, 22px);
+    font-weight: 700;
+  }
+
+  /* ===== ANCHOR NAV ===== */
+  .hub-anchor-nav {
+    width: 100vw;
+    position: sticky;
+    left: 50%;
+    margin-left: -50vw;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in oklab, var(--bg, #fff) 92%, white 8%);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hub-anchor-nav::-webkit-scrollbar { display: none; }
+
+  .hub-anchor-nav__inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 10px 20px;
+  }
+
+  .hub-anchor-nav__link {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid transparent;
+  }
+  .hub-anchor-nav__link:hover {
+    background: var(--bg-secondary);
+    color: var(--text-strong);
+    text-decoration: none;
+  }
+  .hub-anchor-nav__link.active {
+    background: var(--brand-primary);
+    color: #fff;
+    border-color: var(--brand-primary);
+  }
+
+  /* ===== HUB BODY ===== */
+  .hub-body { padding-bottom: 2rem; }
+
+  .breadcrumb { margin-bottom: 0; padding-top: 2rem; }
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .breadcrumb a:hover { color: var(--brand-primary); }
+
+  /* ===== SECTIONS ===== */
+  .hub-section { padding: 52px 0; }
+  .hub-section--tint { background: var(--brand-tint, #F7EAE8); border-radius: 12px; padding-left: 20px; padding-right: 20px; margin: 32px -20px; }
+
+  .section-title {
+    margin-bottom: 32px;
+    position: relative;
+    padding-left: 20px;
+    font-size: clamp(24px, 3.5vw, 36px);
+    font-weight: 700;
+    color: var(--text-strong);
+    line-height: 1.1;
+  }
+  .section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: var(--brand-primary);
+    border-radius: 2px;
+  }
+
+  /* ===== QUICK FACTS ===== */
+  .quick-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .fact-card {
+    background: var(--bg, #fff);
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .fact-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 10px;
+    color: var(--brand-primary);
+  }
+
+  .fact-label {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-600, #6e7683);
+    margin-bottom: 8px;
+  }
+
+  .fact-value {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-strong);
+    line-height: 1.3;
+  }
+
+  /* ===== ABOUT ===== */
+  .about-content { max-width: 720px; }
+  .about-content :global(p) {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .format-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .format-badge {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 12px;
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 999px;
+    color: var(--text-strong);
+  }
+
+  /* ===== QUICK LINKS ===== */
+  .quick-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  .quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--bg-secondary, #f8f9fa);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .quick-link:hover {
+    background: var(--brand-tint, #F7EAE8);
+    border-color: var(--brand-primary);
+    text-decoration: none;
+  }
+
+  /* ===== REGISTRATION ===== */
+  .registration-card {
+    background: var(--bg, #fff);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 640px;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(158, 23, 3, 0.08);
+    text-align: center;
+    border: 1px solid rgba(158, 23, 3, 0.1);
+  }
+
+  .reg-deadline {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 13px;
+    color: var(--brand-primary);
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .reg-price {
+    font-size: clamp(36px, 5vw, 48px);
+    font-weight: 800;
+    color: var(--text-strong);
+    margin-bottom: 8px;
+  }
+
+  .reg-price-note {
+    font-size: 14px;
+    color: var(--gray-600, #6e7683);
+    margin-bottom: 32px;
+  }
+
+  .btn-register {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--brand-primary);
+    color: #fff;
+    padding: 12px 52px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(158, 23, 3, 0.2);
+  }
+  .btn-register:hover {
+    background: var(--brand-ink, #7A1302);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(158, 23, 3, 0.3);
+    text-decoration: none;
+  }
+
+  .reg-includes {
+    margin-top: 32px;
+    font-size: 14px;
+    color: var(--gray-600, #6e7683);
+  }
+  .reg-includes__heading {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .reg-includes ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 20px;
+    margin-top: 12px;
+  }
+  .reg-includes li::before {
+    content: '\2713';
+    color: var(--brand-primary);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  .reg-note {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--gray-600, #6e7683);
+  }
+
+  /* ===== SCHEDULE TBA ===== */
+  .schedule-tba {
+    text-align: center;
+    padding: 48px 20px;
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+  }
+  .schedule-tba p {
+    font-size: 16px;
+    color: var(--text-muted, #6e7683);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ===== SCHEDULE (Option B style) ===== */
+  .schedule-grid {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 768px) {
+    .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .schedule-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .schedule-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .schedule-card__header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    height: 64px;
+    background: var(--brand-primary);
+    color: #fff;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .date-badge__month {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .date-badge__day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .schedule-card__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-strong);
+    margin: 0;
+  }
+  .schedule-card__sub {
+    font-size: 0.85rem;
+    color: var(--text-muted, #6e7683);
+    margin: 4px 0 0;
+  }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+
+  .timeline__item {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .timeline__item:last-child { border-bottom: none; }
+
+  .timeline__item--highlight .timeline__time { color: var(--brand-primary); }
+  .timeline__item--highlight .timeline__event { font-weight: 700; }
+
+  .timeline__time {
+    flex-shrink: 0;
+    width: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+  }
+
+  .timeline__event {
+    font-size: 0.9rem;
+    color: var(--text-strong);
+  }
+  .timeline__event :global(small) {
+    display: block;
+    font-weight: 400;
+    color: var(--text);
+    font-size: 0.8rem;
+    margin-top: 2px;
+  }
+
+  /* ===== VENUE ===== */
+  .venue-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .venue-map-placeholder {
+    background: var(--bg, #fff);
+    border-radius: 12px;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600, #6e7683);
+    border: 1px dashed var(--border);
+  }
+
+  .venue-info h3 { margin-bottom: 12px; }
+  .venue-address {
+    font-size: 15px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    color: var(--text-muted, #6e7683);
+  }
+
+  .directions-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .directions-link:hover { text-decoration: underline; }
+
+  .venue-detail-group { margin-bottom: 20px; }
+  .venue-detail-group h4 {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-600, #6e7683);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .venue-detail-group :global(p) {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ===== TEAMS ===== */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .team-card {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--brand-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+  }
+  .team-card:hover::before { transform: scaleX(1); }
+
+  .team-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-strong);
+    margin-bottom: 4px;
+  }
+  .team-location {
+    font-size: 13px;
+    color: var(--gray-600, #6e7683);
+  }
+
+  /* ===== DOWNLOADS ===== */
+  .downloads-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .download-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .download-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+  }
+
+  .download-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--brand-tint, #F7EAE8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--brand-primary);
+  }
+  .download-info { flex: 1; }
+  .download-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-strong);
+  }
+  .download-size {
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 12px;
+    color: var(--gray-600, #6e7683);
+    margin-top: 2px;
+  }
+
+  /* ===== HOW TO WATCH ===== */
+  .watch-content {
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .watch-content p {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .watch-badges {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .watch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: var(--bg, #fff);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-strong);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    text-decoration: none;
+  }
+  .watch-badge:hover { text-decoration: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
+
+  /* ===== SHARE ===== */
+  .share-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg, #fff);
+    color: var(--text-strong);
+    transition: background 0.2s, border-color 0.2s;
+    text-decoration: none;
+    font-family: inherit;
+  }
+  .share-btn:hover {
+    background: var(--bg-secondary, #f8f9fa);
+    border-color: var(--brand-primary);
+    text-decoration: none;
+  }
+  .share-btn :global(svg) { width: 16px; height: 16px; }
+
+  /* ===== SPONSORS ===== */
+  .sponsors-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+
+  .sponsor-box {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600, #6e7683);
+    font-family: var(--font-family-mono, 'IBM Plex Mono', monospace);
+    font-size: 12px;
+    border: 1px dashed var(--border);
+    text-decoration: none;
+  }
+  .sponsor-box img { max-height: 48px; max-width: 120px; object-fit: contain; }
+
+  /* ===== CONTACT ===== */
+  .contact-section {
+    text-align: center;
+    padding: 52px 0 32px;
+  }
+  .contact-section p {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--text-muted, #6e7683);
+  }
+  .contact-emails {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 16px;
+  }
+  .contact-emails a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .quick-facts-grid { grid-template-columns: repeat(2, 1fr); }
+    .teams-grid { grid-template-columns: repeat(2, 1fr); }
+    .venue-grid { grid-template-columns: 1fr; }
+    .sponsors-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .quick-facts-grid { grid-template-columns: 1fr 1fr; }
+    .teams-grid { grid-template-columns: 1fr; }
+    .downloads-grid { grid-template-columns: 1fr; }
+    .sponsors-grid { grid-template-columns: repeat(2, 1fr); }
+    .countdown-inner { flex-direction: column; gap: 12px; }
+    .hub-hero__ctas { flex-direction: column; align-items: center; }
+    .hub-anchor-nav__link { padding: 4px 12px; font-size: 0.8rem; }
+    .timeline__item { flex-direction: column; gap: 4px; }
+    .timeline__time { width: auto; }
+    .hub-section--tint { margin: 20px -16px; padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+
+<script>
+  function initEventHub() {
+    // --- Countdown Timer ---
+    const strip = document.getElementById('countdown');
+    if (strip) {
+      const targetStr = strip.getAttribute('data-target');
+      const endStr = strip.getAttribute('data-end');
+      if (targetStr) {
+        const target = new Date(targetStr).getTime();
+        const end = endStr ? new Date(endStr).getTime() : target + 172800000; // 2 days default
+        const units = document.getElementById('countdown-units');
+        const dayEl = units?.querySelector('[data-cd="days"]');
+        const hourEl = units?.querySelector('[data-cd="hours"]');
+        const minEl = units?.querySelector('[data-cd="mins"]');
+        const secEl = units?.querySelector('[data-cd="secs"]');
+        const inProgressMsg = units?.getAttribute('data-in-progress') || 'Tournament in progress!';
+        const completeMsg = units?.getAttribute('data-complete') || 'Tournament complete';
+
+        function pad(n: number) { return String(n).padStart(2, '0'); }
+
+        function tick() {
+          const now = Date.now();
+          const diff = target - now;
+          if (diff <= 0 && units) {
+            const pastEnd = now > end;
+            units.innerHTML = `<span class="countdown-message">${pastEnd ? completeMsg : inProgressMsg}</span>`;
+            if (pastEnd) return;
+          }
+          if (diff > 0 && dayEl && hourEl && minEl && secEl) {
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            dayEl.textContent = pad(d);
+            hourEl.textContent = pad(h);
+            minEl.textContent = pad(m);
+            secEl.textContent = pad(s);
+          }
+        }
+
+        tick();
+        setInterval(tick, 1000);
+      }
+    }
+
+    // --- Intersection Observer for scroll animations ---
+    const targets = document.querySelectorAll('.animate-on-scroll');
+    if (targets.length) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      targets.forEach((t) => observer.observe(t));
+    }
+
+    // --- Anchor nav: sticky offset + active state ---
+    const anchorNav = document.getElementById('hub-anchor-nav');
+    if (anchorNav) {
+      // Compute sticky top from site chrome
+      const siteChrome = document.querySelector('.site-chrome') as HTMLElement | null;
+      function updateStickyTop() {
+        if (siteChrome && anchorNav) {
+          anchorNav.style.top = siteChrome.getBoundingClientRect().height + 'px';
+        }
+      }
+      updateStickyTop();
+      window.addEventListener('resize', updateStickyTop);
+
+      // Active state tracking
+      const links = anchorNav.querySelectorAll('.hub-anchor-nav__link');
+      const sections: { link: Element; el: Element }[] = [];
+      links.forEach((link) => {
+        const id = link.getAttribute('href')?.replace('#', '');
+        const el = id ? document.getElementById(id) : null;
+        if (el) sections.push({ link, el });
+      });
+
+      function updateActive() {
+        const scrollY = window.scrollY + 200;
+        let current = sections[0];
+        sections.forEach((s) => {
+          if ((s.el as HTMLElement).offsetTop <= scrollY) current = s;
+        });
+        links.forEach((l) => l.classList.remove('active'));
+        if (current) current.link.classList.add('active');
+      }
+
+      window.addEventListener('scroll', updateActive, { passive: true });
+      updateActive();
+
+      // Smooth scroll with offset
+      links.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = (link as HTMLAnchorElement).getAttribute('href')?.slice(1);
+          const target = targetId ? document.getElementById(targetId) : null;
+          if (!target) return;
+          const chromeH = siteChrome?.getBoundingClientRect().height || 0;
+          const navH = anchorNav.getBoundingClientRect().height;
+          const top = target.getBoundingClientRect().top + window.scrollY - chromeH - navH - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+        });
+      });
+    }
+
+    // --- Copy link button ---
+    const copyBtn = document.getElementById('copy-link-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const span = copyBtn.querySelector('span');
+        if (!span) return;
+        const copyText = span.getAttribute('data-copy-text') || 'Copy Link';
+        const copiedText = span.getAttribute('data-copied-text') || 'Copied!';
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          span.textContent = copiedText;
+          setTimeout(() => { span.textContent = copyText; }, 1500);
+        });
+      });
+    }
+
+    // --- Share links ---
+    document.querySelectorAll('[data-share]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const platform = (el as HTMLElement).getAttribute('data-share');
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        if (platform === 'twitter') {
+          window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank');
+        } else if (platform === 'facebook') {
+          window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+      });
+    });
+  }
+
+  // Run on initial load and on View Transitions page-load
+  initEventHub();
+  document.addEventListener('astro:page-load', initEventHub);
+</script>
