@@ -1,0 +1,131 @@
+---
+import type { Locale } from "../../utils/localization";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isFr = locale === "fr";
+
+const href = isFr ? "/fr/evenements/nationaux-2026/" : "/events/nationals-2026/";
+const label = isFr ? "Quadball Canada presents" : "Quadball Canada presents";
+const title = isFr ? "Championnat national 2026" : "National Championship 2026";
+const date = isFr ? "14–15 mars 2026" : "March 14–15, 2026";
+const location = "Oshawa, Ontario";
+const cta = isFr ? "En savoir plus" : "Learn More";
+---
+
+<a href={href} class="nationals-promo">
+  <div class="nationals-promo__inner">
+    <div class="nationals-promo__text">
+      <span class="nationals-promo__label">{label}</span>
+      <strong class="nationals-promo__title">{title}</strong>
+      <span class="nationals-promo__meta">{date} · {location}</span>
+    </div>
+    <span class="nationals-promo__cta">
+      {cta}
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </div>
+</a>
+
+<style>
+  .nationals-promo {
+    display: block;
+    background: var(--brand-primary, #9E1703);
+    color: #fff;
+    text-decoration: none;
+    padding: 16px 24px;
+    transition: background 0.2s ease;
+    /* full-width breakout */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+
+  .nationals-promo:hover {
+    background: var(--brand-ink, #7A1302);
+    text-decoration: none;
+  }
+
+  .nationals-promo__inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .nationals-promo__text {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .nationals-promo__label {
+    font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+  }
+
+  .nationals-promo__title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .nationals-promo__meta {
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+
+  .nationals-promo__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .nationals-promo__cta svg {
+    transition: transform 0.2s ease;
+  }
+
+  .nationals-promo:hover .nationals-promo__cta svg {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 768px) {
+    .nationals-promo {
+      padding: 14px 20px;
+    }
+
+    .nationals-promo__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .nationals-promo__text {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .nationals-promo__title {
+      font-size: 1rem;
+    }
+  }
+</style>
