@@ -41,6 +41,10 @@ cd studio && npx sanity documents create /path/to/doc.json --dataset production
 
 # Attach Website2025 hero images via CLI script (uses SANITY_AUTH_TOKEN from studio/.env)
 cd studio && npx sanity exec scripts/attach-hero-images.mjs
+
+# Deploy Studio (must unset SANITY_AUTH_TOKEN so the CLI uses the logged-in user session
+# instead of the robot token from studio/.env, which lacks deployStudio permissions)
+SANITY_AUTH_TOKEN= sanity deploy
 ```
 
 Cloudflare (Pages):

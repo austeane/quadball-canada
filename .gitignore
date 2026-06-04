@@ -45,3 +45,10 @@ extracted-images.zip
 # test/debug scripts
 studio/env-check.js
 studio/policy-test.mjs
+
+# scratch working images & design mockups (not part of the app)
+/bid-cycle-article-full.png
+/candidate-*.png
+/event-bids-updated.png
+/Website2025/
+/astro-app/src/pages/_shared/nationals-hub-option-*.html

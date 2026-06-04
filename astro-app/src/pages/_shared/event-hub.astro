@@ -439,7 +439,7 @@ const anchors: AnchorItem[] = [
                 <div class="title-sponsor">
                   <a href={s.url || "#"} target="_blank" rel="noopener noreferrer">
                     {s.logo ? (
-                      <img src={urlForImage(s.logo)?.width(400).height(160).auto("format").url() || ""} alt={s.name} loading="lazy" />
+                      <img src={urlForImage(s.logo)?.width(400).auto("format").url() || ""} alt={s.name} loading="lazy" />
                     ) : (
                       <span class="title-sponsor-name">{s.name}</span>
                     )}
