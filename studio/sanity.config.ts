@@ -2,6 +2,7 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './src/schemaTypes'
+import {withAutoGenerateSlug} from './src/actions/autoGenerateSlug'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -15,5 +16,12 @@ export default defineConfig({
   plugins: [structureTool(), visionTool()],
   schema: {
     types: schemaTypes,
+  },
+  document: {
+    // Auto-generate a slug from the title/name on publish when none is set.
+    actions: (prev) =>
+      prev.map((action) =>
+        action.action === 'publish' ? withAutoGenerateSlug(action) : action
+      ),
   },
 })
