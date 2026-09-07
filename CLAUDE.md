@@ -150,6 +150,8 @@ Pushes to `main` automatically trigger deployment via `.github/workflows/deploy-
 - Runs `npm run build` (includes `astro check` for TypeScript validation)
 - Deploys to Cloudflare Pages on success
 - **Build errors will silently fail** — always check GitHub Actions if deployment seems stuck
+- The daily 06:00 UTC rebuild is a Cloudflare Worker Cron Trigger (`webhook-proxy/wrangler.toml`), **not** a GitHub `schedule:`. Never add a `schedule:` to the workflow: GitHub auto-disables scheduled workflows after 60 idle days and that also kills the Sanity webhook trigger in the same file.
+- Redeploy the worker after editing it: `cd webhook-proxy && npx wrangler deploy --keep-vars` (needs `npx wrangler login` once; `--keep-vars` preserves the `GITHUB_TOKEN` stored in the Cloudflare dashboard)
 
 **Check deployment status:**
 ```bash

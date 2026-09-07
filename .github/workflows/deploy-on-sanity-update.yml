@@ -13,10 +13,11 @@ on:
     branches:
       - main
 
-  # Scheduled rebuild to keep time-sensitive content fresh (upcoming events, etc.)
-  schedule:
-    # Run daily at 6:00 AM UTC (1:00 AM EST / 2:00 AM EDT)
-    - cron: '0 6 * * *'
+  # NOTE: no `schedule:` trigger on purpose. GitHub auto-disables workflows that
+  # have a cron schedule after 60 days without a commit, which also silences the
+  # repository_dispatch trigger above. The daily rebuild is a Cloudflare Worker
+  # Cron Trigger instead (see webhook-proxy/wrangler.toml), which hits
+  # repository_dispatch just like the Sanity webhook does.
 
 # Prevent concurrent deployments to avoid race conditions
 concurrency:

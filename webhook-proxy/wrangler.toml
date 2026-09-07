@@ -1,0 +1,16 @@
+name = "sanity-webhook-proxy"
+main = "worker.js"
+compatibility_date = "2024-09-30"
+workers_dev = true
+
+# Daily site rebuild at 06:00 UTC (1:00 AM EST / 2:00 AM EDT).
+# Keeps time-sensitive content (upcoming events, etc.) fresh.
+# Lives here instead of a GitHub `schedule:` trigger; see worker.js for why.
+[triggers]
+crons = ["0 6 * * *"]
+
+[observability]
+enabled = true
+
+# Version-specific preview URLs are not needed for this worker.
+preview_urls = false

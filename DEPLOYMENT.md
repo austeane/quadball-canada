@@ -10,7 +10,8 @@ This is a fully automated Astro + Sanity CMS website with continuous deployment.
 - **CMS**: Sanity Studio for content management
 - **Hosting**: Cloudflare Pages
 - **CI/CD**: GitHub Actions
-- **Webhook Proxy**: Cloudflare Worker
+- **Webhook Proxy**: Cloudflare Worker (`webhook-proxy/`)
+- **Daily Rebuild**: Cron Trigger on that same Worker (06:00 UTC)
 
 ## Live URLs
 
@@ -28,6 +29,8 @@ This is a fully automated Astro + Sanity CMS website with continuous deployment.
 6. **Deploy**: Wrangler deploys to Cloudflare Pages
 7. **Live**: New content appears at production URL (~2 minutes total)
 
+Independently of publishes, a Cron Trigger on the same Worker fires step 4 once a day at 06:00 UTC so time-sensitive content (upcoming events, etc.) stays fresh even when nobody has published anything.
+
 ## Project Structure
 
 ```
@@ -41,7 +44,9 @@ quadball-canada/
 │   └── sanity.cli.ts
 ├── .github/workflows/   # GitHub Actions
 │   └── deploy-on-sanity-update.yml
-└── webhook-proxy.js     # Cloudflare Worker for webhook handling
+└── webhook-proxy/       # Cloudflare Worker: Sanity webhook proxy + daily cron
+    ├── worker.js
+    └── wrangler.toml
 ```
 
 ## Configuration Details
@@ -82,6 +87,30 @@ The Sanity webhook triggers the Cloudflare Worker proxy:
 - **URL**: https://sanity-webhook-proxy.austeane.workers.dev
 - **Triggers**: Create, Update, Delete
 - **Dataset**: production
+
+### Webhook Proxy Worker
+
+Source: `webhook-proxy/worker.js`. Config: `webhook-proxy/wrangler.toml`. It has two entry points that both call GitHub's `repository_dispatch` endpoint with event type `sanity-update`:
+- `fetch` — the Sanity webhook POSTs here on publish
+- `scheduled` — daily Cron Trigger at 06:00 UTC
+
+Deploy it after any change (needs a one-time `npx wrangler login`). The `GITHUB_TOKEN` is stored on the Worker in the Cloudflare dashboard, so always pass `--keep-vars` or the deploy will wipe it:
+```bash
+cd webhook-proxy
+npx wrangler deploy --keep-vars
+```
+
+Quick check that the token survived: `curl -X POST https://sanity-webhook-proxy.austeane.workers.dev/` should print `GitHub API responded with: 204`. If it says the token is not configured, set it again with `npx wrangler secret put GITHUB_TOKEN` (a GitHub PAT allowed to create repository dispatches).
+
+Test the cron handler locally without waiting for 06:00 UTC:
+```bash
+cd webhook-proxy
+echo "GITHUB_TOKEN=$(gh auth token)" > .dev.vars   # gitignored; delete afterwards
+npx wrangler dev --test-scheduled
+curl 'http://localhost:8787/__scheduled?cron=0+6+*+*+*'
+```
+
+**Why the cron lives here and not in GitHub Actions:** GitHub automatically disables any workflow that has a `schedule:` trigger after 60 days without a commit to the repo. When that happens the `repository_dispatch` trigger in the same workflow file stops working too, so Sanity publishes silently stop deploying. Cloudflare Cron Triggers have no inactivity rule. Do not add a `schedule:` back to `deploy-on-sanity-update.yml`.
 
 ## Development
 
@@ -136,6 +165,12 @@ npx sanity hook list
 npx sanity hook logs "Deploy via Proxy"
 ```
 
+### Check the Daily Cron
+Cloudflare dashboard → Workers & Pages → `sanity-webhook-proxy` → Logs shows each cron invocation and the GitHub response code. On the GitHub side, cron-triggered runs show up as `repository_dispatch` events shortly after 06:00 UTC:
+```bash
+gh run list --workflow="Deploy on Sanity Update" --limit 10 --json event,createdAt,conclusion
+```
+
 ### Check Cloudflare Deployments
 ```bash
 npx wrangler pages deployment list --project-name=quadball-canada
@@ -144,6 +179,7 @@ npx wrangler pages deployment list --project-name=quadball-canada
 ## Troubleshooting
 
 ### Content Not Updating
+0. Check the workflow is enabled: `gh workflow list --all`. If it shows `disabled_inactivity`, a `schedule:` trigger was re-added; remove it and run `gh workflow enable deploy-on-sanity-update.yml`
 1. Check webhook fired: `npx sanity hook logs "Deploy via Proxy"`
 2. Check GitHub Action ran: `gh run list --workflow="Deploy on Sanity Update"`
 3. Verify deployment succeeded: Check GitHub Action logs

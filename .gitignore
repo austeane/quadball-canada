@@ -52,3 +52,7 @@ studio/policy-test.mjs
 /event-bids-updated.png
 /Website2025/
 /astro-app/src/pages/_shared/nationals-hub-option-*.html
+
+# Cloudflare Worker (webhook proxy)
+webhook-proxy/.wrangler/
+webhook-proxy/.dev.vars
