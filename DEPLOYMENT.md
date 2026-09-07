@@ -94,13 +94,15 @@ Source: `webhook-proxy/worker.js`. Config: `webhook-proxy/wrangler.toml`. It has
 - `fetch` — the Sanity webhook POSTs here on publish
 - `scheduled` — daily Cron Trigger at 06:00 UTC
 
-Deploy it after any change (needs a one-time `npx wrangler login`). The `GITHUB_TOKEN` is stored on the Worker in the Cloudflare dashboard, so always pass `--keep-vars` or the deploy will wipe it:
+Deploy it after any change (needs a one-time `npx wrangler login`):
 ```bash
 cd webhook-proxy
-npx wrangler deploy --keep-vars
+npx wrangler deploy
 ```
 
-Quick check that the token survived: `curl -X POST https://sanity-webhook-proxy.austeane.workers.dev/` should print `GitHub API responded with: 204`. If it says the token is not configured, set it again with `npx wrangler secret put GITHUB_TOKEN` (a GitHub PAT allowed to create repository dispatches).
+`GITHUB_TOKEN` is a Worker secret: a fine-grained GitHub PAT named "sanity-webhook-proxy (Cloudflare Worker)", scoped to this repository only, permission Contents: read and write, no expiry. Secrets persist across deploys. Check the worker after deploying, allowing ~30s for propagation: `curl -X POST https://sanity-webhook-proxy.austeane.workers.dev/` should print `GitHub API responded with: 204`.
+
+To rotate the token: create a new PAT with the same scope and run `npx wrangler secret put GITHUB_TOKEN`. If wrangler refuses because the latest version is not the deployed one (e.g. after a `wrangler rollback`), use `npx wrangler versions secret put GITHUB_TOKEN` followed by `npx wrangler versions deploy <version-id>@100% -y`.
 
 Test the cron handler locally without waiting for 06:00 UTC:
 ```bash
