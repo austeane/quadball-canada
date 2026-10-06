@@ -3,13 +3,13 @@ import { FiFileText } from 'react-icons/fi';
 import { localeString } from '../helpers/localization';
 
 const categories = [
-  { title: 'Rules', value: 'rules' },
-  { title: 'General', value: 'general' },
-  { title: 'Events', value: 'events' },
-  { title: 'Gameplay', value: 'gameplay' },
-  { title: 'Team Canada', value: 'team-canada' },
+  { title: 'Administrative', value: 'administrative' },
+  { title: 'Communications', value: 'communications' },
   { title: 'Membership', value: 'membership' },
-  { title: 'Communication', value: 'communication' },
+  { title: 'Gameplay', value: 'gameplay' },
+  { title: 'Events', value: 'events' },
+  { title: 'National Team', value: 'national-team' },
+  { title: 'Volunteer', value: 'volunteer' },
 ] as const;
 
 export default defineType({

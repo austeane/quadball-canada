@@ -790,7 +790,18 @@ export async function getPageSettings(): Promise<PageSettings | null> {
   );
 }
 
-export type PolicyCategory = 'rules' | 'general' | 'events' | 'gameplay' | 'team-canada' | 'membership' | 'communication';
+// Display order on the policies pages
+export const POLICY_CATEGORIES = [
+  'administrative',
+  'communications',
+  'membership',
+  'gameplay',
+  'events',
+  'national-team',
+  'volunteer',
+] as const;
+
+export type PolicyCategory = (typeof POLICY_CATEGORIES)[number];
 
 export interface Policy {
   _id: string;
@@ -818,15 +829,9 @@ export async function getPolicies(locale: Locale = "en"): Promise<Policy[]> {
 export async function getPoliciesByCategory(locale: Locale = "en"): Promise<Record<PolicyCategory, Policy[]>> {
   const policies = await getPolicies(locale);
 
-  const grouped: Record<PolicyCategory, Policy[]> = {
-    'rules': [],
-    'general': [],
-    'events': [],
-    'gameplay': [],
-    'team-canada': [],
-    'membership': [],
-    'communication': [],
-  };
+  const grouped = Object.fromEntries(
+    POLICY_CATEGORIES.map((category) => [category, [] as Policy[]])
+  ) as Record<PolicyCategory, Policy[]>;
 
   policies.forEach(policy => {
     if (policy.category in grouped) {

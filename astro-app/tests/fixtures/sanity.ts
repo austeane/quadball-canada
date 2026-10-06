@@ -524,7 +524,7 @@ export const mockPageSettings: PageSettings = {
 export const mockPolicy: Policy = {
   _id: 'policy-1',
   title: 'Code of Conduct',
-  category: 'general',
+  category: 'administrative',
   url: 'https://policies.example.com/code-of-conduct.pdf',
   description: 'Expected behavior for all participants.',
   order: 1,
@@ -542,7 +542,7 @@ export const mockPoliciesList: Policy[] = [
   {
     _id: 'policy-3',
     title: 'Official Rulebook',
-    category: 'rules',
+    category: 'gameplay',
     url: 'https://policies.example.com/rules.pdf',
     order: 1,
   },

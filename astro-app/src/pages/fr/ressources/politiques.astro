@@ -1,7 +1,7 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
 import PageHero from "../../../components/sections/PageHero.astro";
-import { getPoliciesByCategory, getPageSettings, type PolicyCategory } from "../../../utils/sanity";
+import { getPoliciesByCategory, getPageSettings, POLICY_CATEGORIES, type PolicyCategory } from "../../../utils/sanity";
 
 const locale = "fr";
 const policiesByCategory = await getPoliciesByCategory(locale);
@@ -9,17 +9,15 @@ const pageSettings = await getPageSettings();
 
 // Category display names in French
 const categoryNames: Record<PolicyCategory, string> = {
-  'rules': 'Règlements',
-  'general': 'Politiques générales',
-  'events': 'Politiques d\'événements',
-  'gameplay': 'Politiques de jeu',
-  'team-canada': 'Équipe Canada',
+  'administrative': 'Politiques administratives',
+  'communications': 'Politiques de communication',
   'membership': 'Politiques d\'adhésion',
-  'communication': 'Politiques de communication',
+  'gameplay': 'Politiques de jeu',
+  'events': 'Politiques d\'événements',
+  'national-team': 'Politiques de l\'équipe nationale',
+  'volunteer': 'Politiques de bénévolat',
 };
 
-// Category order for display
-const categoryOrder: PolicyCategory[] = ['rules', 'general', 'events', 'gameplay', 'team-canada', 'membership', 'communication'];
 ---
 
 <Layout
@@ -35,7 +33,7 @@ const categoryOrder: PolicyCategory[] = ['rules', 'general', 'events', 'gameplay
 
   <section class="policies">
     <div class="policies-container">
-      {categoryOrder.map((category) => {
+      {POLICY_CATEGORIES.map((category) => {
         const policies = policiesByCategory[category];
         if (policies.length === 0) return null;
 

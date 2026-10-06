@@ -588,7 +588,7 @@ describe('sanity.ts', () => {
       const result = await getPolicies();
 
       expect(result).toHaveLength(3);
-      expect(result[0].category).toBe('general');
+      expect(result[0].category).toBe('administrative');
     });
 
     it('includes policy URL and description', async () => {
@@ -607,11 +607,11 @@ describe('sanity.ts', () => {
 
       const result = await getPoliciesByCategory();
 
-      expect(result.general).toHaveLength(1);
+      expect(result.administrative).toHaveLength(1);
       expect(result.events).toHaveLength(1);
-      expect(result.rules).toHaveLength(1);
-      expect(result.gameplay).toHaveLength(0);
-      expect(result['team-canada']).toHaveLength(0);
+      expect(result.gameplay).toHaveLength(1);
+      expect(result['national-team']).toHaveLength(0);
+      expect(result.volunteer).toHaveLength(0);
     });
   });
 

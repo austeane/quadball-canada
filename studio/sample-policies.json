@@ -5,7 +5,7 @@
       "en": "Code of Conduct",
       "fr": "Code de conduite"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/1-code-of-conduct/edit",
     "order": 10,
     "isActive": true
@@ -16,7 +16,7 @@
       "en": "Misconduct Policy",
       "fr": "Politique sur l'inconduite"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/2-misconduct-policy/edit",
     "order": 20,
     "isActive": true
@@ -27,7 +27,7 @@
       "en": "Appeal Policy",
       "fr": "Politique d'appel"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/3-appeal-policy/edit",
     "order": 30,
     "isActive": true
@@ -38,7 +38,7 @@
       "en": "Gender Equity Policy",
       "fr": "Politique d'équité des genres"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/4-gender-equity/edit",
     "order": 40,
     "isActive": true
@@ -49,7 +49,7 @@
       "en": "Privacy Policy",
       "fr": "Politique de confidentialité"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/5-privacy-policy/edit",
     "order": 50,
     "isActive": true
@@ -60,7 +60,7 @@
       "en": "Membership Policy",
       "fr": "Politique d'adhésion"
     },
-    "category": "general",
+    "category": "administrative",
     "url": "https://docs.google.com/document/d/6-membership-policy/edit",
     "order": 60,
     "isActive": true
@@ -137,7 +137,7 @@
       "en": "National Team Player Selection Policy",
       "fr": "Politique de sélection des joueurs de l'équipe nationale"
     },
-    "category": "team-canada",
+    "category": "national-team",
     "url": "https://docs.google.com/document/d/13-national-team-selection/edit",
     "order": 10,
     "isActive": true
