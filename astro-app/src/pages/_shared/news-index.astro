@@ -2,9 +2,10 @@
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import NewsCard from "@/components/content/NewsCard.astro";
-import { getNewsArticles, getPageSettings, type Locale } from "@/utils/sanity";
+import { getNewsArticles, getPage, type Locale } from "@/utils/sanity";
 import { resolveLocale } from "@/i18n";
 import { t } from "@/i18n/ui";
+import { pageTitle } from "@/utils";
 
 interface Props {
   locale?: Locale;
@@ -12,9 +13,7 @@ interface Props {
 
 const props = Astro.props as Props;
 const locale = props.locale ?? resolveLocale(Astro);
-const [articles, pageSettings] = await Promise.all([getNewsArticles(locale), getPageSettings()]);
-const title = t(locale, "news.title");
-const subtitle = t(locale, "news.subtitle");
+const [articles, page] = await Promise.all([getNewsArticles(locale), getPage("page-news", locale)]);
 const emptyState = t(locale, "news.empty");
 const alternate = {
   en: "/news/",
@@ -26,12 +25,13 @@ const featuredArticle = articles.length > 0 ? articles[0] : null;
 const remainingArticles = articles.slice(1);
 ---
 
-<Layout title={title} alternate={alternate} locale={locale}>
-  <PageHero
-    title={title}
-    subtitle={subtitle}
-    image={pageSettings?.newsHeroImage ?? pageSettings?.defaultHeroImage}
-  />
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  alternate={alternate}
+  locale={locale}
+  description={page.seo?.metaDescription ?? undefined}
+>
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
   <section class="news-page">
     {articles.length ? (
       <div class="news-content">

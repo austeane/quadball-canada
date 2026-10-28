@@ -1,0 +1,30 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import PageSections from "@/components/sections/PageSections.astro";
+import VolunteerList from "@/components/volunteer/VolunteerList.astro";
+import { getVolunteerOpportunities, getPage } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+import { pageTitle } from "@/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const [opportunities, page] = await Promise.all([
+  getVolunteerOpportunities(locale),
+  getPage("page-volunteer", locale),
+]);
+---
+
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={{ en: "/volunteer-opportunities/", fr: "/fr/benevolat/" }}
+  locale={locale}
+>
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
+  <VolunteerList opportunities={opportunities} locale={locale} />
+  <PageSections sections={page.sections} />
+</Layout>

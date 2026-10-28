@@ -12,19 +12,15 @@ export const LOCALE_SLUG_TYPES: Record<string, string> = {
   event: 'title',
   infoArticle: 'title',
   eventHub: 'title',
-  page: 'title',
   newsArticle: 'title',
   resourceArticle: 'title',
 }
 
 // plain slug types -> dot-path to the value they derive from.
 export const PLAIN_SLUG_TYPES: Record<string, string> = {
-  author: 'name',
   boardMember: 'name',
-  player: 'name',
   staffMember: 'name',
   team: 'name',
-  post: 'title',
   volunteerOpportunity: 'title.en',
 }
 

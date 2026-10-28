@@ -18,7 +18,7 @@ const createImageBuilder = () => {
 // Mock the sanity:client module
 vi.mock('sanity:client', () => ({
   sanityClient: {
-    fetch: vi.fn(),
+    fetch: vi.fn().mockResolvedValue(null),
   },
 }));
 

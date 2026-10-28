@@ -1,449 +1,185 @@
-import {defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {FiSettings} from 'react-icons/fi'
+import {imageWithAlt} from '../helpers/fields'
 
-const defaultNavigation = {
-  items: [
-    {
-      label: {
-        en: 'About Us',
-        fr: 'A propos',
-      },
-      url: '/about/',
-      targetBlank: false,
-      children: [
-        {
-          label: {
-            en: 'Mission & Values',
-            fr: 'Mission et valeurs',
-          },
-          url: '/about/mission-and-values/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Meet the Board',
-            fr: "Conseil d'administration",
-          },
-          url: '/about/meet-the-board/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Meet the Staff',
-            fr: 'Equipe',
-          },
-          url: '/about/meet-the-staff/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Our Teams',
-            fr: 'Nos equipes',
-          },
-          url: '/teams/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'What is Quadball?',
-            fr: "Qu'est-ce que le quadball?",
-          },
-          url: '/info/what-is-quadball/',
-          targetBlank: false,
-        },
-      ],
-    },
-    {
-      label: {
-        en: 'Resources',
-        fr: 'Ressources',
-      },
-      url: '/resources/',
-      targetBlank: false,
-    },
-    {
-      label: {
-        en: 'Events',
-        fr: 'Evenements',
-      },
-      url: '/events/',
-      targetBlank: false,
-      children: [
-        {
-          label: {
-            en: 'Upcoming Events',
-            fr: 'Evenements a venir',
-          },
-          url: '/events/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Host an Event',
-            fr: 'Organiser un evenement',
-          },
-          url: '/get-involved/host-an-event/',
-          targetBlank: false,
-        },
-      ],
-    },
-    {
-      label: {
-        en: 'Get Involved',
-        fr: "S'impliquer",
-      },
-      url: '/get-involved/',
-      targetBlank: false,
-      children: [
-        {
-          label: {
-            en: 'Find a Team',
-            fr: 'Trouver une equipe',
-          },
-          url: '/teams/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Volunteer Opportunities',
-            fr: 'Benevolat',
-          },
-          url: '/volunteer-opportunities/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Host an Event',
-            fr: 'Organiser un evenement',
-          },
-          url: '/get-involved/host-an-event/',
-          targetBlank: false,
-        },
-        {
-          label: {
-            en: 'Team Canada',
-            fr: 'Equipe Canada',
-          },
-          url: '/teams/national-team/',
-          targetBlank: false,
-        },
-      ],
-    },
-  ],
-} as const
+const menuLink = (name: string, title: string) =>
+  defineArrayMember({
+    type: 'object',
+    name,
+    title,
+    fields: [
+      defineField({
+        name: 'label',
+        title: 'Label',
+        type: 'localeString',
+        validation: (Rule) => Rule.required(),
+      }),
+      defineField({
+        name: 'link',
+        title: 'Link',
+        type: 'localeUrl',
+        validation: (Rule) => Rule.required(),
+      }),
+    ],
+    preview: {select: {title: 'label.en', subtitle: 'link.en'}},
+  })
+
+export const socialPlatforms = [
+  {title: 'Instagram', value: 'instagram'},
+  {title: 'TikTok', value: 'tiktok'},
+  {title: 'YouTube', value: 'youtube'},
+  {title: 'Facebook', value: 'facebook'},
+  {title: 'Discord', value: 'discord'},
+  {title: 'X (Twitter)', value: 'x'},
+  {title: 'LinkedIn', value: 'linkedin'},
+]
 
 export default defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  icon: FiSettings,
+  groups: [
+    {name: 'menu', title: 'Menu', default: true},
+    {name: 'footer', title: 'Footer'},
+    {name: 'social', title: 'Social media'},
+    {name: 'general', title: 'General'},
+  ],
   fields: [
-    {
-      name: 'siteName',
-      title: 'Site Name',
-      type: 'localeString',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'siteDescription',
-      title: 'Site Description',
-      type: 'localeText',
-      description: 'Default meta description',
-    },
-    {
-      name: 'siteUrl',
-      title: 'Site URL',
-      type: 'url',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'defaultOgImage',
-      title: 'Default Open Graph Image',
-      type: 'image',
-      description: 'Default image for social media sharing',
-      options: {
-        hotspot: true,
-      },
-    },
-    {
-      name: 'logo',
-      title: 'Logo',
-      type: 'image',
-      description: 'Site logo',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'favicon',
-      title: 'Favicon',
-      type: 'image',
-      description: 'Site favicon (32x32 or 16x16)',
-    },
-    {
+    defineField({
       name: 'navigation',
-      title: 'Main Navigation',
-      type: 'object',
-      initialValue: defaultNavigation,
-      fields: [
-        {
-          name: 'items',
-          title: 'Navigation Items',
-          type: 'array',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                {
-                  name: 'label',
-                  title: 'Label',
-                  type: 'localeString',
-                  validation: (Rule) => Rule.required(),
-                },
-                {
-                  name: 'url',
-                  title: 'URL',
-                  type: 'string',
-                  description: 'Internal path or external URL',
-                  validation: (Rule) => Rule.required().error('URL is required for navigation items'),
-                },
-                {
-                  name: 'targetBlank',
-                  title: 'Open in new tab',
-                  type: 'boolean',
-                  initialValue: false,
-                },
-                {
-                  name: 'children',
-                  title: 'Submenu Items',
-                  type: 'array',
-                  of: [
-                    {
-                      type: 'object',
-                      fields: [
-                        {
-                          name: 'label',
-                          title: 'Label',
-                          type: 'localeString',
-                          validation: (Rule) => Rule.required(),
-                        },
-                        {
-                          name: 'url',
-                          title: 'URL',
-                          type: 'string',
-                          validation: (Rule) => Rule.required(),
-                        },
-                        {
-                          name: 'targetBlank',
-                          title: 'Open in new tab',
-                          type: 'boolean',
-                          initialValue: false,
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'footer',
-      title: 'Footer Settings',
-      type: 'object',
-      fields: [
-        {
-          name: 'copyrightText',
-          title: 'Copyright Text',
-          type: 'localeString',
-        },
-        {
-          name: 'columns',
-          title: 'Footer Columns',
-          type: 'array',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                {
-                  name: 'title',
-                  title: 'Column Title',
-                  type: 'localeString',
-                },
-                {
-                  name: 'links',
-                  title: 'Links',
-                  type: 'array',
-                  of: [
-                    {
-                      type: 'object',
-                      fields: [
-                        {
-                          name: 'label',
-                          title: 'Label',
-                          type: 'localeString',
-                        },
-                        {
-                          name: 'url',
-                          title: 'URL',
-                          type: 'string',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'socialMedia',
-      title: 'Social Media Links',
-      type: 'object',
-      fields: [
-        {
-          name: 'facebook',
-          title: 'Facebook',
-          type: 'url',
-        },
-        {
-          name: 'instagram',
-          title: 'Instagram',
-          type: 'url',
-        },
-        {
-          name: 'twitter',
-          title: 'Twitter/X',
-          type: 'url',
-        },
-        {
-          name: 'youtube',
-          title: 'YouTube',
-          type: 'url',
-        },
-        {
-          name: 'tiktok',
-          title: 'TikTok',
-          type: 'url',
-        },
-        {
-          name: 'linkedin',
-          title: 'LinkedIn',
-          type: 'url',
-        },
-      ],
-    },
-    {
-      name: 'contact',
-      title: 'Contact Information',
-      type: 'object',
-      fields: [
-        {
-          name: 'email',
-          title: 'Contact Email',
-          type: 'email',
-        },
-        {
-          name: 'phone',
-          title: 'Phone Number',
-          type: 'string',
-        },
-        {
-          name: 'address',
-          title: 'Address',
-          type: 'text',
-        },
-      ],
-    },
-    {
-      name: 'analytics',
-      title: 'Analytics',
-      type: 'object',
-      fields: [
-        {
-          name: 'googleAnalyticsId',
-          title: 'Google Analytics ID',
-          type: 'string',
-          description: 'GA4 Measurement ID (e.g., G-XXXXXXXXXX)',
-        },
-        {
-          name: 'googleTagManagerId',
-          title: 'Google Tag Manager ID',
-          type: 'string',
-          description: 'GTM Container ID (e.g., GTM-XXXXXX)',
-        },
-      ],
-    },
-    {
-      name: 'cookieConsent',
-      title: 'Cookie Consent Settings',
-      type: 'object',
-      fields: [
-        {
-          name: 'enabled',
-          title: 'Enable Cookie Consent',
-          type: 'boolean',
-          initialValue: true,
-        },
-        {
-          name: 'message',
-          title: 'Consent Message',
-          type: 'localeText',
-        },
-        {
-          name: 'privacyPolicyUrl',
-          title: 'Privacy Policy URL',
-          type: 'string',
-        },
-      ],
-    },
-    {
-      name: 'announcement',
-      title: 'Announcement Banner',
-      type: 'object',
-      fields: [
-        {
-          name: 'enabled',
-          title: 'Show Announcement',
-          type: 'boolean',
-          initialValue: false,
-        },
-        {
-          name: 'message',
-          title: 'Announcement Message',
-          type: 'localeString',
-        },
-        {
-          name: 'link',
-          title: 'Link',
+      title: 'Main menu',
+      type: 'array',
+      group: 'menu',
+      description:
+        'Top-level menu items, in order. Add sub-items to make a dropdown. Links starting with https:// open in a new tab.',
+      of: [
+        defineArrayMember({
           type: 'object',
+          name: 'menuItem',
+          title: 'Menu item',
           fields: [
-            {
-              name: 'text',
-              title: 'Link Text',
+            defineField({
+              name: 'label',
+              title: 'Label',
               type: 'localeString',
-            },
-            {
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'link',
+              title: 'Link',
+              type: 'localeUrl',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'children',
+              title: 'Dropdown items',
+              type: 'array',
+              of: [menuLink('menuSubItem', 'Dropdown item')],
+            }),
+          ],
+          preview: {
+            select: {title: 'label.en', children: 'children'},
+            prepare: ({title, children}) => ({
+              title,
+              subtitle: children?.length ? `${children.length} dropdown items` : undefined,
+            }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'storeUrl',
+      title: 'Store link',
+      type: 'url',
+      group: 'menu',
+      description: 'Where the Store button in the header goes.',
+    }),
+    defineField({
+      name: 'donateUrl',
+      title: 'Donate link',
+      type: 'url',
+      group: 'menu',
+      description: 'Where the Donate buttons in the header and on the home page go.',
+    }),
+    defineField({
+      name: 'footerColumns',
+      title: 'Footer link columns',
+      type: 'array',
+      group: 'footer',
+      description: 'The social media column is added automatically after these.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'footerColumn',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Column heading',
+              type: 'localeString',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'links',
+              title: 'Links',
+              type: 'array',
+              of: [menuLink('footerLink', 'Link')],
+            }),
+          ],
+          preview: {select: {title: 'title.en'}},
+        }),
+      ],
+    }),
+    defineField({
+      name: 'charityNumber',
+      title: 'Charitable registration number',
+      type: 'string',
+      group: 'footer',
+    }),
+    defineField({
+      name: 'socialLinks',
+      title: 'Social media links',
+      type: 'array',
+      group: 'social',
+      description: 'Shown in the top bar, the footer and on the Contact page.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'socialLink',
+          fields: [
+            defineField({
+              name: 'platform',
+              title: 'Platform',
+              type: 'string',
+              options: {list: socialPlatforms},
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
               name: 'url',
               title: 'URL',
-              type: 'string',
-            },
+              type: 'url',
+              validation: (Rule) => Rule.required(),
+            }),
           ],
-        },
-        {
-          name: 'dismissible',
-          title: 'Can be dismissed',
-          type: 'boolean',
-          initialValue: true,
-        },
+          preview: {select: {title: 'platform', subtitle: 'url'}},
+        }),
       ],
-    },
+    }),
+    defineField({
+      name: 'siteDescription',
+      title: 'Default search description',
+      type: 'localeText',
+      group: 'general',
+      description: 'Used in search results for pages that don’t have their own description.',
+    }),
+    defineField({
+      ...imageWithAlt(
+        'defaultHeroImage',
+        'Default banner image',
+        'Used on any page whose own banner image is empty.',
+      ),
+      group: 'general',
+    }),
   ],
-  preview: {
-    prepare() {
-      return {
-        title: 'Site Settings',
-      }
-    },
-  },
+  preview: {prepare: () => ({title: 'Site Settings'})},
 })

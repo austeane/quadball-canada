@@ -1,38 +1,28 @@
 ---
-import type { Locale } from "../../utils/localization";
-import { resolveLocale } from "../../i18n";
-import { t } from "../../i18n/ui";
 import EmailLink from "../ui/EmailLink.astro";
+import type { HomePageData } from "../../utils/sanity";
 
 interface Props {
-  locale?: Locale;
-  title?: string;
-  description?: string;
-  primaryCtaLabel?: string;
-  primaryCtaHref?: string;
-  secondaryCtaLabel?: string;
-  secondaryCtaEmail?: string;
+  support: NonNullable<HomePageData["support"]>;
+  donateUrl?: string | null;
 }
 
-const props = Astro.props as Props;
-const locale: Locale = resolveLocale(Astro, props.locale);
-
-const title = props.title ?? t(locale, "support.title");
-const description = props.description ?? t(locale, "support.description");
-const primaryCtaLabel = props.primaryCtaLabel ?? t(locale, "support.primaryCta");
-const primaryCtaHref = props.primaryCtaHref ?? "https://www.paypal.me/quidditchcanada";
-const secondaryCtaLabel = props.secondaryCtaLabel ?? t(locale, "support.secondaryCta");
-const secondaryCtaEmail = props.secondaryCtaEmail ?? "sponsorship@quadballcanada.ca";
+const { support, donateUrl } = Astro.props as Props;
+const donateHref = support.donateUrl ?? donateUrl;
 ---
 <section class="support">
-  <h2>{title}</h2>
-  <p>{description}</p>
+  {support.heading && <h2>{support.heading}</h2>}
+  {support.body && <p>{support.body}</p>}
   <div class="actions">
-    <a class="btn" href={primaryCtaHref} target="_blank" rel="noopener">{primaryCtaLabel}</a>
-    <div class="btn-email">
-      <span class="btn-email__label">{secondaryCtaLabel}:</span>
-      <EmailLink email={secondaryCtaEmail} class="btn-email__link" />
-    </div>
+    {donateHref && support.donateLabel && (
+      <a class="btn" href={donateHref} target="_blank" rel="noopener">{support.donateLabel}</a>
+    )}
+    {support.sponsorshipEmail && (
+      <div class="btn-email">
+        {support.sponsorshipLabel && <span class="btn-email__label">{support.sponsorshipLabel}:</span>}
+        <EmailLink email={support.sponsorshipEmail} class="btn-email__link" />
+      </div>
+    )}
   </div>
 </section>
 

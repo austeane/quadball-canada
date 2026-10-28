@@ -8,3 +8,8 @@ export function formatDate(date: string, locale: Locale = "en") {
     year: "numeric",
   });
 }
+
+/** Browser tab title: an editor's custom title, or "<page title> — Quadball Canada". */
+export function pageTitle(title: string, customTitle?: string | null): string {
+  return customTitle || `${title} — Quadball Canada`;
+}

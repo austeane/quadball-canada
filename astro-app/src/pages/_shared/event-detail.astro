@@ -1,9 +1,9 @@
 ---
-import type { InferGetStaticParamsType } from "astro";
 import { PortableText } from "astro-portabletext";
 import BlockImage from "@/components/portable-text/BlockImage.astro";
 import Layout from "@/layouts/Layout.astro";
-import { getEvent, getEvents, type Locale } from "@/utils/sanity";
+import { getEvent, type Locale } from "@/utils/sanity";
+import { urlFor } from "@/utils/image";
 import { formatDate } from "@/utils";
 
 interface Props {
@@ -26,6 +26,14 @@ const content = isFr
       virtual: "Virtuel",
       hybrid: "Hybride",
       getDirections: "Obtenir l'itinéraire",
+      registration: "Inscription",
+      register: "S'inscrire",
+      registerBy: "Date limite",
+      registrationClosed: "Les inscriptions sont fermées",
+      fee: "Frais",
+      capacity: "Places",
+      documents: "Documents",
+      teams: "Équipes participantes",
     }
   : {
       backToEvents: "← Back to Events",
@@ -35,9 +43,16 @@ const content = isFr
       virtual: "Virtual",
       hybrid: "Hybrid",
       getDirections: "Get Directions",
+      registration: "Registration",
+      register: "Register",
+      registerBy: "Deadline",
+      registrationClosed: "Registration is closed",
+      fee: "Fee",
+      capacity: "Spots",
+      documents: "Documents",
+      teams: "Competing Teams",
     };
 
-const eventsPath = isFr ? "/fr/evenements/" : "/events/";
 const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
 
 function formatEventDate(start: string, end?: string): string {
@@ -72,13 +87,22 @@ function formatEventDate(start: string, end?: string): string {
   return `${startDateStr}, ${startTimeStr}`;
 }
 
+const registration = event.registration?.url ? event.registration : null;
+const registrationOpen = registration
+  ? !registration.deadline || new Date(registration.deadline) >= new Date()
+  : false;
+const price = registration?.price != null
+  ? new Intl.NumberFormat(isFr ? "fr-CA" : "en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(registration.price)
+  : null;
+
 const googleMapsUrl = event.location?.address
   ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location.address)}`
   : null;
 ---
 
 <Layout
-  title={`${event.title} — Quadball Canada`}
+  title={event.seo?.metaTitle ?? `${event.title} — Quadball Canada`}
+  description={event.seo?.metaDescription ?? event.description ?? undefined}
   alternate={{ en: `/events/${event.slugEn}/`, fr: `/fr/evenements/${event.slugFr ?? event.slugEn}/` }}
   locale={locale}
 >
@@ -94,6 +118,18 @@ const googleMapsUrl = event.location?.address
       </div>
       <h1>{event.title}</h1>
     </header>
+
+    {event.featuredImage?.asset && (
+      <img
+        class="event-image"
+        src={urlFor(event.featuredImage).width(1200).height(600).fit("crop").auto("format").url()}
+        alt={event.featuredImage.alt ?? ""}
+        width="1200"
+        height="600"
+        loading="eager"
+        decoding="async"
+      />
+    )}
 
     <div class="event-meta">
       <div class="meta-card">
@@ -142,6 +178,29 @@ const googleMapsUrl = event.location?.address
           </div>
         </div>
       )}
+      {registration && (
+        <div class="meta-card">
+          <div class="meta-card__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+          </div>
+          <div class="meta-card__content">
+            <h3>{content.registration}</h3>
+            {registration.deadline && <p>{content.registerBy}: {formatDate(registration.deadline, locale)}</p>}
+            {price && <p>{content.fee}: {price}</p>}
+            {registration.capacity != null && <p>{content.capacity}: {registration.capacity}</p>}
+            {registrationOpen ? (
+              <a href={registration.url} target="_blank" rel="noopener noreferrer" class="directions-link">
+                {content.register}
+              </a>
+            ) : (
+              <p class="location-address">{content.registrationClosed}</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
 
     {event.description && (
@@ -156,10 +215,43 @@ const googleMapsUrl = event.location?.address
         <PortableText value={event.content} components={{ type: { image: BlockImage } }} />
       </section>
     )}
+
+    {event.teams && event.teams.length > 0 && (
+      <section class="event-description">
+        <h2>{content.teams}</h2>
+        <ul class="event-list">
+          {event.teams.map((team) => <li>{team.name}</li>)}
+        </ul>
+      </section>
+    )}
+
+    {event.documents && event.documents.length > 0 && (
+      <section class="event-description">
+        <h2>{content.documents}</h2>
+        <ul class="event-list">
+          {event.documents.map((doc) => (
+            <li><a href={doc.url} target="_blank" rel="noopener noreferrer">{doc.title}</a></li>
+          ))}
+        </ul>
+      </section>
+    )}
   </article>
 </Layout>
 
 <style>
+  .event-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .event-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+
   .event-detail {
     padding: 2rem 0 4rem;
     max-width: 800px;

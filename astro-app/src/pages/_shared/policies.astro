@@ -1,0 +1,210 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import PageSections from "@/components/sections/PageSections.astro";
+import { getPoliciesByCategory, getPage, POLICY_CATEGORIES, type PolicyCategory } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+import { pageTitle } from "@/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const [policiesByCategory, page] = await Promise.all([
+  getPoliciesByCategory(locale),
+  getPage("page-policies", locale),
+]);
+
+// Category headings, in the order of POLICY_CATEGORIES
+const categoryNames: Record<Locale, Record<PolicyCategory, string>> = {
+  en: {
+    'administrative': 'Administrative Policies',
+    'communications': 'Communications Policies',
+    'membership': 'Membership Policies',
+    'gameplay': 'Gameplay Policies',
+    'events': 'Events Policies',
+    'national-team': 'National Team Policies',
+    'volunteer': 'Volunteer Policies',
+  },
+  fr: {
+    'administrative': 'Politiques administratives',
+    'communications': 'Politiques de communication',
+    'membership': 'Politiques d\'adhésion',
+    'gameplay': 'Politiques de jeu',
+    'events': 'Politiques d\'événements',
+    'national-team': 'Politiques de l\'équipe nationale',
+    'volunteer': 'Politiques de bénévolat',
+  },
+};
+
+const emptyState =
+  locale === "fr"
+    ? "Aucune politique n'a encore été publiée. Veuillez revenir bientôt."
+    : "No policies have been published yet. Please check back soon.";
+---
+
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={{ en: "/resources/policies/", fr: "/fr/ressources/politiques/" }}
+  locale={locale}
+>
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
+
+  <section class="policies">
+    <div class="policies-container">
+      {POLICY_CATEGORIES.map((category) => {
+        const policies = policiesByCategory[category];
+        if (policies.length === 0) return null;
+
+        return (
+          <div class="policy-category">
+            <h2 class="category-heading">{categoryNames[locale][category]}</h2>
+            <ul class="policy-list">
+              {policies.map((policy) => (
+                <li class="policy-item">
+                  <a
+                    href={policy.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="policy-link"
+                  >
+                    {policy.title}
+                    <svg class="external-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.5 1.5L1.5 10.5M10.5 1.5V7.5M10.5 1.5H4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                  {policy.description && (
+                    <p class="policy-description">{policy.description}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+
+      {Object.values(policiesByCategory).every(policies => policies.length === 0) && (
+        <div class="empty-state">
+          <p>{emptyState}</p>
+        </div>
+      )}
+    </div>
+  </section>
+  <PageSections sections={page.sections} />
+</Layout>
+
+<style>
+  .policies {
+    padding: 3rem 0 4rem;
+  }
+
+  .policies-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 40px);
+  }
+
+  .policy-category {
+    margin-bottom: 3rem;
+  }
+
+  .category-heading {
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-6);
+    font-weight: 700;
+    color: var(--brand-ink);
+    margin: 0 0 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .policy-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .policy-item {
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .policy-item:last-child {
+    border-bottom: none;
+  }
+
+  .policy-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-4);
+    font-weight: 600;
+    color: var(--brand-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .policy-link:hover {
+    color: var(--brand-ink);
+    text-decoration: underline;
+  }
+
+  .external-icon {
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .policy-link:hover .external-icon {
+    opacity: 1;
+  }
+
+  .policy-description {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-family-serif);
+    font-size: var(--font-size-3);
+    line-height: var(--line-height-2);
+    color: var(--gray-700);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--gray-50);
+    border-radius: 12px;
+  }
+
+  .empty-state p {
+    font-family: var(--font-family-serif);
+    font-size: var(--font-size-4);
+    color: var(--gray-600);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .policies {
+      padding: 2rem 0 3rem;
+    }
+
+    .policy-category {
+      margin-bottom: 2rem;
+    }
+
+    .category-heading {
+      font-size: var(--font-size-5);
+      margin-bottom: 1rem;
+    }
+
+    .policy-link {
+      font-size: var(--font-size-3);
+    }
+
+    .policy-description {
+      font-size: var(--font-size-2);
+    }
+  }
+</style>

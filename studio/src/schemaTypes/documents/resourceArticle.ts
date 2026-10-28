@@ -58,8 +58,13 @@ export default defineType({
       name: 'excerpt',
       title: 'Excerpt',
       type: 'localeText',
-      description: 'Short summary used on preview cards',
-      validation: (Rule) => Rule.max(200),
+      description: 'Short summary used on preview cards (200 characters or fewer)',
+      validation: (Rule) =>
+        Rule.custom((value?: {en?: string; fr?: string}) =>
+          [value?.en, value?.fr].some((text) => (text?.length ?? 0) > 200)
+            ? 'Keep the excerpt to 200 characters or fewer in each language'
+            : true,
+        ),
     },
     {
       name: 'content',

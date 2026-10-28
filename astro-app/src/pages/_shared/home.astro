@@ -1,0 +1,24 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import HeroSlider from "@/components/sections/HeroSlider.astro";
+import NewsGrid from "@/components/sections/NewsGrid.astro";
+import WhatIsQuadball from "@/components/sections/WhatIsQuadball.astro";
+import SupportSection from "@/components/sections/SupportSection.astro";
+import { getHomePage, getSiteSettings } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const [home, settings] = await Promise.all([getHomePage(locale), getSiteSettings(locale)]);
+const title = locale === "fr" ? "Quadball Canada — Site officiel" : "Quadball Canada — Official Site";
+---
+
+<Layout title={title} alternate={{ en: "/", fr: "/fr/" }} locale={locale}>
+  {home.hero && <HeroSlider hero={home.hero} />}
+  {home.featuredArticle?.slug && <WhatIsQuadball locale={locale} article={home.featuredArticle} />}
+  <NewsGrid locale={locale} />
+  {home.support && <SupportSection support={home.support} donateUrl={settings.donateUrl} />}
+</Layout>

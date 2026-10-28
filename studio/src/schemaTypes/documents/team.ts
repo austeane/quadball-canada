@@ -103,7 +103,7 @@ export default defineType({
     {
       name: 'seasonNote',
       title: 'Season Note',
-      type: 'string',
+      type: 'localeString',
       description: 'E.g., "Regular Season: Sept–March" or "Off-Season: April–August"',
     },
     {
@@ -199,79 +199,6 @@ export default defineType({
           name: 'coordinates',
           title: 'Coordinates',
           type: 'geopoint',
-        },
-      ],
-    },
-    {
-      name: 'roster',
-      title: 'Current Roster',
-      type: 'array',
-      of: [
-        {
-          type: 'reference',
-          to: [{ type: 'player' }],
-        },
-      ],
-    },
-    {
-      name: 'coaches',
-      title: 'Coaches',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'name',
-              title: 'Name',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'role',
-              title: 'Role',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Head Coach', value: 'head_coach' },
-                  { title: 'Assistant Coach', value: 'assistant_coach' },
-                  { title: 'Manager', value: 'manager' },
-                ],
-              },
-            },
-            {
-              name: 'email',
-              title: 'Email',
-              type: 'email',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'achievements',
-      title: 'Achievements',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'title',
-              title: 'Achievement',
-              type: 'localeString',
-            },
-            {
-              name: 'year',
-              title: 'Year',
-              type: 'number',
-            },
-            {
-              name: 'description',
-              title: 'Description',
-              type: 'localeText',
-            },
-          ],
         },
       ],
     },

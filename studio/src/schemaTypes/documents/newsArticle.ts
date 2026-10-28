@@ -24,12 +24,6 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
-      name: 'author',
-      title: 'Author',
-      type: 'reference',
-      to: [{ type: 'author' }],
-    },
-    {
       name: 'featuredImage',
       title: 'Featured Image',
       type: 'image',

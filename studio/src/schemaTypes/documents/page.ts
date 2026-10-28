@@ -1,78 +1,31 @@
-import {defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {FiFile} from 'react-icons/fi'
+import {heroFields, seoField} from '../helpers/fields'
 
+// A standalone site page at a fixed address (e.g. Host an Event, Meet the Board).
+// Each page's document is listed by name under "Pages" in the Studio sidebar.
 export default defineType({
   name: 'page',
   title: 'Page',
   type: 'document',
+  icon: FiFile,
   fields: [
-    {
-      name: 'title',
-      title: 'Title',
-      type: 'localeString',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'slug',
-      title: 'Slug',
-      type: 'localeSlug',
-      validation: (Rule) => Rule.required(),
-    },
-    {
-      name: 'seo',
-      title: 'SEO',
-      type: 'object',
-      fields: [
-        {
-          name: 'metaTitle',
-          title: 'Meta Title',
-          type: 'localeString',
-        },
-        {
-          name: 'metaDescription',
-          title: 'Meta Description',
-          type: 'localeText',
-        },
-        {
-          name: 'ogImage',
-          title: 'Open Graph Image',
-          type: 'image',
-          options: {
-            hotspot: true,
-          },
-        },
-      ],
-    },
-    {
-      name: 'content',
-      title: 'Content',
-      type: 'localePortableText',
-    },
-    {
-      name: 'sidebar',
-      title: 'Sidebar Content',
+    ...heroFields,
+    defineField({
+      name: 'sections',
+      title: 'Page content',
       type: 'array',
+      description:
+        'Content shown below the banner. On pages with a list (board, staff, policies…), it appears after the list.',
       of: [
-        {
-          type: 'reference',
-          to: [
-            { type: 'ctaBlock' },
-            { type: 'formEmbed' },
-          ],
-        },
+        defineArrayMember({type: 'textSection'}),
+        defineArrayMember({type: 'columnsSection'}),
+        defineArrayMember({type: 'ctaSection'}),
       ],
-    },
+    }),
+    seoField,
   ],
   preview: {
-    select: {
-      titleEn: 'title.en',
-      titleFr: 'title.fr',
-      slugEn: 'slug.en.current',
-    },
-    prepare({ titleEn, titleFr, slugEn }) {
-      return {
-        title: titleEn || titleFr,
-        subtitle: `/${slugEn}`,
-      }
-    },
+    select: {title: 'title.en', subtitle: 'subtitle.en', media: 'heroImage'},
   },
 })

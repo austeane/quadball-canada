@@ -1,43 +1,31 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import type { Locale } from "@/utils/localization";
-import { t } from "@/i18n/ui";
 import EmailLink from "@/components/ui/EmailLink.astro";
+import { getContactPage, getSiteSettings } from "@/utils/sanity";
+import { pageTitle } from "@/utils";
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props as Props;
+const [page, settings] = await Promise.all([getContactPage(locale), getSiteSettings(locale)]);
 
-const contactCards = [
-  {
-    icon: "mail",
-    title: t(locale, "contact.general.title"),
-    description: t(locale, "contact.general.description"),
-    email: "info@quadballcanada.ca",
-  },
-  {
-    icon: "newspaper",
-    title: t(locale, "contact.media.title"),
-    description: t(locale, "contact.media.description"),
-    email: "media@quadballcanada.ca",
-  },
-  {
-    icon: "trophy",
-    title: t(locale, "contact.events.title"),
-    description: t(locale, "contact.events.description"),
-    email: "events@quadballcanada.ca",
-  },
-];
-
-const socialLinks = [
-  { name: "Instagram", url: "https://www.instagram.com/quadballcanada/", icon: "instagram" },
-  { name: "TikTok", url: "https://www.tiktok.com/@quadballcanada", icon: "tiktok" },
-  { name: "YouTube", url: "https://www.youtube.com/@QuadballCanada", icon: "youtube" },
-  { name: "Facebook", url: "https://www.facebook.com/QuadballCanada/", icon: "facebook" },
-  { name: "Discord", url: "https://discord.gg/qK2cnSWmvF", icon: "discord" },
-];
+const platformNames: Record<string, string> = {
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  facebook: "Facebook",
+  discord: "Discord",
+  x: "X",
+  linkedin: "LinkedIn",
+};
+const socialLinks = settings.socialLinks.map((link) => ({
+  name: platformNames[link.platform] ?? link.platform,
+  url: link.url,
+  icon: link.platform,
+}));
 
 const alternate = {
   en: "/contact/",
@@ -45,15 +33,20 @@ const alternate = {
 };
 ---
 
-<Layout title={t(locale, "contact.title")} alternate={alternate} locale={locale}>
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={alternate}
+  locale={locale}
+>
   <section class="contact-page">
     <header class="contact-header">
-      <h1>{t(locale, "contact.title")}</h1>
-      <p class="subtitle">{t(locale, "contact.subtitle")}</p>
+      <h1>{page.title}</h1>
+      {page.subtitle && <p class="subtitle">{page.subtitle}</p>}
     </header>
 
     <div class="contact-grid">
-      {contactCards.map((card) => (
+      {page.cards.map((card) => (
         <article class="contact-card">
           <div class="card-icon" data-icon={card.icon}>
             {card.icon === "mail" && (
@@ -62,12 +55,18 @@ const alternate = {
             {card.icon === "newspaper" && (
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
             )}
+            {card.icon === "handshake" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>
+            )}
+            {card.icon === "users" && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            )}
             {card.icon === "trophy" && (
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
             )}
           </div>
           <h2>{card.title}</h2>
-          <p>{card.description}</p>
+          {card.description && <p>{card.description}</p>}
           <EmailLink email={card.email} class="contact-email" />
         </article>
       ))}
@@ -76,8 +75,8 @@ const alternate = {
     <hr class="divider" />
 
     <section class="social-section">
-      <h2>{t(locale, "contact.social.title")}</h2>
-      <p>{t(locale, "contact.social.description")}</p>
+      {page.socialHeading && <h2>{page.socialHeading}</h2>}
+      {page.socialBody && <p>{page.socialBody}</p>}
       <div class="social-links">
         {socialLinks.map((social) => (
           <a href={social.url} target="_blank" rel="noopener noreferrer" class="social-link" aria-label={social.name}>

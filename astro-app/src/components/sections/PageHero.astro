@@ -1,16 +1,20 @@
 ---
 import type { SanityImageWithAlt } from "../../utils/sanity";
-import { urlForImage } from "../../utils/sanity";
+import { getSiteSettings, urlForImage } from "../../utils/sanity";
+import { resolveLocale } from "../../i18n";
 
 interface Props {
   title: string;
   subtitle?: string;
   ctaText?: string;
   ctaHref?: string;
-  image?: SanityImageWithAlt | null; // falls back to the bundled /hero-cover-* images
+  image?: SanityImageWithAlt | null; // falls back to Site Settings' default banner, then /hero-cover-*
 }
 
-const { title, subtitle, ctaText, ctaHref, image } = Astro.props as Props;
+const { title, subtitle, ctaText, ctaHref } = Astro.props as Props;
+const image = Astro.props.image?.asset
+  ? Astro.props.image
+  : (await getSiteSettings(resolveLocale(Astro))).defaultHeroImage;
 
 // Generate image URL(s)
 const isSanityImage = !!image?.asset;

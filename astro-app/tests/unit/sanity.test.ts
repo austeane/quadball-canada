@@ -16,12 +16,16 @@ import {
   getBoardMembers,
   getResourceArticles,
   getResourceArticle,
-  getAboutPage,
   getNationalTeamPage,
-  getPageSettings,
   getPolicies,
   getPoliciesByCategory,
   getLandingSection,
+  getPage,
+  getSiteSettings,
+  getHomePage,
+  getMissionValuesPage,
+  getContactPage,
+  paragraphs,
   urlForImage,
 } from '../../src/utils/sanity';
 import {
@@ -39,9 +43,7 @@ import {
   mockBoardMembersList,
   mockResourceArticlesList,
   mockResourceArticleDetail,
-  mockAboutPageData,
   mockNationalTeamPage,
-  mockPageSettings,
   mockPoliciesList,
   mockLandingSection,
 } from '../fixtures/sanity';
@@ -490,36 +492,6 @@ describe('sanity.ts', () => {
     });
   });
 
-  describe('getAboutPage', () => {
-    it('fetches about page content', async () => {
-      mockFetch.mockResolvedValueOnce(mockAboutPageData);
-
-      const result = await getAboutPage();
-
-      expect(result?.title).toBe('About Quadball Canada');
-      expect(result?.subtitle).toBeDefined();
-    });
-
-    it('returns null when page does not exist', async () => {
-      mockFetch.mockResolvedValueOnce(null);
-
-      const result = await getAboutPage();
-
-      expect(result).toBeNull();
-    });
-
-    it('defaults content to empty array', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ...mockAboutPageData,
-        content: null,
-      });
-
-      const result = await getAboutPage();
-
-      expect(result?.content).toEqual([]);
-    });
-  });
-
   describe('getNationalTeamPage', () => {
     it('fetches national team page content', async () => {
       // Mock the raw query result format (with hero object)
@@ -560,24 +532,6 @@ describe('sanity.ts', () => {
       const result = await getNationalTeamPage();
 
       expect(result?.content).toEqual([]);
-    });
-  });
-
-  describe('getPageSettings', () => {
-    it('fetches page settings', async () => {
-      mockFetch.mockResolvedValueOnce(mockPageSettings);
-
-      const result = await getPageSettings();
-
-      expect(result).toEqual(mockPageSettings);
-    });
-
-    it('returns null when settings do not exist', async () => {
-      mockFetch.mockResolvedValueOnce(null);
-
-      const result = await getPageSettings();
-
-      expect(result).toBeNull();
     });
   });
 
@@ -646,6 +600,91 @@ describe('sanity.ts', () => {
         key: 'homepage-hero',
         locale: 'fr',
       });
+    });
+  });
+
+  describe('getPage', () => {
+    it('fetches a page by its fixed ID and defaults sections to an empty list', async () => {
+      mockFetch.mockResolvedValueOnce({ title: 'Meet the Board', subtitle: 'Our board', sections: null });
+
+      const result = await getPage('page-board', 'en');
+
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('_id == $id'), {
+        id: 'page-board',
+        locale: 'en',
+      });
+      expect(result.title).toBe('Meet the Board');
+      expect(result.sections).toEqual([]);
+    });
+
+    it('throws when the page document is missing', async () => {
+      mockFetch.mockResolvedValueOnce(null);
+
+      await expect(getPage('page-staff', 'fr')).rejects.toThrow('page-staff');
+    });
+  });
+
+  describe('getSiteSettings', () => {
+    it('fetches settings once per locale and fills empty lists', async () => {
+      mockFetch.mockResolvedValueOnce({ storeUrl: 'https://store.example', navigation: null });
+
+      const first = await getSiteSettings('fr');
+      const second = await getSiteSettings('fr');
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(second).toBe(first);
+      expect(first.storeUrl).toBe('https://store.example');
+      expect(first.navigation).toEqual([]);
+      expect(first.footerColumns).toEqual([]);
+      expect(first.socialLinks).toEqual([]);
+    });
+  });
+
+  describe('getHomePage', () => {
+    it('returns an empty object when the document is missing', async () => {
+      mockFetch.mockResolvedValueOnce(null);
+
+      expect(await getHomePage('en')).toEqual({});
+    });
+  });
+
+  describe('getMissionValuesPage', () => {
+    it('fetches the mission and values', async () => {
+      mockFetch.mockResolvedValueOnce({ title: 'Mission & Values', mission: 'To lead', values: [{ title: 'Fun' }] });
+
+      const result = await getMissionValuesPage('en');
+
+      expect(result.mission).toBe('To lead');
+      expect(result.values).toHaveLength(1);
+    });
+
+    it('throws when the document is missing', async () => {
+      mockFetch.mockResolvedValueOnce(null);
+
+      await expect(getMissionValuesPage('en')).rejects.toThrow('missionValuesPage');
+    });
+  });
+
+  describe('getContactPage', () => {
+    it('throws when the document is missing', async () => {
+      mockFetch.mockResolvedValueOnce(null);
+
+      await expect(getContactPage('fr')).rejects.toThrow('contactPage');
+    });
+  });
+
+  describe('paragraphs', () => {
+    it('splits text at blank lines and drops empty paragraphs', () => {
+      expect(paragraphs('One.\n\nTwo,\nstill two.\n\n\n  \nThree.')).toEqual([
+        'One.',
+        'Two,\nstill two.',
+        'Three.',
+      ]);
+    });
+
+    it('returns no paragraphs for empty text', () => {
+      expect(paragraphs(undefined)).toEqual([]);
+      expect(paragraphs('')).toEqual([]);
     });
   });
 

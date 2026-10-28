@@ -1,124 +1,20 @@
 ---
 import { PortableText } from "astro-portabletext";
 import BlockImage from "@/components/portable-text/BlockImage.astro";
-import type {
-  Locale,
-  TeamLevelIdentifier,
-  TeamLevelSection,
-} from "../../utils/sanity";
+import type { Locale, TeamLevelSection } from "../../utils/sanity";
 
 interface Props {
   levels?: TeamLevelSection[];
   locale: Locale;
-  heading?: string;
+  heading?: string | null;
+  intro?: string | null;
 }
 
-const defaultOrder: TeamLevelIdentifier[] = ["youth", "recreational", "competitive", "national-team"];
+const { levels = [], locale, heading, intro }: Props = Astro.props as Props;
 
-const { levels = [], locale, heading }: Props = Astro.props as Props;
-
-const fallbackSummaries: Record<TeamLevelIdentifier, string> =
-  locale === "fr"
-    ? {
-        youth: "Programmes conçus pour développer les habiletés, le travail d'équipe et le plaisir chez les jeunes joueurs.",
-        recreational: "Ligues conviviales axées sur l'apprentissage, la communauté et l'accessibilité.",
-        competitive: "Programmes d'entraînement intensif visant les championnats régionaux et nationaux.",
-        "national-team": "Athlètes représentant le Canada lors de compétitions internationales de haut niveau.",
-      }
-    : {
-        youth: "Programs focused on developing skills, teamwork, and a love of quadball for younger players.",
-        recreational: "Community leagues that emphasize learning, connection, and inclusive play.",
-        competitive: "High-performance environments preparing athletes for regional and national championships.",
-        "national-team": "Athletes representing Canada on the world stage through the Team Canada program.",
-      };
-
-const fallbackTitles: Record<TeamLevelIdentifier, string> =
-  locale === "fr"
-    ? {
-        youth: "Jeunesse",
-        recreational: "Récréatif",
-        competitive: "Compétitif",
-        "national-team": "Équipe nationale",
-      }
-    : {
-        youth: "Youth",
-        recreational: "Recreational",
-        competitive: "Competitive",
-        "national-team": "National Team",
-      };
-
-const fallbackCtas: Partial<Record<TeamLevelIdentifier, { label: string; href: string }>> =
-  locale === "fr"
-    ? {
-        "national-team": {
-          label: "En savoir plus sur Équipe Canada",
-          href: "/fr/equipes/equipe-nationale/",
-        },
-      }
-    : {
-        "national-team": {
-          label: "Learn about Team Canada",
-          href: "/teams/national-team/",
-        },
-      };
-
-function isTeamLevelIdentifier(value: string): value is TeamLevelIdentifier {
-  return ["youth", "recreational", "competitive", "national-team"].includes(value);
-}
-
-const fallbackLevels: Record<TeamLevelIdentifier, TeamLevelSection> = defaultOrder.reduce(
-  (acc, key) => {
-    acc[key] = {
-      identifier: key,
-      title: fallbackTitles[key],
-      summary: fallbackSummaries[key],
-      details: [],
-      cta: fallbackCtas[key],
-    };
-    return acc;
-  },
-  {} as Record<TeamLevelIdentifier, TeamLevelSection>
-);
-
-const overrides = levels.filter((level) => isTeamLevelIdentifier(level.identifier));
-
-const orderFromSanity = overrides.length
-  ? Array.from(new Set(overrides.map((level) => level.identifier).filter(isTeamLevelIdentifier)))
-  : [];
-
-const mergedLevels = overrides.reduce((acc, level) => {
-  const key = level.identifier as TeamLevelIdentifier;
-  acc[key] = {
-    ...acc[key],
-    ...level,
-    details: level.details ?? [],
-    cta: level.cta ?? acc[key]?.cta ?? null,
-    summary: level.summary ?? acc[key]?.summary,
-    title: level.title ?? acc[key]?.title ?? fallbackTitles[key],
-  };
-  return acc;
-}, { ...fallbackLevels });
-
-const displayOrder = (orderFromSanity.length ? orderFromSanity : defaultOrder).reduce(
-  (acc, key) => {
-    if (!acc.includes(key)) {
-      acc.push(key);
-    }
-    return acc;
-  },
-  [] as TeamLevelIdentifier[]
-);
-
-defaultOrder.forEach((key) => {
-  if (!displayOrder.includes(key)) {
-    displayOrder.push(key);
-  }
-});
-
-const displayLevels = displayOrder.map((identifier) => {
-  const level = mergedLevels[identifier];
+const displayLevels = levels.map((level) => {
   const details = level.details ?? [];
-  const hasDetails = Array.isArray(details) && details.length > 0;
+  const hasDetails = details.length > 0;
   const hasCta = Boolean(level.cta?.href && level.cta?.label);
   return {
     ...level,
@@ -145,7 +41,7 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
         <span data-hide-text hidden>{locale === "fr" ? "Masquer les détails" : "Hide details"}</span>
       </button>
     </div>
-    <p>{locale === "fr" ? "Explorez les différents niveaux de jeu disponibles au Canada." : "Explore the different levels of play available across Canada."}</p>
+    {intro && <p>{intro}</p>}
   </header>
   <div class="team-levels__grid">
     {displayLevels.map((level) => (
@@ -153,7 +49,7 @@ const sectionHeading = heading ?? (locale === "fr" ? "Niveaux de jeu" : "Levels 
         <div class="team-levels__summary">
           <span class="team-levels__text">
             <span class="team-levels__title" role="heading" aria-level="3">
-              {level.title ?? fallbackTitles[level.identifier as TeamLevelIdentifier]}
+              {level.title}
             </span>
             {level.summary && <span class="team-levels__excerpt">{level.summary}</span>}
           </span>

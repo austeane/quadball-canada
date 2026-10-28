@@ -26,17 +26,7 @@ const alternate = {
 const metaTitle = article.seo?.metaTitle ?? article.title;
 const metaDescription = article.seo?.metaDescription ?? article.excerpt ?? "Quadball Canada informational article.";
 
-const copy = locale === "fr"
-  ? {
-      ctaText: "Si ce sport vous intéresse, contactez-nous pour savoir comment rejoindre une équipe près de chez vous.",
-      ctaButton: "Nous contacter",
-    }
-  : {
-      ctaText: "If this sounds like the sport for you, reach out to find out how to join a team near you.",
-      ctaButton: "Contact Us",
-    };
-
-const contactPath = locale === "fr" ? "/fr/contact/" : "/contact/";
+const cta = article.cta;
 ---
 
 <Layout title={metaTitle} alternate={alternate} locale={locale} seo={{ title: metaTitle, description: metaDescription }}>
@@ -44,10 +34,18 @@ const contactPath = locale === "fr" ? "/fr/contact/" : "/contact/";
   <section class="info-article">
     <PortableText value={article.content} components={{ type: { image: BlockImage } }} />
 
-    <aside class="info-cta">
-      <p>{copy.ctaText}</p>
-      <a href={contactPath} class="info-cta__button">{copy.ctaButton}</a>
-    </aside>
+    {cta && (cta.heading || cta.body) && (
+      <aside class="info-cta">
+        <p>
+          {cta.heading && <strong>{cta.heading}</strong>}
+          {cta.heading && cta.body && " "}
+          {cta.body}
+        </p>
+        {cta.buttonHref && cta.buttonLabel && (
+          <a href={cta.buttonHref} class="info-cta__button">{cta.buttonLabel}</a>
+        )}
+      </aside>
+    )}
   </section>
 </Layout>
 

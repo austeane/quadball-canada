@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getResourceArticles, getLandingSection, getPageSettings } from "@/utils/sanity";
+import { getResourceArticles, getLandingSection } from "@/utils/sanity";
 import ResourceCard from "@/components/content/ResourceCard.astro";
 
 interface Props {
@@ -14,7 +14,6 @@ const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
 const landingSection = await getLandingSection("resources", locale);
-const pageSettings = await getPageSettings();
 
 // Fetch resources
 const resources = await getResourceArticles(locale);
@@ -61,7 +60,7 @@ const alternate = {
   <PageHero
     title={content.heading}
     subtitle={content.intro}
-    image={pageSettings?.resourcesHeroImage ?? pageSettings?.defaultHeroImage}
+    image={landingSection?.heroImage}
   />
   <section class="section">
     {content.cards && content.cards.length > 0 && (

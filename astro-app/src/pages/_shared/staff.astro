@@ -1,0 +1,64 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import PageSections from "@/components/sections/PageSections.astro";
+import DirectorProfile from "@/components/staff/DirectorProfile.astro";
+import { getStaff, getPage } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+import { pageTitle } from "@/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const [staff, page] = await Promise.all([getStaff(locale), getPage("page-staff", locale)]);
+const isFr = locale === "fr";
+const coordinatorHeading = isFr ? "Coordonnateurs et coordonnatrices" : "Coordinators";
+const emptyState = isFr
+  ? "Revenez bientôt - les profils de notre équipe seront publiés sous peu."
+  : "Check back soon - our staff profiles are being finalized.";
+---
+
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={{ en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" }}
+  locale={locale}
+>
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
+  <section class="staff">
+    {staff.length === 0 ? (
+      <p class="empty-state">{emptyState}</p>
+    ) : (
+      staff.map((director) => (
+        <DirectorProfile director={director} coordinatorHeading={coordinatorHeading} />
+      ))
+    )}
+  </section>
+  <PageSections sections={page.sections} />
+</Layout>
+
+<style>
+  .staff {
+    display: grid;
+    gap: 2rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+    color: var(--brand-ink);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (min-width: 992px) {
+    .staff {
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+  }
+</style>

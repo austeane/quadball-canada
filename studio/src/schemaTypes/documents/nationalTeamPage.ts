@@ -1,9 +1,12 @@
 import {defineType} from 'sanity'
+import {FiFlag} from 'react-icons/fi'
+import {imageWithAlt} from '../helpers/fields'
 
 export default defineType({
   name: 'nationalTeamPage',
   title: 'National Team Page',
   type: 'document',
+  icon: FiFlag,
   fields: [
     {
       name: 'title',
@@ -21,12 +24,7 @@ export default defineType({
           title: 'Subtitle',
           type: 'localeString',
         },
-        {
-          name: 'image',
-          title: 'Hero Image',
-          type: 'image',
-          options: {hotspot: true},
-        },
+        imageWithAlt('image', 'Hero Image'),
       ],
     },
     {
@@ -46,11 +44,17 @@ export default defineType({
           type: 'localeString',
         },
         {
-          name: 'href',
+          name: 'link',
           title: 'Link',
-          type: 'string',
+          type: 'localeUrl',
         },
       ],
+    },
+    {
+      name: 'supportCta',
+      title: 'Fundraising box',
+      type: 'callToAction',
+      description: 'The "Support Team Canada" box at the bottom of the page.',
     },
     {
       name: 'seo',

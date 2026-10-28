@@ -1,18 +1,13 @@
 ---
-import { getInfoArticle, urlForImage } from "../../utils/sanity";
+import { urlForImage, type HomePageData } from "../../utils/sanity";
 import type { Locale } from "../../utils/localization";
 
 interface Props {
   locale: Locale;
-  slug: string;
+  article: NonNullable<HomePageData["featuredArticle"]>;
 }
 
-const { locale, slug } = Astro.props as Props;
-const article = await getInfoArticle(slug, locale);
-
-if (!article) {
-  throw new Error(`Information article not found for slug "${slug}" (${locale}).`);
-}
+const { locale, article } = Astro.props as Props;
 
 const heading = article.title;
 const summary = article.excerpt ?? "";

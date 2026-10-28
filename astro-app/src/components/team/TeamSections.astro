@@ -48,6 +48,8 @@ const copy =
         contactCta: "Contacter l'équipe",
         visitWebsiteCta: "Visiter le site",
         locationLabel: "Localisation",
+        foundedLabel: "Fondée en",
+        homefieldLabel: "Terrain",
         locationFallback: "Lieu à confirmer",
         socialLabel: "Réseaux sociaux",
         socials: {
@@ -66,6 +68,8 @@ const copy =
         contactCta: "Contact Team",
         visitWebsiteCta: "Visit Website",
         locationLabel: "Location",
+        foundedLabel: "Founded",
+        homefieldLabel: "Home field",
         locationFallback: "Location to be confirmed",
         socialLabel: "Social Links",
         socials: {
@@ -149,26 +153,6 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-function getContact(team: TeamSummary) {
-  if (team.email) {
-    return {
-      href: `mailto:${team.email}`,
-      label: copy.contactCta,
-      external: false,
-    };
-  }
-
-  if (team.website) {
-    return {
-      href: team.website,
-      label: copy.visitWebsiteCta,
-      external: true,
-    };
-  }
-
-  return null;
-}
-
 function getSocialLinks(team: TeamSummary) {
   if (!team.socialMedia) return [];
   const entries: SocialLink[] = [];
@@ -233,12 +217,11 @@ if (uncategorizedTeams.length > 0) {
           <h2>{group.heading}</h2>
           <div class="team-group__grid">
             {group.teams.map((team) => {
-              const contact = getContact(team);
               const socialLinks = getSocialLinks(team);
               const location = getLocation(team);
               const logoUrl = team.logo ? urlFor(team.logo).width(160).height(160).fit("max").auto("format").url() : undefined;
               return (
-                <article class="team-card" data-team-card data-province={team.province ?? ""} data-level={group.key}>
+                <article class="team-card" style={team.primaryColor ? `--team-color: ${team.primaryColor}` : undefined} data-team-card data-province={team.province ?? ""} data-level={group.key}>
                   <div class="team-card__media">
                     {logoUrl ? (
                       <img
@@ -260,6 +243,14 @@ if (uncategorizedTeams.length > 0) {
                     <p class="team-card__location">
                       <strong>{copy.locationLabel}:</strong>{" "}{location}
                     </p>
+                    {(team.founded || team.homefield) && (
+                      <p class="team-card__location">
+                        {team.founded && <span>{copy.foundedLabel} {team.founded}</span>}
+                        {team.founded && team.homefield && " · "}
+                        {team.homefield && <span>{copy.homefieldLabel}: {team.homefield}</span>}
+                      </p>
+                    )}
+                    {team.description && <p class="team-card__description">{team.description}</p>}
                     <div class="team-card__actions">
                       {team.email && (
                         <div class="team-card__email">
@@ -389,6 +380,7 @@ if (uncategorizedTeams.length > 0) {
     padding: 1.25rem;
     border-radius: 1rem;
     border: 1px solid rgba(15, 23, 42, 0.08);
+    border-top: 4px solid var(--team-color, rgba(15, 23, 42, 0.08));
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
     transition: transform 150ms ease, box-shadow 150ms ease;
@@ -440,6 +432,12 @@ if (uncategorizedTeams.length > 0) {
     margin: 0;
     color: rgba(15, 23, 42, 0.7);
     font-size: 0.95rem;
+  }
+
+  .team-card__description {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
   .team-card__actions {

@@ -2,8 +2,8 @@
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getEventBidsPage, getPageSettings, urlForImage } from "@/utils/sanity";
-import { formatDate } from "@/utils";
+import { getEventBidsPage, paragraphs, urlForImage } from "@/utils/sanity";
+import { formatDate, pageTitle } from "@/utils";
 import { t } from "@/i18n/ui";
 
 interface Props {
@@ -11,72 +11,47 @@ interface Props {
 }
 
 const { locale } = Astro.props as Props;
-const isFr = locale === "fr";
 
 const page = await getEventBidsPage(locale);
-const pageSettings = await getPageSettings();
+if (!page) {
+  throw new Error('Sanity document "eventBidsPage" is missing.');
+}
 
 const alternate = {
   en: "/events/bids/",
   fr: "/fr/evenements/appels-doffres/",
 };
 
-const hostEventPath = isFr
-  ? "/fr/simpliquer/organiser-un-evenement/"
-  : "/get-involved/host-an-event/";
-
-const whoCanBidKeys = [
-  "eventBids.application.whoCanBid.clubs",
-  "eventBids.application.whoCanBid.members",
-  "eventBids.application.whoCanBid.municipalities",
-  "eventBids.application.whoCanBid.tourism",
-] as const;
-
-const steps = [
-  { key: "eventBids.howToBid.step1" as const },
-  { key: "eventBids.howToBid.step2" as const },
-  { key: "eventBids.howToBid.step3" as const },
-  { key: "eventBids.howToBid.step4" as const },
-];
-
-const selectionParagraphs = [
-  "eventBids.selectionProcess.p1",
-  "eventBids.selectionProcess.p2",
-  "eventBids.selectionProcess.p3",
-  "eventBids.selectionProcess.p4",
-  "eventBids.selectionProcess.p5",
-] as const;
+const contactEmails = page.getInvolved?.contactEmails ?? [];
+const crossLink = page.crossLink;
 
 const statusLabel =
-  page?.currentBids?.status === "open"
+  page.currentBids?.status === "open"
     ? t(locale, "eventBids.status.open")
-    : page?.currentBids?.status === "coming-soon"
+    : page.currentBids?.status === "coming-soon"
       ? t(locale, "eventBids.status.comingSoon")
       : t(locale, "eventBids.status.closed");
 
 const statusClass =
-  page?.currentBids?.status === "open"
+  page.currentBids?.status === "open"
     ? "status-badge--open"
-    : page?.currentBids?.status === "coming-soon"
+    : page.currentBids?.status === "coming-soon"
       ? "status-badge--coming-soon"
       : "status-badge--closed";
 
-const introImageUrl = urlForImage(page?.introImage)?.width(600).height(400).fit("crop").url();
-const selectionImageUrl = urlForImage(page?.selectionImage)?.width(600).height(400).fit("crop").url();
-const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).height(400).fit("crop").url();
+const introImageUrl = urlForImage(page.introImage)?.width(600).height(400).fit("crop").url();
+const selectionImageUrl = urlForImage(page.selectionImage)?.width(600).height(400).fit("crop").url();
+const getInvolvedImageUrl = urlForImage(page.getInvolvedImage)?.width(600).height(400).fit("crop").url();
 ---
 
 <Layout
-  title={`${t(locale, "eventBids.title")} — Quadball Canada`}
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? page.subtitle ?? undefined}
   alternate={alternate}
   locale={locale}
 >
   <!-- 1. PageHero -->
-  <PageHero
-    title={t(locale, "eventBids.title")}
-    subtitle={t(locale, "eventBids.subtitle")}
-    image={pageSettings?.eventsHeroImage ?? pageSettings?.defaultHeroImage}
-  />
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
 
   <div class="page-body">
     <!-- 2. Intro: How Championships Find a Home -->
@@ -84,12 +59,12 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
       <div class="content-box">
         <div class:list={["media-row", { "media-row--has-image": introImageUrl }]}>
           <div>
-            <h2>{isFr ? "Comment les championnats trouvent un lieu d'accueil" : "How Championships Find a Home"}</h2>
-            <p class="section-prose">{t(locale, "eventBids.intro.body")}</p>
+            {page.intro?.heading && <h2>{page.intro.heading}</h2>}
+            {paragraphs(page.intro?.body).map((text) => <p class="section-prose">{text}</p>)}
           </div>
           {introImageUrl && (
             <div class="media-row__img">
-              <img src={introImageUrl} alt={page?.introImage?.alt ?? ""} loading="lazy" />
+              <img src={introImageUrl} alt={page.introImage?.alt ?? ""} loading="lazy" />
             </div>
           )}
         </div>
@@ -99,17 +74,17 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
     <!-- 3. Application Process -->
     <section class="section section--alt">
       <div class="content-box">
-        <span class="section-badge">{t(locale, "eventBids.application.heading")}</span>
+        {page.application?.label && <span class="section-badge">{page.application.label}</span>}
         <div class="two-col">
           <div>
-            <h3>{t(locale, "eventBids.application.howToBid.heading")}</h3>
-            <p class="section-prose">{t(locale, "eventBids.application.howToBid.body")}</p>
+            {page.application?.howToBidHeading && <h3>{page.application.howToBidHeading}</h3>}
+            {paragraphs(page.application?.howToBidBody).map((text) => <p class="section-prose">{text}</p>)}
           </div>
           <div>
-            <h3>{t(locale, "eventBids.application.whoCanBid.heading")}</h3>
+            {page.application?.whoCanBidHeading && <h3>{page.application.whoCanBidHeading}</h3>}
             <ul class="who-list">
-              {whoCanBidKeys.map((key) => (
-                <li>{t(locale, key)}</li>
+              {page.application?.whoCanBid?.map((item) => (
+                <li>{item}</li>
               ))}
             </ul>
           </div>
@@ -119,18 +94,18 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
 
     <!-- 3b. How to Submit a Bid (vertical timeline) -->
     <section class="section">
-      <h2>{t(locale, "eventBids.howToBid.heading")}</h2>
+      {page.steps?.heading && <h2>{page.steps.heading}</h2>}
       <div class="timeline">
-        {steps.map((step, i) => (
+        {page.steps?.items?.map((step, i) => (
           <div class="timeline-step" data-step={String(i + 1)}>
-            <p>{t(locale, step.key)}</p>
+            <p>{step}</p>
           </div>
         ))}
       </div>
     </section>
 
     <!-- 4. Current Bid Cycle -->
-    {page?.currentBids && (
+    {page.currentBids && (
       <section class="section section--alt">
         <h2>{t(locale, "eventBids.currentBids.heading")}</h2>
         <div class="bid-cycle">
@@ -164,7 +139,7 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
       </section>
     )}
 
-    {!page?.currentBids && (
+    {!page.currentBids && (
       <section class="section section--alt">
         <h2>{t(locale, "eventBids.currentBids.heading")}</h2>
         <p>{t(locale, "eventBids.noCurrentCycle")}</p>
@@ -174,19 +149,19 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
     <!-- 5. Selection Process -->
     <section class="section">
       <div class="content-box">
-        <span class="section-badge">{t(locale, "eventBids.selectionProcess.heading")}</span>
+        {page.selection?.label && <span class="section-badge">{page.selection.label}</span>}
         <div class:list={["media-row", { "media-row--has-image": selectionImageUrl }]}>
           <div>
-            <h3>{t(locale, "eventBids.selectionProcess.subheading")}</h3>
+            {page.selection?.heading && <h3>{page.selection.heading}</h3>}
             <div class="prose-stack">
-              {selectionParagraphs.map((key) => (
-                <p>{t(locale, key)}</p>
+              {paragraphs(page.selection?.body).map((text) => (
+                <p>{text}</p>
               ))}
             </div>
           </div>
           {selectionImageUrl && (
             <div class="media-row__img">
-              <img src={selectionImageUrl} alt={page?.selectionImage?.alt ?? ""} loading="lazy" />
+              <img src={selectionImageUrl} alt={page.selectionImage?.alt ?? ""} loading="lazy" />
             </div>
           )}
         </div>
@@ -194,7 +169,7 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
     </section>
 
     <!-- 6. Selected Hosts -->
-    {(page?.domesticHosts.length || page?.internationalHosts.length) && (
+    {(page.domesticHosts.length || page.internationalHosts.length) && (
       <section class="section section--alt">
         <div class="hosts-duo">
           {page.domesticHosts.length > 0 && (
@@ -264,21 +239,26 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
     <!-- 7. Get Involved -->
     <section class="section">
       <div class="content-box">
-        <span class="section-badge">{t(locale, "eventBids.getInvolved.heading")}</span>
+        {page.getInvolved?.label && <span class="section-badge">{page.getInvolved.label}</span>}
         <div class:list={["media-row", { "media-row--has-image": getInvolvedImageUrl }]}>
           <div>
-            <h3>{t(locale, "eventBids.getInvolved.subheading")}</h3>
-            <p class="section-prose">{t(locale, "eventBids.getInvolved.body")}</p>
-            <p class="contact-line">
-              {t(locale, "eventBids.getInvolved.contactPrompt")}{" "}
-              <a href="mailto:hailey@quadballcanada.ca">hailey@quadballcanada.ca</a>{" "}
-              &amp;{" "}
-              <a href="mailto:soleil@quadballcanada.ca">soleil@quadballcanada.ca</a>
-            </p>
+            {page.getInvolved?.heading && <h3>{page.getInvolved.heading}</h3>}
+            {paragraphs(page.getInvolved?.body).map((text) => <p class="section-prose">{text}</p>)}
+            {contactEmails.length > 0 && (
+              <p class="contact-line">
+                {page.getInvolved?.contactPrompt}{" "}
+                {contactEmails.map((email, i) => (
+                  <>
+                    {i > 0 && <>{" "}&amp;{" "}</>}
+                    <a href={`mailto:${email}`}>{email}</a>
+                  </>
+                ))}
+              </p>
+            )}
           </div>
           {getInvolvedImageUrl && (
             <div class="media-row__img">
-              <img src={getInvolvedImageUrl} alt={page?.getInvolvedImage?.alt ?? ""} loading="lazy" />
+              <img src={getInvolvedImageUrl} alt={page.getInvolvedImage?.alt ?? ""} loading="lazy" />
             </div>
           )}
         </div>
@@ -286,15 +266,19 @@ const getInvolvedImageUrl = urlForImage(page?.getInvolvedImage)?.width(600).heig
     </section>
 
     <!-- 8. Cross-link CTA -->
-    <section class="section section--tint">
-      <div class="cross-link">
-        <h2>{t(locale, "eventBids.crossLink.heading")}</h2>
-        <p>{t(locale, "eventBids.crossLink.body")}</p>
-        <a href={hostEventPath} class="btn btn--primary">
-          {t(locale, "eventBids.crossLink.cta")}
-        </a>
-      </div>
-    </section>
+    {crossLink && (crossLink.heading || crossLink.body) && (
+      <section class="section section--tint">
+        <div class="cross-link">
+          {crossLink.heading && <h2>{crossLink.heading}</h2>}
+          {crossLink.body && <p>{crossLink.body}</p>}
+          {crossLink.buttonHref && crossLink.buttonLabel && (
+            <a href={crossLink.buttonHref} class="btn btn--primary">
+              {crossLink.buttonLabel}
+            </a>
+          )}
+        </div>
+      </section>
+    )}
   </div>
 </Layout>
 

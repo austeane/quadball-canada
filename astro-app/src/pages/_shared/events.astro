@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import type { Locale } from "@/utils/localization";
-import { getUpcomingEvents, getLandingSection, getPageSettings } from "@/utils/sanity";
+import { getUpcomingEvents, getLandingSection } from "@/utils/sanity";
 import { formatDate } from "@/utils";
 import { t } from "@/i18n/ui";
 
@@ -15,7 +15,6 @@ const isFr = locale === "fr";
 
 // Fetch landing section content from Sanity
 const landingSection = await getLandingSection("events", locale);
-const pageSettings = await getPageSettings();
 
 // Fetch only the next 3 upcoming events for preview
 const upcomingEvents = await getUpcomingEvents(locale);
@@ -58,7 +57,7 @@ const upcomingPath = isFr ? "/fr/evenements/a-venir/" : "/events/upcoming/";
   <PageHero
     title={content.heading}
     subtitle={content.intro}
-    image={pageSettings?.eventsHeroImage ?? pageSettings?.defaultHeroImage}
+    image={landingSection?.heroImage}
   />
   <section class="section">
     {/* Quick links section */}

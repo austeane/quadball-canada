@@ -2,7 +2,8 @@
 import LanguageSwitcher from "./LanguageSwitcher.astro";
 import type { Locale } from "../../utils/localization";
 import { resolveLocale } from "../../i18n";
-import { t, type TranslationKey } from "../../i18n/ui";
+import { t } from "../../i18n/ui";
+import { getSiteSettings } from "../../utils/sanity";
 
 interface Props {
   currentPath: string;
@@ -16,118 +17,16 @@ const alternate = props.alternate;
 const locale: Locale = resolveLocale(Astro, props.locale);
 const isFr = locale === "fr";
 
-type NavConfig = {
-  labelKey: TranslationKey;
-  href: Record<Locale, string>;
-  dropdown?: Array<{
-    labelKey: TranslationKey;
-    href: Record<Locale, string>;
-    external?: boolean;
-  }>;
-  external?: boolean;
-};
+const settings = await getSiteSettings(locale);
+const isExternal = (href: string) => /^https?:\/\//.test(href);
 
-const navConfig: NavConfig[] = [
-  {
-    labelKey: "nav.announcements",
-    href: { en: "/news/", fr: "/fr/nouvelles/" },
-  },
-  {
-    labelKey: "nav.about",
-    href: { en: "/about/", fr: "/fr/a-propos/" },
-    dropdown: [
-      {
-        labelKey: "nav.about.missionValues",
-        href: { en: "/about/mission-and-values/", fr: "/fr/a-propos/mission-et-valeurs/" },
-      },
-      {
-        labelKey: "nav.about.whatIsQuadball",
-        href: { en: "/info/what-is-quadball/", fr: "/fr/info/quest-ce-que-le-quadball/" },
-      },
-      {
-        labelKey: "nav.about.board",
-        href: { en: "/about/meet-the-board/", fr: "/fr/a-propos/conseil/" },
-      },
-      {
-        labelKey: "nav.about.staff",
-        href: { en: "/about/meet-the-staff/", fr: "/fr/a-propos/equipe/" },
-      },
-      {
-        labelKey: "nav.about.inclusion",
-        href: { en: "/info/inclusion/", fr: "/fr/info/inclusion/" },
-      },
-      {
-        labelKey: "nav.about.nationalTeam",
-        href: { en: "/teams/national-team/", fr: "/fr/equipes/equipe-nationale/" },
-      },
-    ],
-  },
-  {
-    labelKey: "nav.resources",
-    href: { en: "/resources/", fr: "/fr/ressources/" },
-    dropdown: [
-      {
-        labelKey: "nav.resources.policies",
-        href: { en: "/resources/policies/", fr: "/fr/ressources/politiques/" },
-      },
-      {
-        labelKey: "nav.resources.startingTeam",
-        href: { en: "/resources/starting-a-team/", fr: "/fr/ressources/demarrer-une-equipe/" },
-      },
-      {
-        labelKey: "nav.resources.drillBank",
-        href: { en: "https://www.qdrill.app", fr: "https://www.qdrill.app" },
-        external: true,
-      },
-      {
-        labelKey: "nav.resources.tournament",
-        href: { en: "/resources/planning-a-tournament/", fr: "/fr/ressources/planifier-un-tournoi/" },
-      },
-    ],
-  },
-  {
-    labelKey: "nav.events",
-    href: { en: "/events/", fr: "/fr/evenements/" },
-    dropdown: [
-      {
-        labelKey: "nav.events.upcoming",
-        href: { en: "/events/upcoming/", fr: "/fr/evenements/a-venir/" },
-      },
-      {
-        labelKey: "nav.events.bids",
-        href: { en: "/events/bids/", fr: "/fr/evenements/appels-doffres/" },
-      },
-    ],
-  },
-  {
-    labelKey: "nav.getInvolved",
-    href: { en: "/get-involved/", fr: "/fr/simpliquer/" },
-    dropdown: [
-      {
-        labelKey: "nav.getInvolved.findTeam",
-        href: { en: "/teams/", fr: "/fr/equipes/" },
-      },
-      {
-        labelKey: "nav.getInvolved.volunteer",
-        href: { en: "/volunteer-opportunities/", fr: "/fr/benevolat/" },
-      },
-      {
-        labelKey: "nav.getInvolved.host",
-        href: { en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" },
-      },
-    ],
-  },
-];
-
-const navItems = navConfig.map((item) => ({
-  label: t(locale, item.labelKey),
-  href: item.href[locale],
-  external: item.external,
-  dropdown: item.dropdown?.map((child) => ({
-    label: t(locale, child.labelKey),
-    href: child.href[locale],
-    external: child.external,
-  })),
+const navItems = settings.navigation.map((item) => ({
+  label: item.label,
+  href: item.href,
+  external: isExternal(item.href),
+  dropdown: item.children.length
+    ? item.children.map((child) => ({ ...child, external: isExternal(child.href) }))
+    : undefined,
 }));
 
 // Split nav items for desktop centered layout
@@ -149,8 +48,8 @@ const ctaCopy = {
 
 const ctaLinks = {
   contact: isFr ? "/fr/contact/" : "/contact/",
-  store: "https://vcultimate.com/collections/quadball-canada?shpxid=72ea749d-601f-49be-94f8-23c6469b0790",
-  donate: "https://www.paypal.me/quidditchcanada",
+  store: settings.storeUrl,
+  donate: settings.donateUrl,
 };
 ---
 <header class="site-header">
@@ -170,8 +69,8 @@ const ctaLinks = {
           <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
         ))}
         <div class="drawer__actions">
-          <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
-          <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+          {ctaLinks.store && <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>}
+          {ctaLinks.donate && <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>}
           <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
         </div>
         <div class="drawer__lang">
@@ -238,8 +137,8 @@ const ctaLinks = {
           <a href={item.href} aria-current={isActive(item.href) ? "page" : undefined}>{item.label}</a>
         )
       ))}
-      <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>
-      <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>
+      {ctaLinks.store && <a class="btn btn--secondary" href={ctaLinks.store} target="_blank" rel="noopener">{ctaCopy.store}</a>}
+      {ctaLinks.donate && <a class="btn btn--secondary" href={ctaLinks.donate} target="_blank" rel="noopener">{ctaCopy.donate}</a>}
       <a class="btn btn--primary" href={ctaLinks.contact}>{ctaCopy.contact}</a>
     </nav>
   </div>
@@ -534,7 +433,28 @@ const ctaLinks = {
     color: var(--brand-primary);
   }
 
-  @media (max-width: 1024px) {
+  /* Tighter spacing on narrower desktops so the longer French labels fit */
+  @media (max-width: 1400px) {
+    .site-header__bar {
+      gap: 16px;
+    }
+    .site-header__side {
+      gap: 10px;
+    }
+    .site-header__nav {
+      gap: 14px;
+    }
+    .site-header__nav a {
+      font-size: 0.9rem;
+    }
+    .site-header__side .btn {
+      padding: 0.5rem 0.8rem;
+    }
+  }
+
+  /* Switch to the menu button when the desktop menu no longer fits: below 1100px,
+     or below 1320px in French, whose labels are longer */
+  @media (max-width: 1100px) {
     .site-header__bar {
       grid-template-columns: auto 1fr;
     }
@@ -553,6 +473,28 @@ const ctaLinks = {
     .site-header__title {
       justify-self: center;
       margin-right: 40px; /* Balance against menu button */
+    }
+  }
+
+  @media (max-width: 1320px) {
+    :global(html[lang="fr"]) .site-header__bar {
+      grid-template-columns: auto 1fr;
+    }
+
+    :global(html[lang="fr"]) .site-header__side,
+    :global(html[lang="fr"]) .site-header__nav--left,
+    :global(html[lang="fr"]) .site-header__nav--right {
+      display: none;
+    }
+
+    :global(html[lang="fr"]) .drawer {
+      display: block;
+      justify-self: start;
+    }
+
+    :global(html[lang="fr"]) .site-header__title {
+      justify-self: center;
+      margin-right: 40px;
     }
   }
 

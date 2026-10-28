@@ -8,6 +8,10 @@ const {
   PUBLIC_SANITY_DATASET,
 } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 import { defineConfig } from "astro/config";
+
+// Format dates the same way on every machine. CI builds run in UTC, and stored event
+// times are shown as stored, so a laptop in another timezone must not shift them.
+process.env.TZ = "UTC";
 import sitemap from "@astrojs/sitemap";
 
 // Different environments use different variables
@@ -20,6 +24,9 @@ import sanity from "@sanity/astro";
 export default defineConfig({
   site: "https://www.quadballcanada.ca",
   output: "static",
+  // Astro 7 defaults to JSX whitespace rules, which drop the spaces that line breaks used to
+  // create between inline elements. Keep the lossless compression the site was built with.
+  compressHTML: true,
   trailingSlash: "always",
   integrations: [
     sanity({
@@ -27,9 +34,12 @@ export default defineConfig({
       dataset,
       useCdn: false,
       apiVersion: "2024-12-08",
+      // Builds only ever show published content, even if a token with draft access is added later
+      perspective: "published",
     }),
     sitemap({
       entryLimit: 45000,
+      filter: (page) => !page.includes("/404"),
     }),
   ],
 });

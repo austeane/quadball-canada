@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import {imageWithAlt} from '../helpers/fields'
 
 export default defineType({
   name: 'landingSection',
@@ -26,6 +27,7 @@ export default defineType({
       type: 'localeString',
       // English is required inside localeString; French is optional for auto-translation
     }),
+    imageWithAlt('heroImage', 'Banner image', 'Leave empty to use the default banner from Site Settings.'),
     defineField({
       name: 'intro',
       title: 'Introduction Text',

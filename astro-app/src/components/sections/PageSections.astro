@@ -1,0 +1,125 @@
+---
+import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
+import DiscordCta from "./DiscordCta.astro";
+import type { PageSection } from "@/utils/sanity";
+
+interface Props {
+  sections: PageSection[];
+}
+
+const { sections } = Astro.props as Props;
+const components = { type: { image: BlockImage } };
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+---
+
+{sections.length > 0 && (
+  <div class="page-sections">
+    {sections.map((section) => {
+      if (section._type === "textSection") {
+        return (
+          <section class:list={["text-section", { panel: section.style === "panel" }]}>
+            {section.heading && <h2>{section.heading}</h2>}
+            {section.body && <PortableText value={section.body} components={components} />}
+          </section>
+        );
+      }
+      if (section._type === "columnsSection") {
+        return (
+          <div class="columns">
+            {section.columns?.map((column) => (
+              <section>
+                {column.heading && <h2>{column.heading}</h2>}
+                {column.body && <PortableText value={column.body} components={components} />}
+              </section>
+            ))}
+          </div>
+        );
+      }
+      const cta = section.cta;
+      if (!cta) return null;
+      if (cta.buttonHref?.includes("discord")) {
+        return <DiscordCta cta={cta} />;
+      }
+      return (
+        <section class:list={["cta", { "cta--alt": section.style === "light" }]}>
+          {cta.heading && <h2>{cta.heading}</h2>}
+          {cta.body && <p>{cta.body}</p>}
+          {cta.buttonHref && cta.buttonLabel && (
+            <a
+              class="btn"
+              href={cta.buttonHref}
+              target={isExternal(cta.buttonHref) ? "_blank" : undefined}
+              rel={isExternal(cta.buttonHref) ? "noopener" : undefined}
+            >
+              {cta.buttonLabel}
+            </a>
+          )}
+        </section>
+      );
+    })}
+  </div>
+)}
+
+<style>
+  .page-sections {
+    padding: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .columns {
+    display: grid;
+    gap: 2rem;
+  }
+  .columns section {
+    background: var(--bg-secondary, #f8f9fa);
+    border-radius: 12px;
+    padding: 1.75rem;
+  }
+  .panel {
+    background: var(--bg-secondary, #f1f5f9);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+  .text-section > :global(p:first-child) {
+    margin-top: 0;
+  }
+  .cta {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border-radius: 12px;
+    background: var(--brand-tint);
+  }
+  .cta .btn {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .cta p {
+    margin: 0 auto;
+    max-width: 48ch;
+  }
+  .cta .btn:hover { background: var(--brand-ink); }
+  .cta--alt {
+    background: var(--bg-secondary, #f1f5f9);
+  }
+  .page-sections :global(ul),
+  .page-sections :global(ol) {
+    margin: 1rem 0 0;
+    padding-left: 1.25rem;
+  }
+  .page-sections :global(li) {
+    margin: 0.75rem 0;
+  }
+  @media (min-width: 768px) {
+    .columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

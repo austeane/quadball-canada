@@ -1,0 +1,42 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Page not found — Quadball Canada" locale="en" seo={{ description: "This page doesn't exist." }}>
+  <section class="not-found">
+    <h1>Page not found</h1>
+    <p>Sorry, we couldn't find that page. It may have moved.</p>
+    <a class="btn" href="/">Go to the home page</a>
+    <hr />
+    <h2 lang="fr">Page introuvable</h2>
+    <p lang="fr">Désolé, nous n'avons pas trouvé cette page. Elle a peut-être été déplacée.</p>
+    <a class="btn" href="/fr/" lang="fr">Aller à la page d'accueil</a>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    padding: 4rem 0;
+    max-width: 40rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .not-found hr {
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+  .btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.8rem 1.6rem;
+    background: var(--brand-primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .btn:hover {
+    background: var(--brand-ink);
+  }
+</style>

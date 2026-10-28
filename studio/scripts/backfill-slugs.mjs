@@ -25,18 +25,14 @@ const LOCALE_SLUG_TYPES = {
   event: 'title',
   infoArticle: 'title',
   eventHub: 'title',
-  page: 'title',
   newsArticle: 'title',
   resourceArticle: 'title',
 }
 // plain slug types and the path to their source value.
 const PLAIN_SLUG_TYPES = {
-  author: 'name',
   boardMember: 'name',
-  player: 'name',
   staffMember: 'name',
   team: 'name',
-  post: 'title',
   volunteerOpportunity: 'title.en',
 }
 

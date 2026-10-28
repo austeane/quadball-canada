@@ -1,35 +1,121 @@
-import {defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
+import {FiAward} from 'react-icons/fi'
+import {heroFields, imageWithAlt, seoField} from '../helpers/fields'
+
+const paragraphsHint = 'Leave a blank line between paragraphs.'
 
 export default defineType({
   name: 'eventBidsPage',
   title: 'Event Bids Page',
   type: 'document',
+  icon: FiAward,
+  groups: [
+    {name: 'intro', title: 'Banner & intro', default: true},
+    {name: 'application', title: 'Application'},
+    {name: 'cycle', title: 'Current bid cycle'},
+    {name: 'selection', title: 'Selection'},
+    {name: 'hosts', title: 'Selected hosts'},
+    {name: 'getInvolved', title: 'Get involved'},
+  ],
   fields: [
+    ...heroFields.map((field) => ({...field, group: 'intro'})),
+    defineField({
+      name: 'intro',
+      title: 'Intro',
+      type: 'object',
+      group: 'intro',
+      fields: [
+        defineField({name: 'heading', title: 'Heading', type: 'localeString'}),
+        defineField({name: 'body', title: 'Text', type: 'localeText', description: paragraphsHint}),
+      ],
+    }),
     {
-      name: 'introImage',
-      title: 'Intro Section Image',
-      type: 'image',
-      options: {hotspot: true},
-      description: 'Photo shown beside "How Championships Find a Home"',
+      ...imageWithAlt('introImage', 'Intro image', 'Photo shown beside the intro.'),
+      group: 'intro',
     },
+    defineField({
+      name: 'application',
+      title: 'Application process',
+      type: 'object',
+      group: 'application',
+      fields: [
+        defineField({name: 'label', title: 'Section label', type: 'localeString'}),
+        defineField({name: 'howToBidHeading', title: '"How to bid" heading', type: 'localeString'}),
+        defineField({name: 'howToBidBody', title: '"How to bid" text', type: 'localeText', description: paragraphsHint}),
+        defineField({name: 'whoCanBidHeading', title: '"Who can bid" heading', type: 'localeString'}),
+        defineField({
+          name: 'whoCanBid',
+          title: 'Who can bid',
+          type: 'array',
+          of: [defineArrayMember({type: 'localeString'})],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'steps',
+      title: 'Submission steps',
+      type: 'object',
+      group: 'application',
+      fields: [
+        defineField({name: 'heading', title: 'Heading', type: 'localeString'}),
+        defineField({
+          name: 'items',
+          title: 'Steps',
+          type: 'array',
+          description: 'Shown as a numbered timeline, in this order.',
+          of: [defineArrayMember({type: 'localeText'})],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'selection',
+      title: 'Selection process',
+      type: 'object',
+      group: 'selection',
+      fields: [
+        defineField({name: 'label', title: 'Section label', type: 'localeString'}),
+        defineField({name: 'heading', title: 'Heading', type: 'localeString'}),
+        defineField({name: 'body', title: 'Text', type: 'localeText', description: paragraphsHint}),
+      ],
+    }),
     {
-      name: 'selectionImage',
-      title: 'Selection Process Image',
-      type: 'image',
-      options: {hotspot: true},
-      description: 'Photo shown beside "How does your bid win?"',
+      ...imageWithAlt('selectionImage', 'Selection image', 'Photo shown beside the selection process.'),
+      group: 'selection',
     },
+    defineField({
+      name: 'getInvolved',
+      title: 'Get involved',
+      type: 'object',
+      group: 'getInvolved',
+      fields: [
+        defineField({name: 'label', title: 'Section label', type: 'localeString'}),
+        defineField({name: 'heading', title: 'Heading', type: 'localeString'}),
+        defineField({name: 'body', title: 'Text', type: 'localeText', description: paragraphsHint}),
+        defineField({name: 'contactPrompt', title: 'Contact line', type: 'localeString'}),
+        defineField({
+          name: 'contactEmails',
+          title: 'Contact emails',
+          type: 'array',
+          of: [defineArrayMember({type: 'email'})],
+        }),
+      ],
+    }),
     {
-      name: 'getInvolvedImage',
-      title: 'Get Involved Image',
-      type: 'image',
-      options: {hotspot: true},
-      description: 'Photo shown beside "How do I bring an event to my community?"',
+      ...imageWithAlt('getInvolvedImage', 'Get involved image', 'Photo shown beside the get involved section.'),
+      group: 'getInvolved',
     },
+    defineField({
+      name: 'crossLink',
+      title: 'Grassroots events box',
+      type: 'callToAction',
+      group: 'getInvolved',
+      description: 'The box at the bottom pointing to Host an Event.',
+    }),
     {
       name: 'domesticHosts',
       title: 'Selected Hosts — Domestic',
       type: 'array',
+      group: 'hosts',
       of: [
         {
           type: 'object',
@@ -70,6 +156,7 @@ export default defineType({
       name: 'internationalHosts',
       title: 'Selected Hosts — International',
       type: 'array',
+      group: 'hosts',
       of: [
         {
           type: 'object',
@@ -116,6 +203,7 @@ export default defineType({
       name: 'currentBids',
       title: 'Current Bid Cycle',
       type: 'object',
+      group: 'cycle',
       fields: [
         {
           name: 'status',
@@ -163,29 +251,7 @@ export default defineType({
         },
       ],
     },
-    {
-      name: 'seo',
-      title: 'SEO',
-      type: 'object',
-      fields: [
-        {
-          name: 'metaTitle',
-          title: 'Meta Title',
-          type: 'localeString',
-        },
-        {
-          name: 'metaDescription',
-          title: 'Meta Description',
-          type: 'localeText',
-        },
-        {
-          name: 'ogImage',
-          title: 'Open Graph Image',
-          type: 'image',
-          options: {hotspot: true},
-        },
-      ],
-    },
+    {...seoField, group: 'intro'},
   ],
   preview: {
     prepare() {

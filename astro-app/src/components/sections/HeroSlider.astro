@@ -1,26 +1,28 @@
 ---
-import type { Locale } from "../../utils/localization";
-import { resolveLocale } from "../../i18n";
-import { t } from "../../i18n/ui";
+import { urlForImage, type HomePageData } from "../../utils/sanity";
 
 interface Props {
-  locale?: Locale;
-  title?: string;
-  subtitle?: string;
-  ctaHref?: string;
-  ctaLabel?: string;
+  hero: NonNullable<HomePageData["hero"]>;
 }
 
-const props = Astro.props as Props;
-const locale: Locale = resolveLocale(Astro, props.locale);
-
-const title = props.title ?? t(locale, "hero.title");
-const subtitle = props.subtitle ?? t(locale, "hero.subtitle");
-const defaultCtaHref = locale === "fr" ? "/fr/simpliquer/" : "/get-involved/";
-const ctaHref = props.ctaHref ?? defaultCtaHref;
-const ctaLabel = props.ctaLabel ?? t(locale, "hero.cta");
+const { hero } = Astro.props as Props;
+const image = hero.image?.asset ? hero.image : null;
+const imageUrl = (width: number) => urlForImage(image)?.width(width).height(Math.round(width * 0.5625)).auto("format").url();
 ---
 <section class="hero">
+  {image ? (
+    <img
+      class="hero__img"
+      src={imageUrl(1280)}
+      srcset={`${imageUrl(800)} 800w, ${imageUrl(1280)} 1280w, ${imageUrl(1920)} 1920w, ${imageUrl(2560)} 2560w`}
+      sizes="100vw"
+      width="1920"
+      height="1080"
+      alt={image.alt ?? ""}
+      loading="eager"
+      fetchpriority="high"
+      decoding="async" />
+  ) : (
   <picture>
     <source
       type="image/avif"
@@ -42,11 +44,12 @@ const ctaLabel = props.ctaLabel ?? t(locale, "hero.cta");
       fetchpriority="high"
       decoding="async" />
   </picture>
+  )}
   <div class="hero__overlay">
     <div class="hero__content">
-      <h1 class="hero__title">{title}</h1>
-      <p class="hero__subtitle">{subtitle}</p>
-      <a class="btn btn--hero" href={ctaHref}>{ctaLabel}</a>
+      {hero.title && <h1 class="hero__title">{hero.title}</h1>}
+      {hero.subtitle && <p class="hero__subtitle">{hero.subtitle}</p>}
+      {hero.buttonHref && hero.buttonLabel && <a class="btn btn--hero" href={hero.buttonHref}>{hero.buttonLabel}</a>}
     </div>
   </div>
 </section>

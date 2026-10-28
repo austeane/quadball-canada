@@ -22,6 +22,7 @@ export type LandingSection = {
   intro: string;
   showContent: boolean;
   cards: LandingCard[];
+  heroImage?: SanityImageWithAlt | null;
 };
 
 // Image URL builder
@@ -40,6 +41,22 @@ export interface SanityImageWithAlt {
   hotspot?: Record<string, unknown>;
   [key: string]: unknown;
 }
+
+export interface CallToAction {
+  heading?: string | null;
+  body?: string | null;
+  buttonLabel?: string | null;
+  buttonHref?: string | null;
+}
+
+// GROQ projections shared by the queries below; $locale picks the English or French value.
+const IMAGE = `{ ..., "alt": coalesce(alt[$locale], alt.en) }`;
+const CTA = `{
+  "heading": coalesce(heading[$locale], heading.en),
+  "body": coalesce(body[$locale], body.en),
+  "buttonLabel": coalesce(buttonLabel[$locale], buttonLabel.en),
+  "buttonHref": coalesce(buttonLink[$locale], buttonLink.en)
+}`;
 
 export interface NewsArticleSummary {
   _id: string;
@@ -94,6 +111,17 @@ export interface EventDetail extends EventSummary {
     address?: string;
     type?: "physical" | "online" | "hybrid";
   };
+  featuredImage?: SanityImageWithAlt | null;
+  registration?: {
+    required?: boolean;
+    url?: string | null;
+    deadline?: string | null;
+    price?: number | null;
+    capacity?: number | null;
+  } | null;
+  documents?: { title?: string | null; url: string }[] | null;
+  teams?: { name: string; slug?: string | null }[] | null;
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
 }
 
 export interface TeamSummary {
@@ -117,6 +145,9 @@ export interface TeamSummary {
   active?: boolean;
   isAffiliate?: boolean;
   seasonNote?: string | null;
+  founded?: number | null;
+  homefield?: string | null;
+  primaryColor?: string | null;
 }
 
 export interface VolunteerOpportunitySummary {
@@ -153,12 +184,11 @@ export interface TeamsPageData {
   title: string;
   intro: PortableTextBlock[];
   levels: TeamLevelSection[];
-  cta?: {
-    heading?: string;
-    body?: string | null;
-    buttonLabel?: string;
-    buttonHref?: string;
-  } | null;
+  levelsHeading?: string | null;
+  levelsIntro?: string | null;
+  heroImage?: SanityImageWithAlt | null;
+  cta?: CallToAction | null;
+  communityCta?: CallToAction | null;
 }
 
 export interface InfoArticleSummary {
@@ -173,6 +203,7 @@ export interface InfoArticleSummary {
 export interface InfoArticleDetail extends InfoArticleSummary {
   content: PortableTextBlock[];
   heroImage?: SanityImageWithAlt | null;
+  cta?: CallToAction | null;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -235,20 +266,6 @@ export interface BoardMember {
 type StaffDirectorQueryResult = Omit<StaffDirector, "coordinators"> & {
   coordinators?: StaffCoordinator[] | null;
 };
-
-export interface AboutPageData {
-  _id: string;
-  title: string;
-  subtitle?: string;
-  heroCtaText?: string;
-  heroCtaHref?: string;
-  content: PortableTextBlock[];
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-    ogImage?: SanityImageWithAlt | null;
-  } | null;
-}
 
 export async function getNewsArticles(locale: Locale = "en"): Promise<NewsArticleSummary[]> {
   return await sanityClient.fetch(
@@ -342,6 +359,7 @@ export interface NationalTeamPage {
     label?: string;
     href?: string;
   } | null;
+  supportCta?: CallToAction | null;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -401,6 +419,17 @@ export async function getEvent(slug: string, locale: Locale = "en"): Promise<Eve
         "name": coalesce(location.name[$locale], location.name.en),
         "address": location.address,
         "type": location.type
+      },
+      featuredImage${IMAGE},
+      registration{ required, url, deadline, price, capacity },
+      "documents": documents[defined(asset)]{
+        "title": coalesce(title[$locale], title.en, asset->originalFilename),
+        "url": asset->url
+      },
+      "teams": teams[]->{ name, "slug": slug.current },
+      seo{
+        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en)
       }
     }`,
     { slug, locale }
@@ -415,21 +444,17 @@ export async function getTeams(locale: Locale = "en"): Promise<TeamSummary[]> {
       "slug": slug.current,
       city,
       province,
-      "levelOfPlay": coalesce(
-        levelOfPlay,
-        select(
-          contactLevel == "full-contact" => "competitive",
-          contactLevel == "recreational" => "recreational",
-          contactLevel
-        )
-      ),
+      levelOfPlay,
       division,
       email,
       website,
       active,
       isAffiliate,
-      seasonNote,
+      "seasonNote": coalesce(seasonNote[$locale], seasonNote.en),
       "description": coalesce(description[$locale], description.en),
+      founded,
+      "homefield": homefield.name,
+      "primaryColor": primaryColor.hex,
       logo{
         ...,
         "alt": coalesce(alt[$locale], alt.en)
@@ -452,7 +477,7 @@ export async function getVolunteerOpportunities(
       "summary": coalesce(summary[$locale], summary.en),
       roleType,
       timeCommitment,
-      location,
+      "location": coalesce(location[$locale], location.en, location),
       province,
       isRemote,
       deadline,
@@ -467,9 +492,12 @@ export async function getVolunteerOpportunities(
 
 export async function getTeamsPage(locale: Locale = "en"): Promise<TeamsPageData | null> {
   const page = await sanityClient.fetch(
-    groq`*[_type == "teamsPage"][0] {
+    groq`*[_id == "teamsPage"][0] {
       "title": coalesce(title[$locale], title.en),
       "intro": coalesce(intro[$locale], intro.en),
+      heroImage${IMAGE},
+      "levelsHeading": coalesce(levelsHeading[$locale], levelsHeading.en),
+      "levelsIntro": coalesce(levelsIntro[$locale], levelsIntro.en),
       levels[]{
         "identifier": identifier,
         "title": coalesce(title[$locale], title.en),
@@ -477,15 +505,11 @@ export async function getTeamsPage(locale: Locale = "en"): Promise<TeamsPageData
         "details": coalesce(details[$locale], details.en),
         cta{
           "label": coalesce(label[$locale], label.en),
-          href
+          "href": coalesce(link[$locale], link.en)
         }
       },
-      cta{
-        "heading": coalesce(heading[$locale], heading.en),
-        "body": coalesce(body[$locale], body.en),
-        "buttonLabel": coalesce(buttonLabel[$locale], buttonLabel.en),
-        buttonHref
-      }
+      cta${CTA},
+      communityCta${CTA}
     }`,
     { locale }
   );
@@ -568,17 +592,12 @@ export async function getInfoArticle(
       "slugFr": slug.fr.current,
       "excerpt": coalesce(excerpt[$locale], excerpt.en),
       "content": coalesce(content[$locale], content.en),
-      heroImage{
-        ...,
-        "alt": coalesce(alt[$locale], alt.en)
-      },
+      heroImage${IMAGE},
+      cta${CTA},
       seo {
         "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
         "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
-        ogImage{
-          ...,
-          "alt": coalesce(alt[$locale], alt.en)
-        }
+        ogImage${IMAGE}
       }
     }`,
     { slug, locale }
@@ -591,37 +610,6 @@ export async function getInfoArticle(
   return {
     ...article,
     content: article.content ?? [],
-  };
-}
-
-export async function getAboutPage(locale: Locale = "en"): Promise<AboutPageData | null> {
-  const page = await sanityClient.fetch(
-    groq`*[_type == "aboutPage"][0] {
-      _id,
-      "title": coalesce(title[$locale], title.en),
-      "subtitle": coalesce(subtitle[$locale], subtitle.en),
-      "heroCtaText": coalesce(heroCtaText[$locale], heroCtaText.en),
-      heroCtaHref,
-      "content": coalesce(content[$locale], content.en),
-      seo {
-        "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
-        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
-        ogImage{
-          ...,
-          "alt": coalesce(alt[$locale], alt.en)
-        }
-      }
-    }`,
-    { locale }
-  );
-
-  if (!page) {
-    return null;
-  }
-
-  return {
-    ...page,
-    content: page.content ?? [],
   };
 }
 
@@ -710,7 +698,7 @@ export async function getResourceArticle(
 
 export async function getNationalTeamPage(locale: Locale = "en"): Promise<NationalTeamPage | null> {
   const page = await sanityClient.fetch(
-    groq`*[_type == "nationalTeamPage"][0] {
+    groq`*[_id == "nationalTeamPage"][0] {
       "title": coalesce(title[$locale], title.en),
       hero{
         "subtitle": coalesce(subtitle[$locale], subtitle.en),
@@ -722,8 +710,9 @@ export async function getNationalTeamPage(locale: Locale = "en"): Promise<Nation
       "content": coalesce(content[$locale], content.en),
       cta{
         "label": coalesce(label[$locale], label.en),
-        href
+        "href": coalesce(link[$locale], link.en)
       },
+      supportCta${CTA},
       seo{
         "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
         "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
@@ -746,46 +735,9 @@ export async function getNationalTeamPage(locale: Locale = "en"): Promise<Nation
     heroImage: page.hero?.image ?? null,
     content: page.content ?? [],
     cta: page.cta ?? null,
+    supportCta: page.supportCta ?? null,
     seo: page.seo ?? null,
   };
-}
-
-export interface PageSettings {
-  aboutHeroImage?: SanityImageWithAlt | null;
-  contactHeroImage?: SanityImageWithAlt | null;
-  eventsHeroImage?: SanityImageWithAlt | null;
-  getInvolvedHeroImage?: SanityImageWithAlt | null;
-  teamsHeroImage?: SanityImageWithAlt | null;
-  newsHeroImage?: SanityImageWithAlt | null;
-  resourcesHeroImage?: SanityImageWithAlt | null;
-  policiesHeroImage?: SanityImageWithAlt | null;
-  startingTeamHeroImage?: SanityImageWithAlt | null;
-  hostEventHeroImage?: SanityImageWithAlt | null;
-  volunteerHeroImage?: SanityImageWithAlt | null;
-  boardHeroImage?: SanityImageWithAlt | null;
-  staffHeroImage?: SanityImageWithAlt | null;
-  defaultHeroImage?: SanityImageWithAlt | null;
-}
-
-export async function getPageSettings(): Promise<PageSettings | null> {
-  return await sanityClient.fetch(
-    groq`*[_type == "pageSettings"][0] {
-      aboutHeroImage,
-      contactHeroImage,
-      eventsHeroImage,
-      getInvolvedHeroImage,
-      teamsHeroImage,
-      newsHeroImage,
-      resourcesHeroImage,
-      policiesHeroImage,
-      startingTeamHeroImage,
-      hostEventHeroImage,
-      volunteerHeroImage,
-      boardHeroImage,
-      staffHeroImage,
-      defaultHeroImage
-    }`
-  );
 }
 
 // Display order on the policies pages
@@ -860,25 +812,73 @@ export interface CurrentBids {
 }
 
 export interface EventBidsPageData {
+  title: string;
+  subtitle?: string | null;
+  heroImage?: SanityImageWithAlt | null;
+  intro?: { heading?: string | null; body?: string | null } | null;
+  application?: {
+    label?: string | null;
+    howToBidHeading?: string | null;
+    howToBidBody?: string | null;
+    whoCanBidHeading?: string | null;
+    whoCanBid?: string[] | null;
+  } | null;
+  steps?: { heading?: string | null; items?: string[] | null } | null;
+  selection?: { label?: string | null; heading?: string | null; body?: string | null } | null;
+  getInvolved?: {
+    label?: string | null;
+    heading?: string | null;
+    body?: string | null;
+    contactPrompt?: string | null;
+    contactEmails?: string[] | null;
+  } | null;
+  crossLink?: CallToAction | null;
   domesticHosts: HostAward[];
   internationalHosts: HostAward[];
   currentBids?: CurrentBids | null;
   introImage?: SanityImageWithAlt | null;
   selectionImage?: SanityImageWithAlt | null;
   getInvolvedImage?: SanityImageWithAlt | null;
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-    ogImage?: SanityImageWithAlt | null;
-  } | null;
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
 }
 
 export async function getEventBidsPage(locale: Locale = "en"): Promise<EventBidsPageData | null> {
   const page = await sanityClient.fetch(
-    groq`*[_type == "eventBidsPage"][0] {
-      introImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
-      selectionImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
-      getInvolvedImage{ ..., "alt": coalesce(alt[$locale], alt.en) },
+    groq`*[_id == "eventBidsPage"][0] {
+      "title": coalesce(title[$locale], title.en),
+      "subtitle": coalesce(subtitle[$locale], subtitle.en),
+      heroImage${IMAGE},
+      intro{
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en)
+      },
+      application{
+        "label": coalesce(label[$locale], label.en),
+        "howToBidHeading": coalesce(howToBidHeading[$locale], howToBidHeading.en),
+        "howToBidBody": coalesce(howToBidBody[$locale], howToBidBody.en),
+        "whoCanBidHeading": coalesce(whoCanBidHeading[$locale], whoCanBidHeading.en),
+        "whoCanBid": whoCanBid[]{ "text": coalesce(@[$locale], @.en) }.text
+      },
+      steps{
+        "heading": coalesce(heading[$locale], heading.en),
+        "items": items[]{ "text": coalesce(@[$locale], @.en) }.text
+      },
+      selection{
+        "label": coalesce(label[$locale], label.en),
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en)
+      },
+      getInvolved{
+        "label": coalesce(label[$locale], label.en),
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en),
+        "contactPrompt": coalesce(contactPrompt[$locale], contactPrompt.en),
+        contactEmails
+      },
+      crossLink${CTA},
+      introImage${IMAGE},
+      selectionImage${IMAGE},
+      getInvolvedImage${IMAGE},
       domesticHosts[] {
         "eventName": coalesce(eventName[$locale], eventName.en),
         hostCity,
@@ -902,11 +902,7 @@ export async function getEventBidsPage(locale: Locale = "en"): Promise<EventBids
       },
       seo {
         "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
-        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en),
-        ogImage{
-          ...,
-          "alt": coalesce(alt[$locale], alt.en)
-        }
+        "metaDescription": coalesce(metaDescription[$locale], metaDescription.en)
       }
     }`,
     { locale }
@@ -1148,12 +1144,13 @@ export async function getEventHub(
 // Fetch landing section data
 export async function getLandingSection(key: string, locale: Locale): Promise<LandingSection | null> {
   const query = groq`
-    *[_type == "landingSection" && key == $key][0] {
+    *[_id == "landingSection-" + $key][0] {
       _id,
       key,
       "title": coalesce(title[$locale], title.en),
       "intro": coalesce(intro[$locale], intro.en),
       showContent,
+      heroImage${IMAGE},
       cards[] {
         "title": coalesce(title[$locale], title.en),
         "body": coalesce(body[$locale], body.en),
@@ -1166,4 +1163,243 @@ export async function getLandingSection(key: string, locale: Locale): Promise<La
 
   const result = await sanityClient.fetch(query, { key, locale });
   return result;
+}
+
+// Page documents. Each one has a fixed ID and is listed by name in the Studio sidebar.
+
+export interface PageSection {
+  _type: "textSection" | "columnsSection" | "ctaSection";
+  _key: string;
+  heading?: string | null;
+  body?: PortableTextBlock[] | null;
+  style?: "plain" | "panel" | "primary" | "light" | null;
+  columns?: { _key: string; heading?: string | null; body?: PortableTextBlock[] | null }[] | null;
+  cta?: CallToAction | null;
+}
+
+export interface PageData {
+  title: string;
+  subtitle?: string | null;
+  heroImage?: SanityImageWithAlt | null;
+  sections: PageSection[];
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
+}
+
+export type PageId =
+  | "page-board"
+  | "page-staff"
+  | "page-policies"
+  | "page-news"
+  | "page-upcomingEvents"
+  | "page-volunteer"
+  | "page-hostEvent";
+
+const SEO = `seo{
+  "metaTitle": coalesce(metaTitle[$locale], metaTitle.en),
+  "metaDescription": coalesce(metaDescription[$locale], metaDescription.en)
+}`;
+
+export async function getPage(id: PageId, locale: Locale): Promise<PageData> {
+  const page = await sanityClient.fetch(
+    groq`*[_id == $id][0] {
+      "title": coalesce(title[$locale], title.en),
+      "subtitle": coalesce(subtitle[$locale], subtitle.en),
+      heroImage${IMAGE},
+      sections[]{
+        _type,
+        _key,
+        style,
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en),
+        columns[]{
+          _key,
+          "heading": coalesce(heading[$locale], heading.en),
+          "body": coalesce(body[$locale], body.en)
+        },
+        cta${CTA}
+      },
+      ${SEO}
+    }`,
+    { id, locale }
+  );
+  if (!page) {
+    throw new Error(`Sanity document "${id}" is missing; it should exist for its page to build.`);
+  }
+  return { ...page, sections: page.sections ?? [] };
+}
+
+export interface MenuLink {
+  label: string;
+  href: string;
+}
+
+export interface SiteSettings {
+  navigation: (MenuLink & { children: MenuLink[] })[];
+  storeUrl?: string | null;
+  donateUrl?: string | null;
+  footerColumns: { title: string; links: MenuLink[] }[];
+  charityNumber?: string | null;
+  socialLinks: { platform: string; url: string }[];
+  siteDescription?: string | null;
+  defaultHeroImage?: SanityImageWithAlt | null;
+}
+
+const LINK = `{
+  "label": coalesce(label[$locale], label.en),
+  "href": coalesce(link[$locale], link.en)
+}`;
+
+// Every page renders the header and footer, so fetch the settings once per locale per build
+const siteSettingsCache = new Map<Locale, Promise<SiteSettings>>();
+
+export function getSiteSettings(locale: Locale): Promise<SiteSettings> {
+  let settings = siteSettingsCache.get(locale);
+  if (!settings) {
+    settings = sanityClient
+      .fetch(
+        groq`*[_id == "siteSettings"][0] {
+          "navigation": navigation[]{
+            "label": coalesce(label[$locale], label.en),
+            "href": coalesce(link[$locale], link.en),
+            "children": coalesce(children[]${LINK}, [])
+          },
+          storeUrl,
+          donateUrl,
+          "footerColumns": footerColumns[]{
+            "title": coalesce(title[$locale], title.en),
+            "links": coalesce(links[]${LINK}, [])
+          },
+          charityNumber,
+          "socialLinks": socialLinks[defined(url)]{ platform, url },
+          "siteDescription": coalesce(siteDescription[$locale], siteDescription.en),
+          defaultHeroImage${IMAGE}
+        }`,
+        { locale }
+      )
+      .then((data: Partial<SiteSettings> | null) => ({
+        ...data,
+        navigation: data?.navigation ?? [],
+        footerColumns: data?.footerColumns ?? [],
+        socialLinks: data?.socialLinks ?? [],
+      }));
+    siteSettingsCache.set(locale, settings);
+  }
+  return settings;
+}
+
+export interface HomePageData {
+  hero?: {
+    title?: string | null;
+    subtitle?: string | null;
+    buttonLabel?: string | null;
+    buttonHref?: string | null;
+    image?: SanityImageWithAlt | null;
+  } | null;
+  featuredArticle?: {
+    title: string;
+    slug?: string | null;
+    excerpt?: string | null;
+    heroImage?: SanityImageWithAlt | null;
+  } | null;
+  support?: {
+    heading?: string | null;
+    body?: string | null;
+    donateLabel?: string | null;
+    donateUrl?: string | null;
+    sponsorshipLabel?: string | null;
+    sponsorshipEmail?: string | null;
+  } | null;
+}
+
+export async function getHomePage(locale: Locale): Promise<HomePageData> {
+  const page = await sanityClient.fetch(
+    groq`*[_id == "homePage"][0] {
+      hero{
+        "title": coalesce(title[$locale], title.en),
+        "subtitle": coalesce(subtitle[$locale], subtitle.en),
+        "buttonLabel": coalesce(buttonLabel[$locale], buttonLabel.en),
+        "buttonHref": coalesce(buttonLink[$locale], buttonLink.en),
+        image${IMAGE}
+      },
+      featuredArticle->{
+        "title": coalesce(title[$locale], title.en),
+        "slug": slug[$locale].current,
+        "excerpt": coalesce(excerpt[$locale], excerpt.en),
+        heroImage${IMAGE}
+      },
+      support{
+        "heading": coalesce(heading[$locale], heading.en),
+        "body": coalesce(body[$locale], body.en),
+        "donateLabel": coalesce(donateLabel[$locale], donateLabel.en),
+        donateUrl,
+        "sponsorshipLabel": coalesce(sponsorshipLabel[$locale], sponsorshipLabel.en),
+        sponsorshipEmail
+      }
+    }`,
+    { locale }
+  );
+  return page ?? {};
+}
+
+export interface MissionValuesPageData {
+  title: string;
+  mission: string;
+  values: { title: string; description?: string | null }[];
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
+}
+
+export async function getMissionValuesPage(locale: Locale): Promise<MissionValuesPageData> {
+  const page = await sanityClient.fetch(
+    groq`*[_id == "missionValuesPage"][0] {
+      "title": coalesce(title[$locale], title.en),
+      "mission": coalesce(mission[$locale], mission.en),
+      "values": coalesce(values[]{
+        "title": coalesce(title[$locale], title.en),
+        "description": coalesce(description[$locale], description.en)
+      }, []),
+      ${SEO}
+    }`,
+    { locale }
+  );
+  if (!page) {
+    throw new Error('Sanity document "missionValuesPage" is missing.');
+  }
+  return page;
+}
+
+export interface ContactPageData {
+  title: string;
+  subtitle?: string | null;
+  cards: { icon?: string | null; title: string; description?: string | null; email: string }[];
+  socialHeading?: string | null;
+  socialBody?: string | null;
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
+}
+
+export async function getContactPage(locale: Locale): Promise<ContactPageData> {
+  const page = await sanityClient.fetch(
+    groq`*[_id == "contactPage"][0] {
+      "title": coalesce(title[$locale], title.en),
+      "subtitle": coalesce(subtitle[$locale], subtitle.en),
+      "cards": coalesce(cards[defined(email)]{
+        icon,
+        "title": coalesce(title[$locale], title.en),
+        "description": coalesce(description[$locale], description.en),
+        email
+      }, []),
+      "socialHeading": coalesce(socialHeading[$locale], socialHeading.en),
+      "socialBody": coalesce(socialBody[$locale], socialBody.en),
+      ${SEO}
+    }`,
+    { locale }
+  );
+  if (!page) {
+    throw new Error('Sanity document "contactPage" is missing.');
+  }
+  return page;
+}
+
+// Splits a plain-text field into paragraphs at blank lines
+export function paragraphs(text?: string | null): string[] {
+  return (text ?? "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 }

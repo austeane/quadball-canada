@@ -17,9 +17,7 @@ import type {
   BoardMember,
   ResourceArticleSummary,
   ResourceArticleDetail,
-  AboutPageData,
   NationalTeamPage,
-  PageSettings,
   Policy,
   LandingSection,
 } from '../../src/utils/sanity';
@@ -451,34 +449,6 @@ export const mockResourceArticleDetail: ResourceArticleDetail = {
 };
 
 // About Page Fixture
-export const mockAboutPageData: AboutPageData = {
-  _id: 'about-page',
-  title: 'About Quadball Canada',
-  subtitle: 'Growing the sport across the nation',
-  heroCtaText: 'Get Involved',
-  heroCtaHref: '/get-involved/',
-  content: [
-    {
-      _type: 'block',
-      _key: 'block-1',
-      style: 'normal',
-      children: [
-        {
-          _type: 'span',
-          _key: 'span-1',
-          text: 'Quadball Canada is the national governing body.',
-          marks: [],
-        },
-      ],
-      markDefs: [],
-    },
-  ],
-  seo: {
-    metaTitle: 'About Us - Quadball Canada',
-    metaDescription: 'Learn about Quadball Canada.',
-  },
-};
-
 // National Team Page Fixture
 export const mockNationalTeamPage: NationalTeamPage = {
   title: 'Team Canada',
@@ -508,18 +478,6 @@ export const mockNationalTeamPage: NationalTeamPage = {
 };
 
 // Page Settings Fixture
-export const mockPageSettings: PageSettings = {
-  aboutHeroImage: null,
-  contactHeroImage: null,
-  eventsHeroImage: null,
-  getInvolvedHeroImage: null,
-  teamsHeroImage: null,
-  newsHeroImage: null,
-  boardHeroImage: null,
-  staffHeroImage: null,
-  defaultHeroImage: null,
-};
-
 // Policy Fixtures
 export const mockPolicy: Policy = {
   _id: 'policy-1',

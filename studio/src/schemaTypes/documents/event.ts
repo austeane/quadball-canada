@@ -2,7 +2,7 @@ import {defineType} from 'sanity'
 
 export default defineType({
   name: 'event',
-  title: 'Upcoming Event',
+  title: 'Event',
   type: 'document',
   fields: [
     {

@@ -1,8 +1,9 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import type { Locale } from "@/utils/localization";
-import { getUpcomingEvents } from "@/utils/sanity";
-import { formatDate } from "@/utils";
+import PageSections from "@/components/sections/PageSections.astro";
+import { getUpcomingEvents, getPage } from "@/utils/sanity";
+import { formatDate, pageTitle } from "@/utils";
 
 interface Props {
   locale: Locale;
@@ -11,13 +12,10 @@ interface Props {
 const { locale } = Astro.props as Props;
 const isFr = locale === "fr";
 
-const events = await getUpcomingEvents(locale);
+const [events, page] = await Promise.all([getUpcomingEvents(locale), getPage("page-upcomingEvents", locale)]);
 
 const content = isFr
   ? {
-      layoutTitle: "Événements à venir — Quadball Canada",
-      heading: "Événements à venir",
-      intro: "Découvrez les tournois, camps et événements de quadball à venir partout au Canada.",
       noEvents: "Aucun événement à venir pour le moment. Revenez bientôt!",
       addToCalendar: "Ajouter au calendrier",
       details: "Voir les détails",
@@ -25,9 +23,6 @@ const content = isFr
       hybrid: "Hybride",
     }
   : {
-      layoutTitle: "Upcoming Events — Quadball Canada",
-      heading: "Upcoming Events",
-      intro: "Find upcoming quadball tournaments, camps, and events across Canada.",
       noEvents: "No upcoming events at the moment. Check back soon!",
       addToCalendar: "Add to Calendar",
       details: "View Details",
@@ -53,11 +48,16 @@ function formatEventDate(start: string, end?: string): string {
 }
 ---
 
-<Layout title={content.layoutTitle} alternate={alternate} locale={locale}>
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={alternate}
+  locale={locale}
+>
   <section class="upcoming-events">
     <header class="header">
-      <h1>{content.heading}</h1>
-      <p class="intro">{content.intro}</p>
+      <h1>{page.title}</h1>
+      {page.subtitle && <p class="intro">{page.subtitle}</p>}
       <a class="calendar-btn" href="/events.ics">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -122,6 +122,7 @@ function formatEventDate(start: string, end?: string): string {
       </div>
     )}
   </section>
+  <PageSections sections={page.sections} />
 </Layout>
 
 <style>

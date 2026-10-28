@@ -52,9 +52,9 @@ export default defineType({
           type: 'localeString',
         },
         {
-          name: 'href',
+          name: 'link',
           title: 'Link',
-          type: 'string',
+          type: 'localeUrl',
         },
       ],
     },

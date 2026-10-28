@@ -39,9 +39,6 @@ cd studio && npx sanity documents query '*[_type == "newsArticle"][0..5]'
 # Create a document from a JSON file (production dataset)
 cd studio && npx sanity documents create /path/to/doc.json --dataset production
 
-# Attach Website2025 hero images via CLI script (uses SANITY_AUTH_TOKEN from studio/.env)
-cd studio && npx sanity exec scripts/attach-hero-images.mjs
-
 # Deploy Studio (must unset SANITY_AUTH_TOKEN so the CLI uses the logged-in user session
 # instead of the robot token from studio/.env, which lacks deployStudio permissions)
 SANITY_AUTH_TOKEN= sanity deploy
@@ -77,9 +74,12 @@ cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --
 ### Astro App (`astro-app/`)
 - **Output mode**: Static SSG (no SSR)
 - **Hosting**: Cloudflare Pages (see `wrangler.toml` and `DEPLOYMENT.md`)
-- **Key integrations**: `@sanity/astro` for Sanity integration, `@astrojs/react` for React components
-- **Content fetching**: GROQ queries via `sanityClient` from `sanity:client` (auto-imported by Astro integration)
-- **Data layer**: `src/utils/sanity.ts` provides `getNewsArticles()` and `getNewsArticle()`
+- **Key integrations**: `@sanity/astro` for the Sanity client, `@astrojs/sitemap`. No React: nothing renders client-side components or embeds the Studio.
+- **Content fetching**: GROQ queries via `sanityClient` from `sanity:client` (auto-imported by Astro integration), `perspective: "published"` so drafts never reach a build
+- **Data layer**: all queries live in `src/utils/sanity.ts`. Page documents are fetched by fixed `_id` (`getPage("page-board", locale)`, `getSiteSettings`, `getHomePage`, …); repeatable content by type (`getNewsArticles`, `getEvents`, …)
+- **Page templates**: route files under `src/pages/` are thin; each renders a `src/pages/_shared/*.astro` template with a `locale` prop, so EN and FR share one template
+- **Header, footer, social links**: read from the `siteSettings` document via `getSiteSettings()` (cached once per locale per build)
+- **Interface labels** (button text, empty states, filters) stay in `src/i18n/ui.ts`; anything an editor might want to change belongs in Sanity
 - **Localization**: Field-level via `locale*` objects. Helpers in `studio/src/schemaTypes/helpers/localization.ts` and `astro-app/src/utils/localization.ts`.
 - **Portable Text**: Uses `astro-portabletext` to render Sanity's block content
 
@@ -88,6 +88,23 @@ cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --
 - **Schema exports**: All types must be added to `src/schemaTypes/index.ts` array
 - **Configuration**: `sanity.config.ts` uses environment variables for project ID and dataset
 - **Plugins**: Structure tool (content management UI) and Vision tool (GROQ query testing)
+- **Sidebar**: `src/structure.ts` mirrors the site menu (Home, About Us, News, Events, Get Involved, Resources, Contact, Site Settings). One-per-page document types (`SINGLETON_TYPES`) are pinned to fixed IDs and can't be created, duplicated or deleted
+- **Building blocks**: `localeUrl` (EN/FR link), `callToAction` (heading, text, button), page sections `textSection`/`columnsSection`/`ctaSection`, and `helpers/fields.ts` (`imageWithAlt`, `heroFields`, `seoField`)
+
+### Where each page's content is edited
+
+| Page | Studio sidebar → document (`_id`) |
+|---|---|
+| Home | Home Page (`homePage`) |
+| Menu, footer, social links, Store/Donate links, default banner | Site Settings (`siteSettings`) |
+| About / Events / Get Involved / Resources landing pages | `landingSection-about`, `-events`, `-getInvolved`, `-resources` |
+| Mission & Values | `missionValuesPage` |
+| Meet the Board / Staff, News, Upcoming Events, Volunteer, Policies, Host an Event | Page documents `page-board`, `page-staff`, `page-news`, `page-upcomingEvents`, `page-volunteer`, `page-policies`, `page-hostEvent` (banner + sections; lists still come from their own document types) |
+| Teams, National Team, Event Bids, Contact | `teamsPage`, `nationalTeamPage`, `eventBidsPage`, `contactPage` |
+| Starting a Team, Planning a Tournament | Resource articles at `/resources/<slug>/` |
+| What is Quadball, Inclusion | Info articles at `/info/<slug>/`; the home page's featured article is a reference on `homePage` |
+
+New one-per-page documents need: a schema type, an entry in `SINGLETON_TYPES` (unless it's a `page`), a `pageItem` in `src/structure.ts`, and a query by `_id`.
 
 ### Environment Configuration
 Both apps require Sanity credentials configured via `.env` files:
@@ -114,8 +131,7 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 4. Use locale helpers for EN/FR fields and localized slugs
 5. Studio will automatically reflect schema changes on refresh
 
-### Important: News vs. Legacy Posts
-- Use `newsArticle` instead of legacy `post`.
+### News
 - Query helpers:
   - `getNewsArticles(locale: 'en'|'fr')`
   - `getNewsArticle(slug: string, locale: 'en'|'fr')`
@@ -147,11 +163,16 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
 ### Auto-Deploy via GitHub Actions
 
 Pushes to `main` automatically trigger deployment via `.github/workflows/deploy-on-sanity-update.yml`:
-- Runs `npm run build` (includes `astro check` for TypeScript validation)
+- Runs `npm run build` (includes `astro check` for TypeScript validation) on Node 24
+- Builds format dates in UTC (`process.env.TZ = "UTC"` in `astro.config.mjs`) so local builds match CI; stored event times are shown as stored
+- `compressHTML: true` keeps the pre-Astro-7 whitespace behaviour; Astro 7's default JSX rules drop spaces between inline elements
+- Studio deploys automatically on pushes that touch `studio/**` (`.github/workflows/deploy-studio.yml`)
 - Deploys to Cloudflare Pages on success
 - **Build errors will silently fail** — always check GitHub Actions if deployment seems stuck
 - The daily 06:00 UTC rebuild is a Cloudflare Worker Cron Trigger (`webhook-proxy/wrangler.toml`), **not** a GitHub `schedule:`. Never add a `schedule:` to the workflow: GitHub auto-disables scheduled workflows after 60 idle days and that also kills the Sanity webhook trigger in the same file.
-- Redeploy the worker after editing it: `cd webhook-proxy && npx wrangler deploy` (needs `npx wrangler login` once). `GITHUB_TOKEN` is a Worker secret and persists across deploys; verify with `curl -X POST https://sanity-webhook-proxy.austeane.workers.dev/` (expect `GitHub API responded with: 204`).
+- Redeploy the worker after editing it: `cd webhook-proxy && npx wrangler deploy` (needs `npx wrangler login` once). `GITHUB_TOKEN` and `WEBHOOK_SECRET` are Worker secrets and persist across deploys.
+- The proxy only accepts requests signed with the Sanity webhook's secret. `curl -X POST https://sanity-webhook-proxy.austeane.workers.dev/` should return `401 Invalid signature`; to test end to end, publish any document and watch `gh run list --workflow=deploy-on-sanity-update.yml`.
+- Rotating the webhook secret: generate a new value, set it on both Sanity webhooks (manage → API → Webhooks, or `PATCH https://api.sanity.io/v2021-10-04/hooks/projects/kbufa3g3/<hookId>` with `{"secret": …}`), then `npx wrangler secret put WEBHOOK_SECRET` in `webhook-proxy/` and `workers/auto-translate/`.
 
 **Check deployment status:**
 ```bash
@@ -192,7 +213,9 @@ npx wrangler pages deploy dist --project-name=quadball-canada --commit-dirty=tru
 
 ### Auto-Translation
 
-Documents missing French translations are automatically translated using OpenAI.
+When any document is published, the `workers/auto-translate` Cloudflare Worker (Sanity webhook "Auto-translate to French") finds every EN/FR field whose French value is empty, at any depth (page sections, menu labels, cards), translates them in one OpenAI request and patches the French values back. Rich text is translated span by span, so bold, links and lists survive; links (`localeUrl`) are never translated. It only accepts signed webhooks (`WEBHOOK_SECRET`). Redeploy with `cd workers/auto-translate && npx wrangler deploy`.
+
+The scripts below are an older local equivalent that only covers top-level fields of a few types; use them for one-off backfills.
 
 **Setup:**
 1. Get a Sanity write token from https://www.sanity.io/manage → API → Tokens
@@ -216,9 +239,11 @@ cd studio && npm run translate:all -- --type=newsArticle  # Only translate news
 cd studio && npm run translate:all -- --limit=5        # Process only 5 docs
 ```
 
-**Supported document types:** newsArticle, infoArticle, event, resourceArticle, volunteerOpportunity, landingSection
+**Script document types:** newsArticle, infoArticle, event, resourceArticle, volunteerOpportunity, landingSection (the worker covers every type)
 
 ## Migration Scripts
+
+- `studio/scripts/migrate-pages-to-sanity.mjs` (October 2026) moved the hardcoded page copy into Sanity. `add` creates missing documents and fills empty fields (re-running never overwrites editors' changes); `cleanup` runs once after the new site code is live and removes the replaced fields and retired documents.
 
 - Location: `scripts/wp-to-sanity/`
 - Scripts:

@@ -2,73 +2,59 @@
 import type { Locale } from "../../utils/localization";
 import { resolveLocale } from "../../i18n";
 import { t } from "../../i18n/ui";
+import { getSiteSettings } from "../../utils/sanity";
 
 const props = Astro.props as { locale?: Locale } | undefined;
 const locale: Locale = resolveLocale(Astro, props?.locale);
+const settings = await getSiteSettings(locale);
 
-const copy = {
-  getInvolved: t(locale, "footer.getInvolved"),
-  findTeam: t(locale, "footer.findTeam"),
-  hostEvent: t(locale, "footer.hostEvent"),
-  teamCanada: t(locale, "footer.teamCanada"),
-  volunteer: t(locale, "footer.volunteer"),
-  explore: t(locale, "footer.explore"),
-  about: t(locale, "footer.about"),
-  news: t(locale, "footer.news"),
-  events: t(locale, "footer.events"),
-  rules: t(locale, "footer.rules"),
-  followUs: t(locale, "footer.followUs"),
-  contactUs: t(locale, "footer.contact"),
+const platformNames: Record<string, string> = {
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  facebook: "Facebook",
+  discord: "Discord",
+  x: "X",
+  linkedin: "LinkedIn",
 };
-
-const routes = {
-  teams: locale === "fr" ? "/fr/equipes/" : "/teams/",
-  hostEvent: locale === "fr" ? "/fr/simpliquer/organiser-un-evenement/" : "/get-involved/host-an-event/",
-  teamCanada: locale === "fr" ? "/fr/equipes/equipe-nationale/" : "/teams/national-team/",
-  volunteer: locale === "fr" ? "/fr/benevolat/" : "/volunteer-opportunities/",
-  about: locale === "fr" ? "/fr/a-propos/" : "/about/",
-  news: locale === "fr" ? "/fr/nouvelles/" : "/news/",
-  events: locale === "fr" ? "/fr/evenements/" : "/events/",
-  rules: "https://docs.google.com/document/d/1xyBZHdchrsNmDNDhMFml34Iz2XFp0CAYA8-oVG9lY9Q/",
-  contact: locale === "fr" ? "/fr/contact/" : "/contact/",
-};
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+const contactPath = locale === "fr" ? "/fr/contact/" : "/contact/";
+const charityLabel = locale === "fr" ? "Numéro d'enregistrement d'organisme de bienfaisance" : "Charitable Registration Number";
 ---
 <footer class="site-footer">
   <div class="cols">
     <div>
       <h4>Quadball Canada</h4>
       <p>© {new Date().getFullYear()} Quadball Canada</p>
-      <p>Charitable Registration Number: 820553188RR0001</p>
-      <p><a href={routes.contact}>{copy.contactUs}</a></p>
+      {settings.charityNumber && <p>{charityLabel}: {settings.charityNumber}</p>}
+      <p><a href={contactPath}>{t(locale, "footer.contact")}</a></p>
     </div>
-    <div>
-      <h4>{copy.getInvolved}</h4>
-      <ul>
-        <li><a href={routes.teams}>{copy.findTeam}</a></li>
-        <li><a href={routes.hostEvent}>{copy.hostEvent}</a></li>
-        <li><a href={routes.teamCanada}>{copy.teamCanada}</a></li>
-        <li><a href={routes.volunteer}>{copy.volunteer}</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>{copy.explore}</h4>
-      <ul>
-        <li><a href={routes.about}>{copy.about}</a></li>
-        <li><a href={routes.news}>{copy.news}</a></li>
-        <li><a href={routes.events}>{copy.events}</a></li>
-        <li><a href={routes.rules} target="_blank" rel="noopener">{copy.rules}</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>{copy.followUs}</h4>
-      <ul>
-        <li><a target="_blank" rel="noopener" href="https://www.instagram.com/quadballcanada/?hl=en">Instagram</a></li>
-        <li><a target="_blank" rel="noopener" href="https://www.tiktok.com/@quadballcanada">TikTok</a></li>
-        <li><a target="_blank" rel="noopener" href="https://www.youtube.com/@QuadballCanada">YouTube</a></li>
-        <li><a target="_blank" rel="noopener" href="https://www.facebook.com/QuadballCanada/">Facebook</a></li>
-        <li><a target="_blank" rel="noopener" href="https://discord.gg/qK2cnSWmvF">Discord</a></li>
-      </ul>
-    </div>
+    {settings.footerColumns.map((column) => (
+      <div>
+        <h4>{column.title}</h4>
+        <ul>
+          {column.links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target={isExternal(link.href) ? "_blank" : undefined}
+                rel={isExternal(link.href) ? "noopener" : undefined}
+              >{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+    {settings.socialLinks.length > 0 && (
+      <div>
+        <h4>{t(locale, "footer.followUs")}</h4>
+        <ul>
+          {settings.socialLinks.map((link) => (
+            <li><a target="_blank" rel="noopener" href={link.url}>{platformNames[link.platform] ?? link.platform}</a></li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 </footer>
 

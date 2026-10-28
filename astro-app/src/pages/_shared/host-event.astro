@@ -1,0 +1,25 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import PageSections from "@/components/sections/PageSections.astro";
+import { getPage } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+import { pageTitle } from "@/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+const page = await getPage("page-hostEvent", locale);
+---
+
+<Layout
+  title={pageTitle(page.title, page.seo?.metaTitle)}
+  description={page.seo?.metaDescription ?? undefined}
+  alternate={{ en: "/get-involved/host-an-event/", fr: "/fr/simpliquer/organiser-un-evenement/" }}
+  locale={locale}
+>
+  <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
+  <PageSections sections={page.sections} />
+</Layout>

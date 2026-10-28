@@ -88,6 +88,34 @@ export const localePortableText = {
   ],
 };
 
+const linkRule = (Rule: any) =>
+  Rule.uri({allowRelative: true, scheme: ['http', 'https', 'mailto', 'tel']});
+
+// A link with an English and a French destination. Internal pages use relative
+// paths (e.g. /contact/ and /fr/contact/); external sites use full URLs.
+export const localeUrl = {
+  title: 'Link',
+  name: 'localeUrl',
+  type: 'object',
+  options: {columns: 2},
+  fields: [
+    {
+      title: 'English link',
+      name: 'en',
+      type: 'url',
+      description: 'e.g. /contact/ or https://example.com',
+      validation: (Rule: any) => linkRule(Rule).required(),
+    },
+    {
+      title: 'French link',
+      name: 'fr',
+      type: 'url',
+      description: 'e.g. /fr/contact/ — leave empty to use the English link',
+      validation: linkRule,
+    },
+  ],
+};
+
 export const supportedLanguages = [
   { id: 'en', title: 'English', isDefault: true },
   { id: 'fr', title: 'French' },

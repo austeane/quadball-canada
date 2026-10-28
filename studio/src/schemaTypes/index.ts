@@ -1,25 +1,25 @@
 // Object types
 import blockContent from './objects/blockContent'
+import callToAction from './objects/callToAction'
 import color from './objects/color'
-import ctaBlock from './objects/ctaBlock'
-import formEmbed from './objects/formEmbed'
+import {columnsSection, ctaSection, textSection} from './objects/pageSections'
 import teamLevelSection from './objects/teamLevelSection'
 import {
   localeString,
   localeText,
   localeSlug,
-  localePortableText
+  localePortableText,
+  localeUrl,
 } from './helpers/localization'
 
 // Document types
-import post from './documents/post'
+import homePage from './documents/homePage'
 import page from './documents/page'
-import aboutPage from './documents/aboutPage'
+import missionValuesPage from './documents/missionValuesPage'
+import contactPage from './documents/contactPage'
 import newsArticle from './documents/newsArticle'
 import event from './documents/event'
 import team from './documents/team'
-import player from './documents/player'
-import author from './documents/author'
 import siteSettings from './documents/siteSettings'
 import infoArticle from './documents/infoArticle'
 import resourceArticle from './documents/resourceArticle'
@@ -28,7 +28,6 @@ import boardMember from './documents/boardMember'
 import volunteerOpportunity from './documents/volunteerOpportunity'
 import teamsPage from './documents/teamsPage'
 import nationalTeamPage from './documents/nationalTeamPage'
-import pageSettings from './documents/pageSettings'
 import policy from './documents/policy'
 import landingSection from './documents/landingSection'
 import eventBidsPage from './documents/eventBidsPage'
@@ -38,9 +37,10 @@ import eventHub from './documents/eventHub'
 
 export const schemaTypes = [
   // Documents
-  post,
+  homePage,
   page,
-  aboutPage,
+  missionValuesPage,
+  contactPage,
   teamsPage,
   nationalTeamPage,
   newsArticle,
@@ -51,23 +51,23 @@ export const schemaTypes = [
   boardMember,
   event,
   team,
-  player,
-  author,
   siteSettings,
-  pageSettings,
   policy,
   landingSection,
   eventBidsPage,
   eventHub,
-  ctaBlock,
-  formEmbed,
-  teamLevelSection,
 
   // Objects
+  teamLevelSection,
+  callToAction,
+  textSection,
+  columnsSection,
+  ctaSection,
   blockContent,
   color,
   localeString,
   localeText,
   localeSlug,
   localePortableText,
+  localeUrl,
 ]
