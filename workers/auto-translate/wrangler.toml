@@ -9,4 +9,4 @@ SANITY_DATASET = "production"
 # Secrets (set via `wrangler secret put`):
 # - SANITY_AUTH_TOKEN
 # - OPENAI_API_KEY
-# - WEBHOOK_SECRET (optional, for verifying Sanity webhooks)
+# - WEBHOOK_SECRET (required; same value as the secret on the Sanity webhook)

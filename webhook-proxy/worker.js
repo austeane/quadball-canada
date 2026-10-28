@@ -8,8 +8,9 @@
 // GitHub auto-disables scheduled workflows after 60 days without a commit, and when
 // it does so the webhook trigger in the same workflow file stops working too.
 //
-// Required secret (set once, persists across deploys):
-//   npx wrangler secret put GITHUB_TOKEN   # PAT with permission to create repository dispatches
+// Required secrets (set once, persist across deploys):
+//   npx wrangler secret put GITHUB_TOKEN     # PAT with permission to create repository dispatches
+//   npx wrangler secret put WEBHOOK_SECRET   # same value as the secret on the Sanity webhook
 
 const REPO = 'austeane/quadball-canada';
 const EVENT_TYPE = 'sanity-update';
@@ -34,10 +35,30 @@ async function triggerDeploy(env, source) {
   return { ok: res.ok, status: res.status, message: `GitHub API responded with: ${res.status}` };
 }
 
+// Verify Sanity's `sanity-webhook-signature: t=<ms>,v1=<base64url HMAC-SHA256 of "<t>.<body>">`.
+async function isValidSignature(header, body, secret) {
+  const match = /^t=(\d+)[, ]+v1=([^, ]+)$/.exec(header ?? '');
+  if (!match) return false;
+  const [, timestamp, signature] = match;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const digest = await crypto.subtle.sign('HMAC', key, encoder.encode(`${timestamp}.${body}`));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  return expected === signature;
+}
+
 export default {
   async fetch(request, env) {
     if (request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
+    }
+    // Only Sanity may trigger deploys; anyone else gets a 401 without reaching GitHub.
+    const body = await request.text();
+    if (!env.WEBHOOK_SECRET || !(await isValidSignature(request.headers.get('sanity-webhook-signature'), body, env.WEBHOOK_SECRET))) {
+      return new Response('Invalid signature', { status: 401 });
     }
     const result = await triggerDeploy(env, 'sanity-webhook');
     return new Response(result.message, { status: result.ok ? 200 : result.status });
