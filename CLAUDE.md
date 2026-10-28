@@ -154,6 +154,7 @@ Note: Variables must be prefixed with `PUBLIC_` in Astro to be accessible client
   - Navigate to `http://localhost:4321/`, `/news/`, `/fr/nouvelles/` to validate UI.
   - Language switching is in the header via the `LanguageSwitcher` component; verify `data-language-switch="fr|en"` links.
   - Studio login at `http://localhost:3333` requires human login; headless sessions do not inherit credentials.
+  - Astro 7's `astro preview` detaches into the background when run by an AI agent (JSON log lines); stop it with `npx astro preview stop`. To run e2e tests locally from an agent, start the preview first so Playwright reuses it (`reuseExistingServer`).
 
 ## Deployment (Cloudflare Pages)
 

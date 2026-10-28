@@ -78,7 +78,7 @@ export default defineType({
     defineField({
       name: 'location',
       title: 'Location',
-      type: 'string',
+      type: 'localeString',
       description: 'City or community. Use "Remote" if fully online.',
     }),
     defineField({
@@ -129,7 +129,7 @@ export default defineType({
       title: 'title.en',
       roleType: 'roleType',
       isRemote: 'isRemote',
-      location: 'location',
+      location: 'location.en',
       province: 'province',
     },
     prepare({ title, roleType, isRemote, location, province }) {

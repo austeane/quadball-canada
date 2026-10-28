@@ -12,14 +12,27 @@
 
 import {collectJobs, spanTexts, withSpanTexts} from './jobs.js';
 
+const BATCH_SIZE = 150;
+
 /**
- * Translate a list of strings with one OpenAI request, using Structured Outputs
- * so the response is the same number of strings in the same order.
+ * Translate a list of strings. Each string gets its own key (s0, s1, …) in a strict
+ * Structured Outputs schema, so the model must return exactly one translation per
+ * string and can't merge fragments (e.g. bold text and the sentence after it).
  */
 async function translateStrings(strings, apiKey) {
+  const translations = [];
+  for (let start = 0; start < strings.length; start += BATCH_SIZE) {
+    translations.push(...(await translateBatch(strings.slice(start, start + BATCH_SIZE), apiKey)));
+  }
+  return translations;
+}
+
+async function translateBatch(strings, apiKey) {
+  const keys = strings.map((_, index) => `s${index}`);
+  const input = Object.fromEntries(keys.map((key, index) => [key, strings[index]]));
   const instructions = `You are a professional translator for Quadball Canada, translating website copy from English to Canadian French.
-You receive a JSON array of strings. Translate each string and return them in the same order, one output string per input string.
-Keep leading and trailing spaces as they are, because some strings are fragments of one sentence split around bold text or links.
+You receive a JSON object of strings. Return an object with the same keys, each value translated.
+Some strings are fragments of one sentence, split around bold text or links: translate each fragment on its own so the sentence still reads naturally when the fragments are joined, and keep leading and trailing spaces and punctuation such as " — ".
 Keep proper nouns, brand names, email addresses, URLs and sport terms ("quadball", "quaffle", "bludger", "snitch") unchanged unless there is a well-established French equivalent.
 Match the tone and formatting of the original.`;
 
@@ -32,7 +45,7 @@ Match the tone and formatting of the original.`;
     body: JSON.stringify({
       model: 'gpt-5.1-2025-11-13',
       instructions,
-      input: JSON.stringify(strings),
+      input: JSON.stringify(input),
       text: {
         format: {
           type: 'json_schema',
@@ -40,14 +53,8 @@ Match the tone and formatting of the original.`;
           strict: true,
           schema: {
             type: 'object',
-            properties: {
-              translations: {
-                type: 'array',
-                items: {type: 'string'},
-                description: 'The French translations, in the same order as the input strings',
-              },
-            },
-            required: ['translations'],
+            properties: Object.fromEntries(keys.map((key) => [key, {type: 'string'}])),
+            required: keys,
             additionalProperties: false,
           },
         },
@@ -61,11 +68,11 @@ Match the tone and formatting of the original.`;
 
   const data = await response.json();
   const outputText = data.output_text || data.output?.find((item) => item.type === 'message')?.content?.[0]?.text;
-  const {translations} = JSON.parse(outputText);
-  if (!Array.isArray(translations) || translations.length !== strings.length) {
-    throw new Error(`Expected ${strings.length} translations, got ${translations?.length}`);
-  }
-  return translations;
+  const parsed = JSON.parse(outputText);
+  return keys.map((key) => {
+    if (typeof parsed[key] !== 'string') throw new Error(`Missing translation for ${key}`);
+    return parsed[key];
+  });
 }
 
 async function translateDocument(doc, env) {
