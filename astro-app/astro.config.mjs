@@ -15,7 +15,6 @@ const projectId = PUBLIC_SANITY_STUDIO_PROJECT_ID || PUBLIC_SANITY_PROJECT_ID;
 const dataset = PUBLIC_SANITY_STUDIO_DATASET || PUBLIC_SANITY_DATASET;
 
 import sanity from "@sanity/astro";
-import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,7 +28,6 @@ export default defineConfig({
       useCdn: false,
       apiVersion: "2024-12-08",
     }),
-    react(),
     sitemap({
       entryLimit: 45000,
     }),

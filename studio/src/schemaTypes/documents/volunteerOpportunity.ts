@@ -86,7 +86,7 @@ export default defineType({
       title: 'Province / Territory',
       type: 'string',
       options: {
-        list: provinces,
+        list: [...provinces],
       },
     }),
     defineField({

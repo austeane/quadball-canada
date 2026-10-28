@@ -104,15 +104,16 @@ describe('PageHero', () => {
         props: { title: 'Title' },
       });
 
-      expect(html).toContain('src="/hero-cover.jpg"');
+      expect(html).toContain('src="/hero-cover-1280.jpg"');
     });
 
-    it('uses string image URL when provided', async () => {
+    it('uses the Sanity image when provided', async () => {
       const html = await renderToString(PageHero, {
-        props: { title: 'Title', image: '/custom-hero.jpg' },
+        props: { title: 'Title', image: { asset: { _ref: 'image-abc-1920x560-jpg' } } },
       });
 
-      expect(html).toContain('src="/custom-hero.jpg"');
+      expect(html).toContain('cdn.sanity.io/images/mock-url');
+      expect(html).not.toContain('/hero-cover-1280.jpg');
     });
 
     it('renders image with proper attributes', async () => {
@@ -185,7 +186,6 @@ describe('PageHero', () => {
           subtitle: 'Growing the sport across Canada',
           ctaText: 'Join Now',
           ctaHref: '/join/',
-          image: '/welcome-hero.jpg',
         },
       });
 
@@ -193,7 +193,6 @@ describe('PageHero', () => {
       expect(html).toContain('Growing the sport across Canada');
       expect(html).toContain('Join Now');
       expect(html).toContain('href="/join/"');
-      expect(html).toContain('src="/welcome-hero.jpg"');
     });
   });
 

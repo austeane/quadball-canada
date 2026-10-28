@@ -31,7 +31,6 @@ export default defineType({
       title: 'Introduction Text',
       type: 'localeText',
       description: 'Paragraph that appears below the title',
-      rows: 3,
     }),
     defineField({
       name: 'cards',
@@ -53,7 +52,6 @@ export default defineType({
               name: 'body',
               title: 'Card Description',
               type: 'localeText',
-              rows: 3,
               // English is required inside localeText; French is optional for auto-translation
             }),
             defineField({
@@ -139,7 +137,7 @@ export default defineType({
       return {
         title: titleEn || titleFr || 'Untitled Section',
         subtitle: `Landing Section: ${key}`,
-        media: titles[key] || '📄',
+        media: titles[key as keyof typeof titles] || '📄',
       }
     },
   },

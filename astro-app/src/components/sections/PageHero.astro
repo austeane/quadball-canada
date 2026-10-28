@@ -7,14 +7,13 @@ interface Props {
   subtitle?: string;
   ctaText?: string;
   ctaHref?: string;
-  image?: string | SanityImageWithAlt | null; // string for legacy, SanityImageWithAlt for CMS
+  image?: SanityImageWithAlt | null; // falls back to the bundled /hero-cover-* images
 }
 
-const { title, subtitle, ctaText, ctaHref, image = "/hero-cover.jpg" } = Astro.props as Props;
+const { title, subtitle, ctaText, ctaHref, image } = Astro.props as Props;
 
 // Generate image URL(s)
-const isSanityImage = typeof image !== "string" && image?.asset;
-const isStaticFallback = !isSanityImage;
+const isSanityImage = !!image?.asset;
 
 // Sanity image with auto-format (WebP/AVIF) and responsive sizes
 const sanityUrl = isSanityImage ? urlForImage(image)?.width(1920).height(560).auto("format").url() : null;

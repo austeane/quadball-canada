@@ -1,28 +1,17 @@
 {
-  "name": "sanity-template-astro-clean",
-  "description": "Minimal Astro site with Sanity Studio",
+  "name": "quadball-canada",
+  "description": "Quadball Canada website (Astro) and Sanity Studio",
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=astro-app\" \"npm run dev --workspace=studio\"",
     "build": "npm run build --workspace=astro-app"
   },
-  "keywords": [
-    "Sanity",
-    "Astro",
-    "Headless CMS",
-    "Visual Editing",
-    "Live Content API (LCAPI)",
-    "Real-time"
-  ],
-  "bugs": {
-    "url": "https://github.com/sanity-io/sanity-template-astro-clean/issues"
-  },
-  "homepage": "https://github.com/sanity-io/sanity-template-astro-clean#readme",
   "workspaces": [
     "studio",
     "astro-app"
   ],
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^10.0.6"
   },
-  "type": "module"
+  "type": "module",
+  "private": true
 }

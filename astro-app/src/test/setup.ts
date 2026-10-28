@@ -24,7 +24,7 @@ vi.mock('sanity:client', () => ({
 
 // Mock the @sanity/image-url module
 vi.mock('@sanity/image-url', () => ({
-  default: () => ({
+  createImageUrlBuilder: () => ({
     image: () => createImageBuilder(),
   }),
 }));

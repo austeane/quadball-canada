@@ -30,7 +30,7 @@ export default defineType({
       title: 'Category',
       type: 'string',
       options: {
-        list: categories,
+        list: [...categories],
       },
       validation: (Rule) => Rule.required(),
       description: 'The category this policy belongs to',

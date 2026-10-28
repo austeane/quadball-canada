@@ -2,7 +2,7 @@ import { sanityClient } from "sanity:client";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { ImageAsset } from "@sanity/types";
 import groq from "groq";
-import imageUrlBuilder from "@sanity/image-url";
+import { createImageUrlBuilder } from "@sanity/image-url";
 
 export type Locale = "en" | "fr";
 
@@ -25,7 +25,7 @@ export type LandingSection = {
 };
 
 // Image URL builder
-const builder = imageUrlBuilder(sanityClient);
+const builder = createImageUrlBuilder(sanityClient);
 
 export function urlForImage(source: SanityImageWithAlt | null | undefined) {
   if (!source?.asset) return null;

@@ -8,6 +8,10 @@
     "tail": "wrangler tail"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^4.154.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261023.1": true
   }
 }

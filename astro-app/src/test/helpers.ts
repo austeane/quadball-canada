@@ -1,5 +1,6 @@
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import type { ContainerRenderOptions } from 'astro/container';
+import { Window } from 'happy-dom';
 
 type AstroComponentFactory = Parameters<AstroContainer['renderToString']>[0];
 
@@ -14,9 +15,10 @@ export async function renderComponent(
   const container = await AstroContainer.create();
   const html = await container.renderToString(Component, options);
 
+  const { document } = new Window();
   const template = document.createElement('template');
   template.innerHTML = html;
-  return template.content;
+  return template.content as unknown as DocumentFragment;
 }
 
 /**
