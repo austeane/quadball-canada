@@ -1,5 +1,6 @@
 name = "sanity-webhook-proxy"
 main = "worker.js"
+account_id = "48dba4f30a5b57fb1b2295da5bc8751a" # Austeane@gmail.com's Account (the login also sees Solstice)
 compatibility_date = "2024-09-30"
 workers_dev = true
 # Version-specific preview URLs are not needed for this worker.

@@ -1,5 +1,6 @@
 name = "quadball-canada-auto-translate"
 main = "src/index.js"
+account_id = "48dba4f30a5b57fb1b2295da5bc8751a" # Austeane@gmail.com's Account (the login also sees Solstice)
 compatibility_date = "2024-01-01"
 
 [vars]
