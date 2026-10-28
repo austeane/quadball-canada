@@ -760,7 +760,6 @@ export interface PageSettings {
   resourcesHeroImage?: SanityImageWithAlt | null;
   policiesHeroImage?: SanityImageWithAlt | null;
   startingTeamHeroImage?: SanityImageWithAlt | null;
-  planningTournamentHeroImage?: SanityImageWithAlt | null;
   hostEventHeroImage?: SanityImageWithAlt | null;
   volunteerHeroImage?: SanityImageWithAlt | null;
   boardHeroImage?: SanityImageWithAlt | null;
@@ -780,7 +779,6 @@ export async function getPageSettings(): Promise<PageSettings | null> {
       resourcesHeroImage,
       policiesHeroImage,
       startingTeamHeroImage,
-      planningTournamentHeroImage,
       hostEventHeroImage,
       volunteerHeroImage,
       boardHeroImage,

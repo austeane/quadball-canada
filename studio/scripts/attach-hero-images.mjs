@@ -40,7 +40,7 @@ const client = getCliClient({
   token,
 })
 
-const imageNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17]
+const imageNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17]
 
 function imageField(assetId) {
   return {
@@ -118,7 +118,6 @@ async function run() {
       resourcesHeroImage: imageField(assets[8]),
       policiesHeroImage: imageField(assets[9]),
       startingTeamHeroImage: imageField(assets[2]),
-      planningTournamentHeroImage: imageField(assets[11]),
       eventsHeroImage: imageField(assets[12]),
       getInvolvedHeroImage: imageField(assets[13]),
       teamsHeroImage: imageField(assets[14]),

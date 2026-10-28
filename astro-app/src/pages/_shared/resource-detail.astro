@@ -1,0 +1,82 @@
+---
+import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
+import Layout from "@/layouts/Layout.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import { urlFor } from "@/utils/image";
+import { getResourceArticle } from "@/utils/sanity";
+import type { Locale } from "@/utils/localization";
+
+interface Props {
+  locale: Locale;
+  slug: string;
+}
+
+const { locale, slug } = Astro.props as Props;
+const resource = await getResourceArticle(slug, locale);
+
+if (!resource) {
+  throw new Error(`Resource not found: ${slug} (${locale})`);
+}
+
+const alternate = {
+  en: resource.slugEn ? `/resources/${resource.slugEn}/` : undefined,
+  fr: resource.slugFr ? `/fr/ressources/${resource.slugFr}/` : undefined,
+};
+
+const metaTitle = resource.seo?.metaTitle ?? `${resource.title} — Quadball Canada`;
+const metaDescription = resource.seo?.metaDescription ?? resource.excerpt ?? undefined;
+const ogImage = resource.seo?.ogImage ?? resource.heroImage;
+
+const externalLabel = locale === "fr" ? "Visiter la ressource ↗" : "Visit Resource ↗";
+---
+
+<Layout
+  title={metaTitle}
+  alternate={alternate}
+  locale={locale}
+  seo={{
+    title: metaTitle,
+    description: metaDescription,
+    image: ogImage ? urlFor(ogImage).width(1200).height(630).url() : undefined,
+  }}
+>
+  <PageHero title={resource.title} subtitle={resource.excerpt} image={resource.heroImage} />
+  <section class="resource">
+    {resource.externalUrl && (
+      <p>
+        <a href={resource.externalUrl} target="_blank" rel="noopener noreferrer" class="resource__button">
+          {externalLabel}
+        </a>
+      </p>
+    )}
+    {resource.content && resource.content.length > 0 && (
+      <PortableText value={resource.content} components={{ type: { image: BlockImage } }} />
+    )}
+  </section>
+</Layout>
+
+<style>
+  .resource {
+    padding: 3rem 0;
+  }
+
+  .resource :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .resource__button {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    background: var(--brand-primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  .resource__button:hover {
+    background: var(--brand-ink);
+  }
+</style>

@@ -46,6 +46,11 @@ const content = landingSection
       showContent: true,
     };
 
+// Resources that already have a card above are left out of the list so they don't appear twice
+const basePath = isFr ? "/fr/ressources/" : "/resources/";
+const cardHrefs = new Set((content.cards ?? []).map((card) => card.href));
+const listedResources = resources.filter((resource) => !cardHrefs.has(`${basePath}${resource.slug}/`));
+
 const alternate = {
   en: "/resources/",
   fr: "/fr/ressources/",
@@ -79,12 +84,12 @@ const alternate = {
       </div>
     )}
 
-    {content.showContent && resources.length > 0 && (
+    {content.showContent && listedResources.length > 0 && (
       <div class="resources-section">
         <h2>{isFr ? "Toutes les ressources" : "All Resources"}</h2>
         <div class="resources-list">
-          {resources.map((resource) => (
-            <ResourceCard resource={resource} locale={locale} basePath={isFr ? "/fr/ressources/" : "/resources/"} />
+          {listedResources.map((resource) => (
+            <ResourceCard resource={resource} locale={locale} basePath={basePath} />
           ))}
         </div>
       </div>

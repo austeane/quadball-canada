@@ -87,15 +87,6 @@ export default defineType({
       description: 'Hero image for /resources/starting-a-team/ and /fr/ressources/demarrer-une-equipe/ pages',
     },
     {
-      name: 'planningTournamentHeroImage',
-      title: 'Planning a Tournament Hero Image',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-      description: 'Hero image for /resources/planning-a-tournament/ and /fr/ressources/planifier-un-tournoi/ pages',
-    },
-    {
       name: 'hostEventHeroImage',
       title: 'Host an Event Hero Image',
       type: 'image',
