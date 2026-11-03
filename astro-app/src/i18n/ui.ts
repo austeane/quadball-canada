@@ -3,6 +3,7 @@ import { DEFAULT_LOCALE } from "./config";
 
 const uiCopy = {
   en: {
+    "volunteer.refereeTests": "Referee Tests",
     "seo.siteDescription": "Quadball Canada — official site. Building community through sport across Canada.",
     "layout.skipLink": "Skip to content",
     "layout.languageLabel": "Language",
@@ -72,6 +73,7 @@ const uiCopy = {
     "eventHub.scheduleTBA": "The schedule will be published closer to the event. Check back here later!",
   },
   fr: {
+    "volunteer.refereeTests": "Tests d’arbitrage",
     "seo.siteDescription": "Quadball Canada — site officiel. Construire une communaute sportive partout au Canada.",
     "layout.skipLink": "Aller au contenu",
     "layout.languageLabel": "Langue",

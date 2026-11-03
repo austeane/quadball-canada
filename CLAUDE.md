@@ -104,6 +104,10 @@ cd astro-app && npx wrangler pages deploy dist --project-name=quadball-canada --
 | Starting a Team, Planning a Tournament | Resource articles at `/resources/<slug>/` |
 | What is Quadball, Inclusion | Info articles at `/info/<slug>/`; the home page's featured article is a reference on `homePage` |
 
+The Volunteer page's content sections follow the opportunity list. The “Become a Referee” opportunity (`volunteer-officiating`) contains the ClassMarker quiz links in its English and French summaries. The volunteer template renders this document separately from the filtered list, at `#referee-tests` immediately before the page content (Discord). The button above the filters and the Get Involved menu item both link to this anchor. The filled National Team Assistant Coach and National Team Manager / Interim National Team Director opportunities were unpublished in November 2026. To unpublish a role in Studio, select its Published tab, then Unpublish; the draft remains available.
+
+`cd studio && npx sanity exec scripts/add-referee-tests-menu.mjs --with-user-token` adds the Referee Tests menu link after Volunteer Opportunities (idempotent; also updates an existing Site Settings draft).
+
 New one-per-page documents need: a schema type, an entry in `SINGLETON_TYPES` (unless it's a `page`), a `pageItem` in `src/structure.ts`, and a query by `_id`.
 
 ### Environment Configuration

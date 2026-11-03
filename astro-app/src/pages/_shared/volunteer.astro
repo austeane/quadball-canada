@@ -6,6 +6,9 @@ import VolunteerList from "@/components/volunteer/VolunteerList.astro";
 import { getVolunteerOpportunities, getPage } from "@/utils/sanity";
 import type { Locale } from "@/utils/localization";
 import { pageTitle } from "@/utils";
+import { PortableText } from "astro-portabletext";
+import BlockImage from "@/components/portable-text/BlockImage.astro";
+import { t } from "@/i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -16,6 +19,8 @@ const [opportunities, page] = await Promise.all([
   getVolunteerOpportunities(locale),
   getPage("page-volunteer", locale),
 ]);
+const referee = opportunities.find((opportunity) => opportunity._id === "volunteer-officiating");
+const otherOpportunities = opportunities.filter((opportunity) => opportunity._id !== "volunteer-officiating");
 ---
 
 <Layout
@@ -25,6 +30,35 @@ const [opportunities, page] = await Promise.all([
   locale={locale}
 >
   <PageHero title={page.title} subtitle={page.subtitle ?? undefined} image={page.heroImage} />
-  <VolunteerList opportunities={opportunities} locale={locale} />
+  {referee && (
+    <div class="volunteer-shortcuts">
+      <a class="referee-button" href="#referee-tests">{t(locale, "volunteer.refereeTests")}</a>
+    </div>
+  )}
+  {otherOpportunities.length > 0 && <VolunteerList opportunities={otherOpportunities} locale={locale} />}
+  {referee && (
+    <section id="referee-tests" class="referee-tests" aria-labelledby="referee-tests-heading">
+      <h2 id="referee-tests-heading">{t(locale, "volunteer.refereeTests")}</h2>
+      {referee.summary && <PortableText value={referee.summary} components={{ type: { image: BlockImage } }} />}
+    </section>
+  )}
   <PageSections sections={page.sections} />
 </Layout>
+
+<style>
+  .volunteer-shortcuts { margin: 2rem 0; }
+  .referee-button {
+    display: inline-block;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    background: var(--brand-primary);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .referee-button:hover { background: var(--brand-ink); }
+  .referee-button:focus-visible { outline: 3px solid var(--brand-primary); outline-offset: 4px; }
+  .referee-tests { padding: 2rem 0; scroll-margin-top: 10rem; }
+  .referee-tests :global(ul) { padding-left: 1.25rem; }
+  .referee-tests :global(li) { margin: 0.75rem 0; }
+</style>
